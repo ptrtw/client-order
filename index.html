@@ -162,7 +162,7 @@
             <input type="text" id="custom-sugar" placeholder="請輸入甜度 (如: 7分糖)" style="display:none; margin-top:8px; width: 100%; padding: 12px; box-sizing: border-box; border: 1px solid #e0e0e0; border-radius: 12px;">
         </div>
         <div class="opt-group">
-            <div class="opt-title">加料 (可複選)</div>
+            <div class="opt-title">加料</div>
             <div id="topping-btns" class="opt-btns"></div>
         </div>
         
@@ -610,9 +610,9 @@
             renderToppings(item, val);
         }, defaultSize);
         
-        renderBtns('ice-btns', ["正常冰", "少冰", "微冰", "去冰", "溫"], (val) => currentSelect.ice = val, null);
+        renderBtns('ice-btns', ["正常冰", "少冰", "微冰", "去冰", "溫飲"], (val) => currentSelect.ice = val, null);
         
-        renderBtns('sugar-btns', ["正常糖", "少糖", "半糖", "微糖", "無糖", "其他"], (val) => {
+        renderBtns('sugar-btns', ["八分糖", "半糖", "微糖", "無糖", "其他"], (val) => {
             currentSelect.sugar = val;
             document.getElementById('custom-sugar').style.display = (val === "其他") ? 'block' : 'none';
         }, null);
