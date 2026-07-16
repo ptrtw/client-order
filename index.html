@@ -35,29 +35,29 @@
         .item-price { font-size: 0.85rem; color: var(--text-muted); }
         .add-btn { position: absolute; bottom: 12px; right: 12px; width: 28px; height: 28px; background: var(--brand-light); color: var(--brand-color); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; font-weight: bold; }
         
-        /* 底部彈窗 (Bottom Sheet) */
+        /* 底部彈窗 (Bottom Sheet) - 壓縮版本 */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 2000; opacity: 1; animation: fadeIn 0.2s ease-out; }
-        .modal-content { background: #ffffff; width: 100%; max-width: 600px; padding: 25px 20px; border-radius: 24px 24px 0 0; max-height: 85vh; overflow-y: auto; box-sizing: border-box; animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); position: relative; }
+        .modal-content { background: #ffffff; width: 100%; max-width: 600px; padding: 15px 15px; border-radius: 20px 20px 0 0; max-height: 90vh; overflow-y: auto; box-sizing: border-box; animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); position: relative; }
         
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
-        .modal-header h3 { margin: 0; font-size: 1.3rem; color: var(--text-main); }
-        .close-btn { background: #f0f0f0; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 1.2rem; color: #666; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .modal-header h3 { margin: 0; font-size: 1.1rem; color: var(--text-main); }
+        .close-btn { background: #f0f0f0; border: none; width: 26px; height: 26px; border-radius: 50%; font-size: 1rem; color: #666; cursor: pointer; display: flex; justify-content: center; align-items: center; }
         
-        /* 選項按鈕 (膠囊風格) - 修正按鈕大小不一的問題 */
-        .opt-group { margin-bottom: 20px; }
-        .opt-title { font-size: 0.95rem; font-weight: bold; color: var(--text-main); margin-bottom: 10px; }
-        .opt-btns { display: flex; flex-wrap: wrap; gap: 8px; }
-        .opt-btn { background: #f5f6f8; color: var(--text-main); border: 1px solid transparent; padding: 10px 16px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; text-align: center; transition: all 0.2s; }
+        /* 選項按鈕 (緊湊版) - 強制均分與不換行 */
+        .opt-group { margin-bottom: 12px; }
+        .opt-title { font-size: 0.85rem; font-weight: bold; color: var(--text-main); margin-bottom: 6px; }
+        .opt-btns { display: flex; flex-wrap: wrap; gap: 5px; } 
+        .opt-btn { background: #f5f6f8; color: var(--text-main); border: 1px solid transparent; padding: 6px 8px; border-radius: 15px; font-size: 0.8rem; cursor: pointer; text-align: center; transition: all 0.2s; white-space: nowrap; flex: 1; } 
         .opt-btn.active { background: var(--brand-light); color: var(--brand-color); border: 1px solid var(--brand-color); font-weight: bold; }
         #size-btns .opt-btn { flex-grow: 1; }
         
-        /* 數量控制器 */
-        .qty-ctrl { display: flex; align-items: center; background: #f5f6f8; border-radius: 20px; padding: 5px; width: fit-content; }
-        .qty-btn { width: 35px; height: 35px; border-radius: 50%; border: none; background: #fff; color: var(--text-main); font-size: 1.2rem; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .qty-num { padding: 0 20px; font-weight: bold; font-size: 1.1rem; }
+        /* 數量控制器 (緊湊版) */
+        .qty-ctrl { display: flex; align-items: center; background: #f5f6f8; border-radius: 15px; padding: 3px; width: fit-content; }
+        .qty-btn { width: 28px; height: 28px; border-radius: 50%; border: none; background: #fff; color: var(--text-main); font-size: 1rem; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .qty-num { padding: 0 12px; font-weight: bold; font-size: 0.9rem; }
 
         /* 懸浮購物車列 */
         #cart-bar-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 500px; background: var(--brand-color); color: white; padding: 16px; box-sizing: border-box; z-index: 1001; cursor: pointer; border: none; font-size: 1.1rem; font-weight: bold; text-align: center; border-radius: 30px; box-shadow: 0 4px 15px rgba(6, 199, 85, 0.3); display: flex; justify-content: space-between; align-items: center; }
@@ -88,7 +88,7 @@
             border-color: var(--brand-color);
             background: #ffffff;
         }
-        .submit-btn { width: 100%; padding: 16px; background: var(--brand-color); color: white; border: none; border-radius: 16px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        .submit-btn { width: 100%; padding: 12px; background: var(--brand-color); color: white; border: none; border-radius: 14px; font-weight: bold; margin-top: 5px; cursor: pointer; }
 
         /* 後台專用樣式 */
         .admin-section { margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; }
