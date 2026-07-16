@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>歡迎光臨清心福全左營榮總店</title>
+    <title>線上點餐系統</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
         :root { 
@@ -770,7 +770,7 @@
         let method = methodEl ? methodEl.value : "";
         
         let address = "";
-        (method === "外送") {
+        if(method === "外送") {
             address = document.getElementById('customer-address').value.trim();
             if(!address) {
                 alert("您選擇了外送方式，請輸入您的外送地址！");
@@ -915,7 +915,7 @@
 
         liff.sendMessages([flexMessage])
         .then(() => {
-            alert("訂單已成功送出，店家很快就會為您確認訂單內容！");
+            alert("訂單已成功送出，店家很快就會為您準備！");
             
             cart = []; 
             updateCounter(); 
