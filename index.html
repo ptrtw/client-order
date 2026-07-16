@@ -72,7 +72,7 @@
         #order-note, #custom-sugar { width: 100%; font-family: inherit; margin: 5px 0 15px; padding: 12px; box-sizing: border-box; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; background: #f9f9f9; resize: none; }
         .submit-btn { width: 100%; padding: 16px; background: var(--brand-color); color: white; border: none; border-radius: 16px; font-weight: bold; font-size: 1.1rem; margin-top: 10px; cursor: pointer; }
 
-        /* 後台專用樣式 (保留原有設定) */
+        /* 後台專用樣式 */
         .admin-section { margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; }
         .admin-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.9em; }
         .admin-input { width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
@@ -152,7 +152,7 @@
     </div>
 </div>
 
-<!-- 後台 Modal (邏輯與結構完全保留) -->
+<!-- 後台 Modal -->
 <div id="admin-modal" class="modal-overlay" onclick="if(event.target==this) this.style.display='none'">
     <div class="modal-content" style="height: 95vh; display: flex; flex-direction: column;">
         <div class="modal-header" style="border-bottom:none; margin-bottom:0;">
@@ -165,11 +165,10 @@
 </div>
 
 <script>
-    // 2. 初始化 LIFF 與 GAS 雲端設定 (完全保留)
-    const LIFF_ID = "2010718024-5LLzGr1V"; 
+    // 替換為給客戶版網頁用的全新 LIFF ID
+    const LIFF_ID = "2010718024-rc9ivBx5"; 
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
 
-    // 預設資料 (完全保留)
     const DEFAULT_TOPPING_PRICES = {
         M: { "珍珠": 5, "椰果": 5, "布丁": 10, "仙草凍": 10, "QQ": 10 },
         L: { "珍珠": 5, "椰果": 5, "布丁": 10, "仙草凍": 10, "QQ": 10 }
@@ -197,10 +196,7 @@
             if (savedToppings) {
                 let parsed = JSON.parse(savedToppings);
                 if (parsed && !parsed.M && !parsed.L) {
-                    toppingPrices = {
-                        M: JSON.parse(JSON.stringify(parsed)),
-                        L: JSON.parse(JSON.stringify(parsed))
-                    };
+                    toppingPrices = { M: JSON.parse(JSON.stringify(parsed)), L: JSON.parse(JSON.stringify(parsed)) };
                 } else {
                     toppingPrices = parsed;
                 }
@@ -241,10 +237,7 @@
         document.getElementById('cart-counter').innerText = cart.length;
         let total = cart.reduce((sum, i) => sum + i.price, 0);
         document.getElementById('cart-total-preview').innerText = `$${total}`;
-        
-        // 購物車沒東西時隱藏漂浮列
         document.getElementById('cart-bar-btn').style.display = cart.length > 0 ? 'flex' : 'none';
-        
         try { localStorage.setItem('pos_cart_data', JSON.stringify(cart)); } catch(e) {}
     }
 
@@ -259,14 +252,13 @@
             
             const btn = document.createElement('button');
             btn.className = 'nav-btn'; 
-            if(cIdx === 0) btn.classList.add('active'); // 預設第一個 active
+            if(cIdx === 0) btn.classList.add('active');
             btn.innerText = cat.category;
             btn.onclick = (e) => {
                 document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
-                
                 const targetEl = document.getElementById('cat-header-'+cIdx);
-                const y = targetEl.getBoundingClientRect().top + window.scrollY - 70; // 扣除 nav 高度
+                const y = targetEl.getBoundingClientRect().top + window.scrollY - 70;
                 window.scrollTo({top: y, behavior: 'smooth'});
             };
             nav.appendChild(btn);
@@ -284,7 +276,6 @@
                 el.className = 'pos-item';
                 let priceStr = Object.entries(item.prices).map(([s,p]) => `${s} $${p}`).join(' / ');
                 
-                // 改版：網美卡片結構
                 el.innerHTML = `
                     <div>
                         <div class="item-name">${item.name}</div>
@@ -319,7 +310,6 @@
             container.appendChild(grid);
         });
         
-        // 滾動偵測更新導覽列狀態
         window.addEventListener('scroll', () => {
             let current = '';
             menuData.forEach((cat, cIdx) => {
@@ -337,10 +327,9 @@
         });
     }
 
-    // ============ 後台管理功能 (完全不變，直接保留) ============
-    function openAdminModal() { document.getElementById('admin-modal').style.display = 'flex'; /* (省略，保持原本的innerHTML寫入) */ renderAdminContent(); }
+    // ============ 後台管理功能 ============
+    function openAdminModal() { document.getElementById('admin-modal').style.display = 'flex'; renderAdminContent(); }
     
-    // 為了排版乾淨，把過長的 HTML 獨立出來
     function renderAdminContent() {
         let html = `
             <div class="admin-section" style="background:#fff3e0; border-color:#ffb74d;">
@@ -401,7 +390,6 @@
         renderCategoryAdmin(); renderGlobalToppingsAdmin();
     }
     
-    // (由於字數限制，將剛才原有的後台函式原封不動放回此處，因為邏輯完全不變)
     function renderCategoryAdmin() { let html = ''; menuData.forEach((cat, idx) => { html += `<div class="admin-row" style="padding: 5px 0; border-bottom: 1px dotted #e1bee7;"><input type="text" value="${cat.category}" onchange="renameCategory(${idx}, this.value)" style="padding:4px; flex:1; border:1px solid #ccc; margin-right:5px;"><button onclick="deleteCategory(${idx})" style="background:#ff4d4d; color:white; border:none; padding:4px 10px;">刪除</button></div>`; }); document.getElementById('admin-category-list').innerHTML = html; }
     function addNewCategory() { let name = document.getElementById('new_category_name').value.trim(); if(!name) return alert('請輸入分類名稱！'); saveAdminDataSilent(); menuData.push({ category: name, items: [] }); saveAllToLocal(); openAdminModal(); renderMenu(); }
     function renameCategory(idx, newName) { if(!newName.trim()) return alert('不能為空！'); menuData[idx].category = newName.trim(); }
@@ -414,16 +402,14 @@
     function exportConfig() { try { const bundle = { menu: menuData, toppings: toppingPrices }; document.getElementById('sync_textarea').value = btoa(unescape(encodeURIComponent(JSON.stringify(bundle)))); alert("產生成功"); } catch(e) {} }
     function copyConfig() { const textarea = document.getElementById('sync_textarea'); textarea.select(); navigator.clipboard.writeText(textarea.value); alert("複製成功"); }
     function importConfig() { const code = document.getElementById('sync_textarea').value.trim(); if (!code) return; try { const bundle = JSON.parse(decodeURIComponent(escape(atob(code)))); localStorage.setItem('pos_menu_custom', JSON.stringify(bundle.menu)); localStorage.setItem('pos_toppings_custom', JSON.stringify(bundle.toppings)); loadSavedConfig(); alert("匯入成功"); openAdminModal(); renderMenu(); } catch(e) { alert("失敗"); } }
-    function toggleItemToppings(cIdx, iIdx) { const panel = document.getElementById(`admin_toppings_panel_${cIdx}_${iIdx}`); if (panel.style.display === 'block') panel.style.display = 'none'; else { panel.style.display = 'block'; renderItemToppingsConfig(cIdx, iIdx); } }
-    function renderItemToppingsConfig(cIdx, iIdx) { /* 為了版面簡潔，此處縮短後台專屬加料渲染，完整保留邏輯 */ }
+    function toggleItemToppings(cIdx, iIdx) { const panel = document.getElementById(`admin_toppings_panel_${cIdx}_${iIdx}`); if (panel.style.display === 'block') panel.style.display = 'none'; else { panel.style.display = 'block'; } }
     function addNewItem() { let cIdx = document.getElementById('new_cat').value; let name = document.getElementById('new_name').value; let mStr = document.getElementById('new_m').value; let lStr = document.getElementById('new_l').value; if(!name || (!mStr && !lStr)) return; let prices = {}; if(mStr) prices.M = parseInt(mStr); if(lStr) prices.L = parseInt(lStr); saveAdminDataSilent(); menuData[cIdx].items.push({ name: name, prices: prices }); saveAllToLocal(); openAdminModal(); renderMenu(); }
     function saveAdminDataSilent() { const sizes = ['M', 'L']; sizes.forEach(size => { let sizeToppings = toppingPrices[size] || {}; for(let t in sizeToppings) { let el = document.getElementById(`admin_top_${size}_${t}`); if(el && el.value !== '') toppingPrices[size][t] = parseInt(el.value); } }); menuData.forEach((cat, cIdx) => { cat.items.forEach((item, iIdx) => { let mInput = document.getElementById(`admin_m_${cIdx}_${iIdx}`); let lInput = document.getElementById(`admin_l_${cIdx}_${iIdx}`); if (mInput && lInput) { item.prices = {}; if(mInput.value !== '') item.prices.M = parseInt(mInput.value); if(lInput.value !== '') item.prices.L = parseInt(lInput.value); } }); }); }
     function saveAllToLocal() { localStorage.setItem('pos_menu_custom', JSON.stringify(menuData)); localStorage.setItem('pos_toppings_custom', JSON.stringify(toppingPrices)); }
     function saveAdminData() { saveAdminDataSilent(); saveAllToLocal(); const bundle = { menu: menuData, toppings: toppingPrices }; document.getElementById('admin-modal').style.display = 'none'; fetch(GAS_API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(bundle) }).then(()=> { alert("✅ 雲端同步成功！"); renderMenu(); }).catch(()=>{ alert("同步失敗"); renderMenu(); }); }
     function closeAdminModal() { document.getElementById('admin-modal').style.display = 'none'; loadSavedConfig(); renderMenu(); }
-    // ========================================================
 
-    // 點餐功能邏輯
+    // ============ 點餐功能邏輯 ============
     function openModal(item, cIdx, iIdx) {
         let defaultSize = item.prices.hasOwnProperty('L') ? 'L' : Object.keys(item.prices)[0];
         if(!defaultSize) return alert("未設定價格"); 
@@ -450,7 +436,6 @@
         renderToppings(item, defaultSize);
     }
 
-    // 渲染選項為膠囊按鈕
     function renderBtns(containerId, options, callback, defaultVal) {
         const container = document.getElementById(containerId);
         container.innerHTML = '';
@@ -495,7 +480,6 @@
         if(!currentSelect.size || !currentSelect.ice || !currentSelect.sugar) {
             return alert("請選擇冰塊與甜度");
         }
-        
         let sugarVal = currentSelect.sugar;
         if (sugarVal === "其他") {
             sugarVal = document.getElementById('custom-sugar').value;
@@ -504,9 +488,6 @@
         
         let basePrice = currentSelect.item.prices[currentSelect.size];
         let activeToppings = toppingPrices[currentSelect.size] || {};
-        if (currentSelect.item.customToppings && currentSelect.item.customToppings[currentSelect.size]) {
-            activeToppings = currentSelect.item.customToppings[currentSelect.size];
-        }
         let toppingCost = currentSelect.toppings.reduce((sum, t) => sum + (activeToppings[t] || 0), 0);
         let finalPrice = (basePrice + toppingCost) * currentSelect.qty;
         
@@ -549,7 +530,7 @@
         showCart();
     }
 
-    // 發送給 LINE 的邏輯 (完全保留原本的 Flex Message 結構與切割機制)
+    // 發送給 LINE 的邏輯 (升級版 Flex Message 頂部配色)
     function sendToLine() {
         if(cart.length === 0) return alert("購物車是空的喔！");
         if (!liff.isInClient()) {
@@ -609,15 +590,31 @@
             let chunk = allItemBoxes.slice(i, i + ITEMS_PER_BUBBLE);
             let isLastBubble = (i + ITEMS_PER_BUBBLE >= allItemBoxes.length);
 
-            let bubbleContents = [
-                { type: "text", text: `📋 新進顧客訂單 (${Math.floor(i/ITEMS_PER_BUBBLE) + 1})`, weight: "bold", size: "lg", color: "#06C755" },
-                { type: "separator", margin: "md", color: "#06C755" },
-                { type: "box", layout: "vertical", margin: "md", contents: chunk }
+            // 修改此處：建立精美的頂部綠色區塊 (Header)
+            let bodyContents = [
+                { type: "box", layout: "vertical", spacing: "md", contents: chunk }
             ];
 
-            if (isLastBubble) { bubbleContents.push(...footerBox); }
+            if (isLastBubble) { bodyContents.push(...footerBox); }
 
-            bubbles.push({ type: "bubble", size: "mega", body: { type: "box", layout: "vertical", contents: bubbleContents } });
+            bubbles.push({ 
+                type: "bubble", 
+                size: "mega", 
+                header: {
+                    type: "box",
+                    layout: "vertical",
+                    backgroundColor: "#06C755", // 品牌綠色
+                    paddingAll: "md",
+                    contents: [
+                        { type: "text", text: `🌟 新進顧客訂單 (${Math.floor(i/ITEMS_PER_BUBBLE) + 1})`, weight: "bold", size: "xl", color: "#ffffff" }
+                    ]
+                },
+                body: { 
+                    type: "box", 
+                    layout: "vertical", 
+                    contents: bodyContents 
+                } 
+            });
         }
 
         const flexMessage = { type: "flex", altText: `🎉 收到新訂單！總計 $${total}`, contents: { type: "carousel", contents: bubbles } };
