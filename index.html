@@ -46,12 +46,13 @@
         .modal-header h3 { margin: 0; font-size: 1.3rem; color: var(--text-main); }
         .close-btn { background: #f0f0f0; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 1.2rem; color: #666; cursor: pointer; display: flex; justify-content: center; align-items: center; }
         
-        /* 選項按鈕 (膠囊風格) */
+        /* 選項按鈕 (膠囊風格) - 修正按鈕大小不一的問題 */
         .opt-group { margin-bottom: 20px; }
         .opt-title { font-size: 0.95rem; font-weight: bold; color: var(--text-main); margin-bottom: 10px; }
         .opt-btns { display: flex; flex-wrap: wrap; gap: 8px; }
-        .opt-btn { background: #f5f6f8; color: var(--text-main); border: 1px solid transparent; padding: 10px 16px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; flex-grow: 1; text-align: center; transition: all 0.2s; }
+        .opt-btn { background: #f5f6f8; color: var(--text-main); border: 1px solid transparent; padding: 10px 16px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; text-align: center; transition: all 0.2s; }
         .opt-btn.active { background: var(--brand-light); color: var(--brand-color); border: 1px solid var(--brand-color); font-weight: bold; }
+        #size-btns .opt-btn { flex-grow: 1; }
         
         /* 數量控制器 */
         .qty-ctrl { display: flex; align-items: center; background: #f5f6f8; border-radius: 20px; padding: 5px; width: fit-content; }
@@ -165,7 +166,6 @@
 </div>
 
 <script>
-    // 替換為給客戶版網頁用的全新 LIFF ID
     const LIFF_ID = "2010718024-rc9ivBx5"; 
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
 
@@ -427,7 +427,9 @@
             renderToppings(item, val);
         }, defaultSize);
         
-        renderBtns('ice-btns', ["正常冰", "少冰", "微冰", "去冰", "溫", "熱"], (val) => currentSelect.ice = val, null);
+        // 修改此處：移除「熱」，僅保留到「溫」
+        renderBtns('ice-btns', ["正常冰", "少冰", "微冰", "去冰", "溫"], (val) => currentSelect.ice = val, null);
+        
         renderBtns('sugar-btns', ["正常糖", "少糖", "半糖", "微糖", "無糖", "其他"], (val) => {
             currentSelect.sugar = val;
             document.getElementById('custom-sugar').style.display = (val === "其他") ? 'block' : 'none';
@@ -590,7 +592,6 @@
             let chunk = allItemBoxes.slice(i, i + ITEMS_PER_BUBBLE);
             let isLastBubble = (i + ITEMS_PER_BUBBLE >= allItemBoxes.length);
 
-            // 修改此處：建立精美的頂部綠色區塊 (Header)
             let bodyContents = [
                 { type: "box", layout: "vertical", spacing: "md", contents: chunk }
             ];
@@ -603,7 +604,7 @@
                 header: {
                     type: "box",
                     layout: "vertical",
-                    backgroundColor: "#06C755", // 品牌綠色
+                    backgroundColor: "#06C755", 
                     paddingAll: "md",
                     contents: [
                         { type: "text", text: `🌟 新進顧客訂單 (${Math.floor(i/ITEMS_PER_BUBBLE) + 1})`, weight: "bold", size: "xl", color: "#ffffff" }
