@@ -133,9 +133,78 @@
         .cart-del-btn { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 15px; font-size: 0.85rem; }
         
         /* 輸入欄位樣式 */
-        #customer-phone, #customer-address { width: 100%; font-family: inherit; margin: 5px 0 15px; padding: 12px; box-sizing: border-box; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; background: #f9f9f9; outline: none; transition: border-color 0.2s, background-color 0.2s; }
-        #customer-phone:focus, #customer-address:focus { border-color: var(--brand-color); background: #ffffff; }
+        #customer-phone, #customer-address, #invoice-number { width: 100%; font-family: inherit; margin: 5px 0 15px; padding: 12px; box-sizing: border-box; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; background: #f9f9f9; outline: none; transition: border-color 0.2s, background-color 0.2s; }
+        #customer-phone:focus, #customer-address:focus, #invoice-number:focus { border-color: var(--brand-color); background: #ffffff; }
         .submit-btn { width: 100%; padding: 12px; background: var(--brand-color); color: white; border: none; border-radius: 14px; font-weight: bold; margin-top: 5px; cursor: pointer; }
+
+        /* ===== 載具 / 統編 專屬樣式 ===== */
+        .invoice-option-group { margin: 15px 0 10px 0; }
+        .invoice-option-btns { display: flex; gap: 15px; margin-bottom: 10px; }
+        .invoice-option-btns label { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 0.95rem; 
+            cursor: pointer; 
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.2s;
+        }
+        .invoice-option-btns label.active { 
+            border-color: var(--brand-color); 
+            background: var(--brand-light);
+        }
+        .invoice-option-btns input[type="radio"] { 
+            accent-color: var(--brand-color); 
+            transform: scale(1.1);
+            margin: 0;
+        }
+        #invoice-number-container { display: none; }
+        #invoice-number { margin-top: 0; }
+        #carrier-upload-container { display: none; margin-bottom: 15px; }
+        .carrier-upload-area { 
+            border: 2px dashed #ccc; 
+            border-radius: 12px; 
+            padding: 20px; 
+            text-align: center; 
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fafafa;
+        }
+        .carrier-upload-area:hover { border-color: var(--brand-color); background: #f0fdf4; }
+        .carrier-upload-area input[type="file"] { display: none; }
+        .carrier-preview { 
+            display: none; 
+            margin-top: 10px; 
+            position: relative;
+            max-width: 150px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .carrier-preview img { 
+            width: 100%; 
+            border-radius: 8px; 
+            border: 2px solid var(--brand-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .carrier-preview .remove-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .carrier-status-text { font-size: 0.85rem; color: var(--text-muted); margin-top: 5px; }
 
         /* 後台專用樣式 */
         .admin-section { margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; }
@@ -306,12 +375,48 @@
             <div class="opt-title">外送地址</div>
             <input type="text" id="customer-address" placeholder="首次光臨貴賓請務必輸入外送地址">
         </div>
+
+        <!-- ===== 新功能：載具 / 統編 選項 ===== -->
+        <div class="invoice-option-group">
+            <div class="opt-title">📄 發票選項（載具 / 統編）</div>
+            <div class="invoice-option-btns">
+                <label id="invoice-option-none" class="active" onclick="selectInvoiceOption('none')">
+                    <input type="radio" name="invoice-option" value="none" checked> 無需發票
+                </label>
+                <label id="invoice-option-carrier" onclick="selectInvoiceOption('carrier')">
+                    <input type="radio" name="invoice-option" value="carrier"> 📱 載具
+                </label>
+                <label id="invoice-option-uniform" onclick="selectInvoiceOption('uniform')">
+                    <input type="radio" name="invoice-option" value="uniform"> 🏢 統編
+                </label>
+            </div>
+
+            <!-- 統編輸入 -->
+            <div id="invoice-number-container">
+                <input type="text" id="invoice-number" placeholder="請輸入統一編號（8位數字）" maxlength="8" inputmode="numeric">
+            </div>
+
+            <!-- 載具上傳 -->
+            <div id="carrier-upload-container">
+                <div class="carrier-upload-area" onclick="document.getElementById('carrier-file-input').click()">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">📤</div>
+                    <div style="font-weight: bold; color: var(--text-main);">點擊上傳載具 QR Code</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">請上傳手機條碼截圖（PNG / JPG）</div>
+                    <input type="file" id="carrier-file-input" accept="image/*" onchange="handleCarrierUpload(event)">
+                </div>
+                <div class="carrier-preview" id="carrier-preview">
+                    <img id="carrier-preview-img" src="" alt="載具 QR Code">
+                    <button class="remove-btn" onclick="removeCarrierImage()">✕</button>
+                </div>
+                <div class="carrier-status-text" id="carrier-status-text">尚未上傳載具圖片</div>
+            </div>
+        </div>
         
         <button class="submit-btn" onclick="sendToLine()">立即結帳</button>
 
-        <!-- 紅色提醒小字 -->
-        <div style="color: red; font-size: 0.8rem; text-align: center; margin-top: 12px;">
-            貴賓如有載具或統編，請聊天室直接發送給我們
+        <!-- 保留原本的紅色提醒小字（改為較不突兀的顏色） -->
+        <div style="color: #888; font-size: 0.75rem; text-align: center; margin-top: 12px;">
+            ⚠️ 如有其他需求（如餐具數量、少冰等），請於聊天室中告知我們
         </div>
     </div>
 </div>
@@ -389,6 +494,11 @@
     let menuData = JSON.parse(JSON.stringify(DEFAULT_MENU_DATA));
     let storeHours = JSON.parse(JSON.stringify(DEFAULT_HOURS));
     let isStoreCurrentlyClosed = false;
+
+    // ===== 載具 / 統編 全域變數 =====
+    let invoiceOption = 'none'; // 'none' | 'carrier' | 'uniform'
+    let invoiceNumber = '';     // 統編號碼
+    let carrierImageBase64 = ''; // 載具圖片的 base64
 
     function loadSavedConfig() {
         try {
@@ -986,6 +1096,67 @@
         document.getElementById('option-modal').style.display = 'none';
     }
 
+    // ===== 載具 / 統編 相關函數 =====
+    function selectInvoiceOption(option) {
+        invoiceOption = option;
+        
+        // 更新選項按鈕樣式
+        document.querySelectorAll('.invoice-option-btns label').forEach(el => el.classList.remove('active'));
+        if (option === 'none') document.getElementById('invoice-option-none').classList.add('active');
+        else if (option === 'carrier') document.getElementById('invoice-option-carrier').classList.add('active');
+        else if (option === 'uniform') document.getElementById('invoice-option-uniform').classList.add('active');
+        
+        // 顯示／隱藏對應的輸入區塊
+        document.getElementById('invoice-number-container').style.display = (option === 'uniform') ? 'block' : 'none';
+        document.getElementById('carrier-upload-container').style.display = (option === 'carrier') ? 'block' : 'none';
+        
+        // 如果切換掉載具，清除已上傳的圖片
+        if (option !== 'carrier') {
+            removeCarrierImage();
+        }
+        // 如果切換掉統編，清空輸入
+        if (option !== 'uniform') {
+            document.getElementById('invoice-number').value = '';
+            invoiceNumber = '';
+        }
+    }
+
+    function handleCarrierUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        // 檢查檔案大小（限制 5MB）
+        if (file.size > 5 * 1024 * 1024) {
+            alert('圖片檔案過大，請上傳小於 5MB 的圖片');
+            event.target.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            carrierImageBase64 = e.target.result;
+            
+            // 顯示預覽
+            const preview = document.getElementById('carrier-preview');
+            const img = document.getElementById('carrier-preview-img');
+            img.src = carrierImageBase64;
+            preview.style.display = 'block';
+            
+            document.getElementById('carrier-status-text').textContent = '✅ 已上傳載具 QR Code';
+            document.getElementById('carrier-status-text').style.color = '#2e7d32';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function removeCarrierImage() {
+        carrierImageBase64 = '';
+        document.getElementById('carrier-preview').style.display = 'none';
+        document.getElementById('carrier-preview-img').src = '';
+        document.getElementById('carrier-file-input').value = '';
+        document.getElementById('carrier-status-text').textContent = '尚未上傳載具圖片';
+        document.getElementById('carrier-status-text').style.color = 'var(--text-muted)';
+    }
+
     // 顯示購物車（並控制非營業時間警告橫幅）
     function showCart() { 
         document.getElementById('cart-modal').style.display = 'flex'; 
@@ -995,6 +1166,9 @@
         } else {
             warning.style.display = 'none';
         }
+        // 重置發票選項到「無需發票」（避免殘留狀態）
+        selectInvoiceOption('none');
+        document.querySelector('input[name="invoice-option"][value="none"]').checked = true;
         updateCartUI(); 
     }
 
@@ -1039,7 +1213,7 @@
     function removeFromCart(index) { cart.splice(index, 1); updateCounter(); updateCartUI(); }
     function toggleDeliveryAddress(show) { document.getElementById('address-container').style.display = show ? 'block' : 'none'; updateCartUI(); }
 
-    // ===== 結帳功能（加入非營業時間阻擋） =====
+    // ===== 結帳功能（加入載具／統編資料） =====
     function sendToLine() {
         // 檢查是否為非營業時間
         if (isStoreCurrentlyClosed) {
@@ -1050,6 +1224,23 @@
         if(cart.length === 0) return alert("購物車是空的喔！");
         let phone = document.getElementById('customer-phone').value.trim();
         if(!phone) { alert("請輸入聯絡電話！"); document.getElementById('customer-phone').focus(); return; }
+
+        // 檢查統編（如果有選統編）
+        if (invoiceOption === 'uniform') {
+            const num = document.getElementById('invoice-number').value.trim();
+            if (!num || num.length !== 8) {
+                alert("請輸入正確的 8 位統一編號！");
+                document.getElementById('invoice-number').focus();
+                return;
+            }
+            invoiceNumber = num;
+        }
+
+        // 檢查載具圖片（如果有選載具）
+        if (invoiceOption === 'carrier' && !carrierImageBase64) {
+            alert("請上傳載具 QR Code 圖片！");
+            return;
+        }
 
         let methodEl = document.querySelector('input[name="delivery-method"]:checked');
         let method = methodEl ? methodEl.value : "";
@@ -1062,6 +1253,16 @@
         let discount = 0;
         if (method === "自取" && allCups.length >= 6) { allCups.sort((a, b) => b - a); for (let i = 5; i < allCups.length; i += 6) discount += allCups[i]; }
         let finalTotal = originalTotal - discount;
+
+        // ===== 建立發票資訊文字 =====
+        let invoiceText = '';
+        if (invoiceOption === 'uniform') {
+            invoiceText = `🏢 統編：${invoiceNumber}`;
+        } else if (invoiceOption === 'carrier') {
+            invoiceText = `📱 載具：已上傳 QR Code`;
+        } else {
+            invoiceText = '無需發票';
+        }
 
         let allItemBoxes = cart.map(i => {
             let details = `👉 ${i.ice} / ${i.sugar}`;
@@ -1080,6 +1281,9 @@
         let footerBox = [];
         footerBox.push({ type: "separator", margin: "md", color: "#dddddd" });
         footerBox.push({ type: "box", layout: "vertical", margin: "md", contents: [ { type: "text", text: `📞 聯絡電話：${phone}`, size: "sm", weight: "bold", color: "#333333" } ] });
+
+        // 加入發票資訊
+        footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [ { type: "text", text: `📄 發票：${invoiceText}`, size: "sm", weight: "bold", color: "#1565c0" } ] });
 
         if (method) {
             footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [ { type: "text", text: `🛵 取餐方式：${method}`, size: "sm", weight: "bold", color: "#333333" } ] });
@@ -1103,13 +1307,33 @@
             bubbles.push({ type: "bubble", size: "mega", header: { type: "box", layout: "vertical", backgroundColor: "#06C755", paddingAll: "md", contents: [ { type: "text", text: `🌟 新進顧客訂單 (${Math.floor(i/ITEMS_PER_BUBBLE) + 1})`, weight: "bold", size: "xl", color: "#ffffff" } ] }, body: { type: "box", layout: "vertical", contents: bodyContents } });
         }
 
-        liff.sendMessages([{ type: "flex", altText: `🎉 收到新訂單！總計 $${finalTotal}`, contents: { type: "carousel", contents: bubbles } }]).then(() => {
+        // 準備發送訊息（可能包含 Flex + 圖片）
+        let messages = [
+            { type: "flex", altText: `🎉 收到新訂單！總計 $${finalTotal}`, contents: { type: "carousel", contents: bubbles } }
+        ];
+
+        // 如果有載具圖片，額外發送一張圖片訊息
+        if (invoiceOption === 'carrier' && carrierImageBase64) {
+            messages.push({
+                type: "image",
+                originalContentUrl: carrierImageBase64,
+                previewImageUrl: carrierImageBase64
+            });
+        }
+
+        liff.sendMessages(messages).then(() => {
             alert("訂單已成功送出！");
             cart = []; updateCounter(); 
             document.getElementById('customer-phone').value = ""; document.getElementById('customer-address').value = "";
             let sm = document.querySelector('input[name="delivery-method"]:checked'); if (sm) sm.checked = false;
             toggleDeliveryAddress(false);
-            document.getElementById('cart-modal').style.display = 'none'; liff.closeWindow(); 
+            // 重置發票選項
+            selectInvoiceOption('none');
+            document.querySelector('input[name="invoice-option"][value="none"]').checked = true;
+            document.getElementById('invoice-number').value = '';
+            removeCarrierImage();
+            document.getElementById('cart-modal').style.display = 'none'; 
+            liff.closeWindow(); 
         }).catch((err) => { alert('傳送失敗：' + JSON.stringify(err)); });
     }
 
