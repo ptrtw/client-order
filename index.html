@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>歡迎光臨清心福全左營榮總店</title>
+    <title>歡迎光臨</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
         :root { 
@@ -19,7 +19,7 @@
         /* 頂部搜尋與導覽列容器 (固定於頂部) */
         .sticky-header-container { position: sticky; top: 0; z-index: 999; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         
-        /* 新增：頂部收合式搜尋列美化 */
+        /* 頂部收合式搜尋列美化 */
         .header-top { display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; }
         .search-icon { font-size: 1.4rem; cursor: pointer; padding: 5px; color: var(--brand-color); transition: transform 0.2s; }
         .search-icon:active { transform: scale(0.9); }
@@ -93,7 +93,7 @@
         /* 後台專用樣式 */
         .admin-section { margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; }
         .admin-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.9em; }
-        .admin-input { padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        .admin-input { padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
         .admin-title { font-weight: bold; background: #e0e0e0; padding: 8px; margin: 15px -15px 10px -15px; }
 
         /* 店休視覺效果 */
@@ -223,7 +223,6 @@
             <input type="text" id="customer-address" placeholder="首次光臨貴賓請務必輸入外送地址">
         </div>
         
-        <!-- 新增：紅色小字說明 -->
         <div style="color: #d32f2f; font-size: 0.85rem; text-align: center; margin: 15px 0 10px; font-weight: bold;">
             * 貴賓如有載具或統編，請在聊天室上傳給我們 *
         </div>
@@ -338,7 +337,6 @@
     let currentSelect = {};
     let secretCount = 0; let secretTimer = null;
 
-    // 新增：切換搜尋列顯示功能
     function toggleSearch() {
         const overlay = document.getElementById('search-overlay');
         if (overlay.style.display === 'none' || overlay.style.display === '') {
@@ -349,7 +347,6 @@
         }
     }
 
-    // ============ 搜尋過濾功能 ============
     function filterMenu() {
         const keyword = document.getElementById('search-input').value.toLowerCase();
         let currentActiveCat = -1;
@@ -386,7 +383,6 @@
         });
     }
 
-    // ============ 營業時間狀態檢查 ============
     function checkStoreStatus() {
         const now = new Date();
         const twTimeStr = now.toLocaleString("en-US", { timeZone: "Asia/Taipei", hour12: false });
@@ -429,7 +425,6 @@
         let total = cart.reduce((sum, i) => sum + i.price, 0);
         document.getElementById('cart-total-preview').innerText = `$${total}`;
         
-        // 修改：只要不是店休，就固定顯示底部購物車（無論有沒有商品）
         document.getElementById('cart-bar-btn').style.display = (!isStoreCurrentlyClosed) ? 'flex' : 'none';
         
         try { localStorage.setItem('pos_cart_data', JSON.stringify(cart)); } catch(e) {}
@@ -625,6 +620,20 @@
         let sugarVal = item.customSugar ? item.customSugar.join(',') : '';
         html += `<div style="margin-bottom: 15px;"><b style="color:#e65100;">🍬 專屬甜度選項</b><br><input type="text" class="admin-input" style="width:100%; box-sizing:border-box; margin-top:4px;" value="${sugarVal}" placeholder="如: 半糖,微糖,無糖" onchange="updateItemSugar(${cIdx}, ${iIdx}, this.value)"></div>`;
         
+        // 新增：單品專屬加料設定
+        let topsVal = '';
+        if (item.customToppings) {
+            topsVal = Object.entries(item.customToppings).map(([k, v]) => `${k}:${v}`).join(', ');
+        }
+        html += `<div style="margin-bottom: 5px; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid #c8e6c9;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 5px;">
+                <b style="color:#2e7d32;">🍡 專屬加料設定</b>
+                <button onclick="loadGlobalToppingsIntoItem(${cIdx}, ${iIdx})" style="background:#e8f5e9; border:1px solid #4caf50; color:#2e7d32; border-radius:12px; padding:3px 8px; font-size:0.85em; cursor:pointer;">📥 帶入全域預設</button>
+            </div>
+            <div style="font-size:0.8em; color:#666; margin-bottom: 5px; line-height: 1.4;">格式: <span style="color:#d32f2f">名稱:價格</span> (半形逗號隔開)<br>若文字框清空，將自動恢復為「全域設定」</div>
+            <textarea id="admin_topping_${cIdx}_${iIdx}" class="admin-input" style="width:100%; box-sizing:border-box; height: 50px;" placeholder="如: 珍珠:5, 布丁:10" onchange="updateItemToppings(${cIdx}, ${iIdx}, this.value)">${topsVal}</textarea>
+        </div>`;
+
         html += `</div>`;
         panel.innerHTML = html;
     }
@@ -632,6 +641,33 @@
     function updateItemTeaSwap(cIdx, iIdx, isChecked) { menuData[cIdx].items[iIdx].enableTeaSwap = isChecked; }
     function updateItemIce(cIdx, iIdx, val) { let item = menuData[cIdx].items[iIdx]; if (val.trim() === '') delete item.customIce; else item.customIce = val.split(',').map(s => s.trim()).filter(s => s); }
     function updateItemSugar(cIdx, iIdx, val) { let item = menuData[cIdx].items[iIdx]; if (val.trim() === '') delete item.customSugar; else item.customSugar = val.split(',').map(s => s.trim()).filter(s => s); }
+    
+    // 新增：處理加料的專屬功能
+    function loadGlobalToppingsIntoItem(cIdx, iIdx) {
+        let globalM = toppingPrices['M'] || {};
+        let str = Object.entries(globalM).map(([k, v]) => `${k}:${v}`).join(', ');
+        let input = document.getElementById(`admin_topping_${cIdx}_${iIdx}`);
+        input.value = str;
+        updateItemToppings(cIdx, iIdx, str);
+    }
+    
+    function updateItemToppings(cIdx, iIdx, val) {
+        let item = menuData[cIdx].items[iIdx];
+        if (val.trim() === '') {
+            delete item.customToppings;
+        } else {
+            let tops = {};
+            val.split(',').forEach(pair => {
+                let parts = pair.split(':');
+                if (parts.length === 2) {
+                    let name = parts[0].trim();
+                    let price = parseInt(parts[1].trim());
+                    if (name && !isNaN(price)) tops[name] = price;
+                }
+            });
+            item.customToppings = tops;
+        }
+    }
     
     function saveAdminDataSilent() { menuData.forEach((cat, cIdx) => { cat.items.forEach((item, iIdx) => { let mInput = document.getElementById(`admin_m_${cIdx}_${iIdx}`); let lInput = document.getElementById(`admin_l_${cIdx}_${iIdx}`); if (mInput && lInput) { item.prices = {}; if(mInput.value !== '') item.prices.M = parseInt(mInput.value); if(lInput.value !== '') item.prices.L = parseInt(lInput.value); } }); }); }
     function saveAllToLocal() { localStorage.setItem('pos_menu_custom', JSON.stringify(menuData)); localStorage.setItem('pos_store_hours', JSON.stringify(storeHours)); }
@@ -723,14 +759,20 @@
         });
     }
 
+    // 修改：套用專屬加料設定
     function renderToppings(item, size) {
         const container = document.getElementById('topping-btns'); container.innerHTML = '';
-        let activeToppings = toppingPrices[size] || {}; 
+        let activeToppings = item.customToppings ? item.customToppings : (toppingPrices[size] || {}); 
+        
         Object.entries(activeToppings).forEach(([name, price]) => {
             const btn = document.createElement('button');
             btn.className = 'opt-btn' + (currentSelect.toppings.includes(name) ? ' active' : '');
             btn.innerText = `${name} +$${price}`;
-            btn.onclick = () => { btn.classList.toggle('active'); if(btn.classList.contains('active')) currentSelect.toppings.push(name); else currentSelect.toppings = currentSelect.toppings.filter(t => t !== name); };
+            btn.onclick = () => { 
+                btn.classList.toggle('active'); 
+                if(btn.classList.contains('active')) currentSelect.toppings.push(name); 
+                else currentSelect.toppings = currentSelect.toppings.filter(t => t !== name); 
+            };
             container.appendChild(btn);
         });
     }
@@ -741,8 +783,11 @@
         if(!currentSelect.size || !currentSelect.ice || !currentSelect.sugar) return alert("請完整選擇所有選項（大小/冰塊/甜度）");
         
         let basePrice = currentSelect.item.prices[currentSelect.size];
-        let activeToppings = toppingPrices[currentSelect.size] || {};
+        
+        // 修改：結帳時套用專屬加料價格
+        let activeToppings = currentSelect.item.customToppings || toppingPrices[currentSelect.size] || {};
         let toppingCost = currentSelect.toppings.reduce((sum, t) => sum + (activeToppings[t] || 0), 0);
+        
         let finalPrice = (basePrice + toppingCost) * currentSelect.qty;
         
         cart.push({ ...currentSelect, price: finalPrice });
