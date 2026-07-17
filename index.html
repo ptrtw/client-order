@@ -92,7 +92,26 @@
         .admin-input { padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
         .admin-title { font-weight: bold; background: #e0e0e0; padding: 8px; margin: 15px -15px 10px -15px; }
 
-        /* 店休視覺效果 - 修改：移除 pointer-events: none; 以便讓使用者可以連點進入後台 */
+        /* 全域加料專屬樣式 */
+        .topping-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #e0e0e0; }
+        .topping-row:last-child { border-bottom: none; }
+        .topping-name { font-weight: bold; font-size: 1.05rem; color: #333; flex: 1; }
+        .topping-ctrl { display: flex; align-items: center; gap: 8px; }
+        .topping-price-input { width: 70px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; text-align: center; }
+        .btn-delete { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+        .btn-add { background: #06C755; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.95rem; }
+        .add-topping-box { background: #e8f5e9; padding: 15px; border: 1px dashed #81c784; border-radius: 8px; margin-top: 15px; }
+
+        /* 新增：單品專屬加料的標籤化 (Chips) 緊湊樣式 */
+        .chip-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+        .topping-chip { background: #ffffff; border: 1px solid #64b5f6; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); color: #1565c0; font-weight: bold; }
+        .topping-chip-del { background: #ff4d4d; color: white; border-radius: 50%; width: 16px; height: 16px; display: inline-flex; justify-content: center; align-items: center; font-size: 0.7rem; cursor: pointer; text-decoration: none; padding-bottom: 1px; }
+        .compact-add-row { display: flex; gap: 4px; align-items: center; background: #f5f5f5; padding: 6px; border-radius: 6px; }
+        .compact-add-row input { padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.85rem; outline: none; }
+        .compact-add-row input:focus { border-color: #64b5f6; }
+        .compact-add-btn { background: #1976d2; color: white; border: none; border-radius: 4px; padding: 5px 12px; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
+
+        /* 店休視覺效果 */
         .closed-view { filter: grayscale(100%) opacity(0.5); }
         .closed-banner-ui { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1500; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; color: white; font-size: 2.2rem; font-weight: bold; pointer-events: none; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); flex-direction: column; }
     </style>
@@ -233,7 +252,7 @@
     const LIFF_ID = "2010718024-rc9ivBx5"; 
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
 
-    const DEFAULT_TOPPING_PRICES = { M: { "珍珠": 5, "椰果": 5, "布丁": 10, "仙草凍": 10, "QQ": 10 }, L: { "珍珠": 5, "椰果": 5, "布丁": 10, "仙草凍": 10, "QQ": 10 } };
+    const DEFAULT_TOPPING_PRICES = { M: { "珍珠": 5, "椰果": 5, "布丁": 15, "仙草凍": 5, "QQ": 5, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 }, L: { "珍珠": 10, "椰果": 10, "布丁": 15, "仙草凍": 10, "QQ": 10, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 } };
     
     // 完整預設菜單，方便備份與研究用
     const DEFAULT_MENU_DATA = [
@@ -275,7 +294,7 @@
         ] }
     ];
     
-    // 預設營業時間 (0=週日, 1=週一...)
+    // 預設營業時間
     const DEFAULT_HOURS = {
         1: { open: "09:00", close: "21:00", isClosed: false }, 
         2: { open: "09:00", close: "21:00", isClosed: false },
@@ -357,7 +376,6 @@
             }
         });
         
-        // 更新上方導覽列的狀態
         document.querySelectorAll('.nav-btn').forEach((b, idx) => {
             b.classList.toggle('active', idx === currentActiveCat);
         });
@@ -365,12 +383,11 @@
 
     // ============ 營業時間狀態檢查 ============
     function checkStoreStatus() {
-        // 取得台灣時間
         const now = new Date();
         const twTimeStr = now.toLocaleString("en-US", { timeZone: "Asia/Taipei", hour12: false });
         const twTime = new Date(twTimeStr);
         
-        const day = twTime.getDay(); // 0(Sun) - 6(Sat)
+        const day = twTime.getDay(); 
         const hh = String(twTime.getHours()).padStart(2, '0');
         const mm = String(twTime.getMinutes()).padStart(2, '0');
         const currentTime = `${hh}:${mm}`;
@@ -400,7 +417,7 @@
         updateCounter(); 
     }
 
-    setInterval(checkStoreStatus, 60000); // 每分鐘檢查一次狀態
+    setInterval(checkStoreStatus, 60000); 
 
     function updateCounter() {
         document.getElementById('cart-counter').innerText = cart.length;
@@ -425,7 +442,6 @@
                 document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
                 const targetEl = document.getElementById('cat-header-'+cIdx);
-                // 扣除頂部 header 高度進行平滑滾動
                 const headerHeight = document.querySelector('.sticky-header-container').offsetHeight;
                 const y = targetEl.getBoundingClientRect().top + window.scrollY - headerHeight;
                 window.scrollTo({top: y, behavior: 'smooth'});
@@ -470,7 +486,6 @@
             container.appendChild(grid);
         });
         
-        // 依據搜尋欄位復原顯示狀態
         filterMenu(); 
     }
 
@@ -480,19 +495,12 @@
     function renderAdminContent() {
         let html = `
             <div class="admin-section" style="background:#e0f7fa; border-color:#00bcd4;">
-                <h3 style="margin-top:0; color:#006064;">🕒 營業時間設定 (星期一至日)</h3>
+                <h3 style="margin-top:0; color:#006064;">🕒 營業時間設定</h3>
                 <div id="admin-hours-list"></div>
             </div>
 
-            <div class="admin-section" style="background:#fff3e0; border-color:#ffb74d;">
-                <h3 style="margin-top:0; color:#e65100;">🔄 多機同步與備份</h3>
-                <textarea id="sync_textarea" placeholder="在這裡貼上設定碼..." style="width:100%; height:70px; padding:5px; font-size:0.8em; margin-bottom:8px; border:1px solid #ccc;"></textarea>
-                <div style="display:flex; gap:5px;">
-                    <button onclick="exportConfig()" style="flex:1; padding:8px; background:#ff9800; color:white; border:none; cursor:pointer;">產出</button>
-                    <button onclick="copyConfig()" style="flex:1; padding:8px; background:#0288d1; color:white; border:none; cursor:pointer;">複製</button>
-                    <button onclick="importConfig()" style="flex:1; padding:8px; background:#e53935; color:white; border:none; cursor:pointer;">匯入</button>
-                </div>
-            </div>
+            <div id="global-toppings-container"></div>
+
             <div class="admin-section" style="background:#f3e5f5; border-color:#ce93d8;">
                 <h3 style="margin-top:0; color:#6a1b9a;">📂 飲品分類與新增...</h3>
                 <div id="admin-category-list"></div>
@@ -537,15 +545,87 @@
         });
         html += `</div>`;
         document.getElementById('admin-content').innerHTML = html;
+        
         renderCategoryAdmin();
         renderHoursAdmin(); 
+        renderGlobalToppingsAdmin(); 
     }
     
+    // ============ 全域加料編輯邏輯 ============
+    function renderGlobalToppingsAdmin() {
+        let html = `
+            <div class="admin-section" style="background:#fff; border: 1px solid #ddd; padding:0; overflow:hidden;">
+                <h3 style="margin:0; padding:15px; background:#f5f5f5; border-bottom:1px solid #ddd;">🥤 全域加料價格設定</h3>
+                <div style="padding:15px;">
+        `;
+        
+        const sizes = ['M', 'L'];
+        sizes.forEach(size => {
+            let sizeName = size === 'M' ? 'M 杯全域加料' : 'L 杯全域加料';
+            html += `
+            <div style="background:#fff; border:1px solid #e0e0e0; border-radius:8px; padding:15px; margin-bottom:20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="font-weight:bold; color:#0288d1; margin-bottom:15px; font-size: 1.1rem; border-bottom: 2px solid #e1f5fe; padding-bottom: 8px;">🥤 ${sizeName}</div>`;
+            
+            let sizeToppings = toppingPrices[size] || {};
+            for(let t in sizeToppings) {
+                html += `
+                <div class="topping-row">
+                    <span class="topping-name">${t}</span> 
+                    <div class="topping-ctrl">
+                        <span style="color:#555; font-weight:bold;">$</span>
+                        <input type="number" class="topping-price-input" value="${sizeToppings[t]}" onchange="updateGlobalTopping('${size}', '${t}', this.value)">
+                        <button class="btn-delete" onclick="deleteGlobalTopping('${size}', '${t}')">刪除</button>
+                    </div>
+                </div>`;
+            }
+            
+            html += `
+                <div class="add-topping-box">
+                    <div style="font-weight:bold; font-size:0.95rem; margin-bottom:10px; color:#2e7d32;">➕ 新增 ${size} 杯全域加料：</div>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <input type="text" id="add_global_top_name_${size}" placeholder="名稱 (如:寒天)" style="flex:1; padding:8px; font-size:0.95rem; border:1px solid #a5d6a7; border-radius:4px;">
+                        <span style="color:#2e7d32; font-weight:bold;">$</span>
+                        <input type="number" id="add_global_top_price_${size}" placeholder="價格" style="width:60px; padding:8px; font-size:0.95rem; border:1px solid #a5d6a7; border-radius:4px;">
+                        <button class="btn-add" onclick="addGlobalTopping('${size}')">新增</button>
+                    </div>
+                </div>
+            </div>`;
+        });
+        
+        html += `</div></div>`;
+        document.getElementById('global-toppings-container').innerHTML = html;
+    }
+
+    function updateGlobalTopping(size, name, val) {
+        if(!toppingPrices[size]) toppingPrices[size] = {};
+        if(val !== '') toppingPrices[size][name] = parseInt(val);
+    }
+
+    function deleteGlobalTopping(size, name) {
+        if(confirm(`確定要刪除 ${size} 杯全域加料「${name}」嗎？`)) {
+            if(toppingPrices[size]) delete toppingPrices[size][name];
+            renderGlobalToppingsAdmin(); 
+        }
+    }
+
+    function addGlobalTopping(size) {
+        const nameInput = document.getElementById(`add_global_top_name_${size}`);
+        const priceInput = document.getElementById(`add_global_top_price_${size}`);
+        const name = nameInput.value.trim();
+        const price = priceInput.value;
+        if(!name || price === '') return alert("請完整輸入加料名稱與價格！");
+        
+        if(!toppingPrices[size]) toppingPrices[size] = {};
+        if(toppingPrices[size].hasOwnProperty(name)) return alert("此加料名稱已經存在清單中囉！");
+        toppingPrices[size][name] = parseInt(price);
+        renderGlobalToppingsAdmin(); 
+    }
+
     function renderHoursAdmin() {
         const daysZh = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
         let html = '';
         for(let i=1; i<=7; i++) {
-            let dayIdx = i % 7; // 將週日(0)排在最後
+            let dayIdx = i % 7; 
             let conf = storeHours[dayIdx];
             html += `<div style="display:flex; justify-content:space-between; padding:8px 5px; border-bottom:1px dotted #00bcd4; align-items:center;">
                 <span style="font-weight:bold; width: 40px;">${daysZh[dayIdx]}</span>
@@ -563,7 +643,7 @@
 
     function updateStoreHour(day, key, val) {
         storeHours[day][key] = val;
-        if(key === 'isClosed') renderHoursAdmin(); // 刷新以套用 disable 樣式
+        if(key === 'isClosed') renderHoursAdmin(); 
     }
 
     function renderCategoryAdmin() { let html = ''; menuData.forEach((cat, idx) => { html += `<div class="admin-row" style="padding: 5px 0; border-bottom: 1px dotted #e1bee7;"><input type="text" value="${cat.category}" onchange="renameCategory(${idx}, this.value)" style="padding:4px; flex:1; border:1px solid #ccc; margin-right:5px;"><button onclick="deleteCategory(${idx})" style="background:#ff4d4d; color:white; border:none; padding:4px 10px;">刪除</button></div>`; }); document.getElementById('admin-category-list').innerHTML = html; }
@@ -572,12 +652,8 @@
     function deleteCategory(idx) { if(menuData[idx].items.length > 0) return alert(`底下還有商品！`); if(confirm(`確定刪除？`)) { menuData.splice(idx, 1); renderAdminContent(); } }
     function moveItem(oldCIdx, iIdx, selectElement) { let newCIdx = parseInt(selectElement.value); if(oldCIdx === newCIdx) return; const itemToMove = menuData[oldCIdx].items.splice(iIdx, 1)[0]; menuData[newCIdx].items.push(itemToMove); renderAdminContent(); }
     function addNewItem() { let cIdx = document.getElementById('new_cat').value; let name = document.getElementById('new_name').value; let mStr = document.getElementById('new_m').value; let lStr = document.getElementById('new_l').value; if(!name) return; let prices = {}; if(mStr) prices.M = parseInt(mStr); if(lStr) prices.L = parseInt(lStr); menuData[cIdx].items.push({ name: name, prices: prices }); renderAdminContent(); }
-
-    function exportConfig() { document.getElementById('sync_textarea').value = btoa(unescape(encodeURIComponent(JSON.stringify({ menu: menuData, toppings: toppingPrices, storeHours: storeHours })))); alert("產生成功"); }
-    function copyConfig() { const ta = document.getElementById('sync_textarea'); ta.select(); navigator.clipboard.writeText(ta.value); alert("複製成功"); }
-    function importConfig() { try { const bundle = JSON.parse(decodeURIComponent(escape(atob(document.getElementById('sync_textarea').value.trim())))); localStorage.setItem('pos_menu_custom', JSON.stringify(bundle.menu)); localStorage.setItem('pos_store_hours', JSON.stringify(bundle.storeHours)); loadSavedConfig(); alert("匯入成功"); openAdminModal(); } catch(e) { alert("失敗"); } }
     
-    // ============ 單品專屬設定 (新增更換茶湯) ============
+    // ============ 單品專屬設定 (結合緊湊型加料編輯) ============
     function toggleItemSettings(cIdx, iIdx) { 
         const panel = document.getElementById(`admin_settings_panel_${cIdx}_${iIdx}`); 
         if (panel.style.display === 'block') { panel.style.display = 'none'; } else { renderSingleItemSettingsAdmin(cIdx, iIdx); panel.style.display = 'block'; } 
@@ -588,8 +664,8 @@
         let panel = document.getElementById(`admin_settings_panel_${cIdx}_${iIdx}`);
         if (!panel) return;
         
-        let html = `<div style="padding: 10px; background: #e3f2fd; border: 1px solid #90caf9; border-radius: 8px; font-size: 0.9em;">`;
-        html += `<div style="color: #1565c0; margin-bottom: 10px; font-weight: bold;">📝 單品專屬設定</div>`;
+        let html = `<div style="padding: 12px; background: #e3f2fd; border: 1px solid #90caf9; border-radius: 8px; font-size: 0.9em;">`;
+        html += `<div style="color: #1565c0; margin-bottom: 12px; font-weight: bold; font-size: 1.05rem;">📝 單品專屬設定</div>`;
         
         // 茶湯開關
         html += `<label style="display:flex; align-items:center; margin-bottom: 15px; font-weight:bold; color:#00695c; cursor:pointer;">
@@ -605,6 +681,47 @@
         let sugarVal = item.customSugar ? item.customSugar.join(',') : '';
         html += `<div style="margin-bottom: 15px;"><b style="color:#e65100;">🍬 專屬甜度選項</b><br><input type="text" class="admin-input" style="width:100%; box-sizing:border-box; margin-top:4px;" value="${sugarVal}" placeholder="如: 半糖,微糖,無糖" onchange="updateItemSugar(${cIdx}, ${iIdx}, this.value)"></div>`;
         
+        // --- 緊湊型標籤化加料設定 ---
+        let hasCustomToppings = !!item.customToppings;
+        html += `<hr style="border: 0; border-top: 1px dashed #90caf9; margin: 15px 0;">`;
+        html += `<label style="display:flex; align-items:center; font-weight:bold; color:#1565c0; cursor:pointer; margin-bottom:10px;">
+            <input type="checkbox" onchange="toggleItemCustomToppingActive(${cIdx}, ${iIdx}, this.checked)" ${hasCustomToppings ? 'checked' : ''} style="margin-right: 5px; transform: scale(1.2);"> 
+            ✨ 啟用「${item.name}」專屬加料 <span style="font-size:0.8em; color:#666; font-weight:normal; margin-left:5px;">(停用則套用全域)</span>
+        </label>`;
+
+        if (hasCustomToppings) {
+            html += `<div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #bbdefb; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);">`;
+            ['M', 'L'].forEach(size => {
+                html += `<div style="margin-bottom: ${size === 'M' ? '18px' : '0'};">`;
+                html += `<div style="font-size: 0.95rem; font-weight: bold; color: #0277bd; margin-bottom: 8px;">🥤 ${size} 杯專屬清單</div>`;
+                
+                // 渲染現有標籤 (Chips)
+                html += `<div class="chip-container">`;
+                let tops = item.customToppings[size] || {};
+                let topCount = 0;
+                Object.entries(tops).forEach(([tName, tPrice]) => {
+                    topCount++;
+                    html += `<span class="topping-chip">
+                        ${tName} $${tPrice} 
+                        <a href="javascript:void(0)" class="topping-chip-del" onclick="delItemCustomTopping(${cIdx}, ${iIdx}, '${size}', '${tName}')">✕</a>
+                    </span>`;
+                });
+                if(topCount === 0) html += `<span style="font-size:0.85rem; color:#999;">目前無加料項目</span>`;
+                html += `</div>`;
+
+                // 緊湊新增輸入框
+                html += `<div class="compact-add-row">
+                    <input type="text" id="add_item_top_name_${cIdx}_${iIdx}_${size}" placeholder="加料名稱" style="flex:1; min-width:60px;">
+                    <span style="font-size:0.85rem; font-weight:bold; color:#555;">$</span>
+                    <input type="number" id="add_item_top_price_${cIdx}_${iIdx}_${size}" placeholder="價格" style="width: 50px;">
+                    <button class="compact-add-btn" onclick="addItemCustomTopping(${cIdx}, ${iIdx}, '${size}')">新增</button>
+                </div>`;
+
+                html += `</div>`;
+            });
+            html += `</div>`;
+        }
+
         html += `</div>`;
         panel.innerHTML = html;
     }
@@ -613,9 +730,42 @@
     function updateItemIce(cIdx, iIdx, val) { let item = menuData[cIdx].items[iIdx]; if (val.trim() === '') delete item.customIce; else item.customIce = val.split(',').map(s => s.trim()).filter(s => s); }
     function updateItemSugar(cIdx, iIdx, val) { let item = menuData[cIdx].items[iIdx]; if (val.trim() === '') delete item.customSugar; else item.customSugar = val.split(',').map(s => s.trim()).filter(s => s); }
     
+    function toggleItemCustomToppingActive(cIdx, iIdx, isChecked) {
+        if (isChecked) {
+            // 自動帶入全域加料作為起始基底，方便修改
+            menuData[cIdx].items[iIdx].customToppings = JSON.parse(JSON.stringify(toppingPrices));
+        } else {
+            delete menuData[cIdx].items[iIdx].customToppings;
+        }
+        renderSingleItemSettingsAdmin(cIdx, iIdx);
+    }
+
+    function delItemCustomTopping(cIdx, iIdx, size, name) {
+        let item = menuData[cIdx].items[iIdx];
+        if (item.customToppings && item.customToppings[size]) {
+            delete item.customToppings[size][name];
+            renderSingleItemSettingsAdmin(cIdx, iIdx);
+        }
+    }
+
+    function addItemCustomTopping(cIdx, iIdx, size) {
+        let item = menuData[cIdx].items[iIdx];
+        let nameInput = document.getElementById(`add_item_top_name_${cIdx}_${iIdx}_${size}`);
+        let priceInput = document.getElementById(`add_item_top_price_${cIdx}_${iIdx}_${size}`);
+        let name = nameInput.value.trim();
+        let price = priceInput.value;
+
+        if (!name || price === '') return alert("請輸入完整的名稱與價格");
+        if (!item.customToppings) item.customToppings = {};
+        if (!item.customToppings[size]) item.customToppings[size] = {};
+        
+        item.customToppings[size][name] = parseInt(price);
+        renderSingleItemSettingsAdmin(cIdx, iIdx);
+    }
+
     function saveAdminDataSilent() { menuData.forEach((cat, cIdx) => { cat.items.forEach((item, iIdx) => { let mInput = document.getElementById(`admin_m_${cIdx}_${iIdx}`); let lInput = document.getElementById(`admin_l_${cIdx}_${iIdx}`); if (mInput && lInput) { item.prices = {}; if(mInput.value !== '') item.prices.M = parseInt(mInput.value); if(lInput.value !== '') item.prices.L = parseInt(lInput.value); } }); }); }
-    function saveAllToLocal() { localStorage.setItem('pos_menu_custom', JSON.stringify(menuData)); localStorage.setItem('pos_store_hours', JSON.stringify(storeHours)); }
-    function saveAdminData() { saveAdminDataSilent(); saveAllToLocal(); const bundle = { menu: menuData, toppings: toppingPrices, storeHours: storeHours }; document.getElementById('admin-modal').style.display = 'none'; fetch(GAS_API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(bundle) }).then(()=> { alert("✅ 雲端同步成功！"); checkStoreStatus(); renderMenu(); }).catch(()=>{ alert("同步失敗"); checkStoreStatus(); renderMenu(); }); }
+    function saveAllToLocal() { localStorage.setItem('pos_menu_custom', JSON.stringify(menuData)); localStorage.setItem('pos_store_hours', JSON.stringify(storeHours)); localStorage.setItem('pos_toppings_custom', JSON.stringify(toppingPrices)); }
+    function saveAdminData() { saveAdminDataSilent(); saveAllToLocal(); const bundle = { menu: menuData, toppings: toppingPrices, storeHours: storeHours }; document.getElementById('admin-modal').style.display = 'none'; fetch(GAS_API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(bundle) }).then(()=> { alert("✅ 雲端同步成功！"); checkStoreStatus(); renderMenu(); }).catch(()=>{ alert("同步失敗，已儲存於本機"); checkStoreStatus(); renderMenu(); }); }
     function closeAdminModal() { document.getElementById('admin-modal').style.display = 'none'; loadSavedConfig(); checkStoreStatus(); renderMenu(); }
 
     // ============ 點餐功能邏輯 ============
@@ -670,7 +820,6 @@
         const isSugar = (containerId === 'sugar-btns');
 
         options.forEach(opt => {
-            // 如果是甜度的「其他」，渲染成自訂的下拉式選單
             if (isSugar && opt === "其他") {
                 const sel = document.createElement('select');
                 sel.className = 'opt-btn';
@@ -695,7 +844,6 @@
                 btn.onclick = () => {
                     container.querySelectorAll('.opt-btn').forEach(b => {
                         b.classList.remove('active');
-                        // 如果其他按鈕中包含下拉選單，將其重置
                         if (b.tagName === 'SELECT') b.selectedIndex = 0; 
                     });
                     btn.classList.add('active');
@@ -708,7 +856,13 @@
 
     function renderToppings(item, size) {
         const container = document.getElementById('topping-btns'); container.innerHTML = '';
+        
+        // 判斷優先使用專屬加料，否則使用全域加料
         let activeToppings = toppingPrices[size] || {}; 
+        if (item.customToppings && item.customToppings[size]) {
+            activeToppings = item.customToppings[size];
+        }
+
         Object.entries(activeToppings).forEach(([name, price]) => {
             const btn = document.createElement('button');
             btn.className = 'opt-btn' + (currentSelect.toppings.includes(name) ? ' active' : '');
@@ -724,7 +878,13 @@
         if(!currentSelect.size || !currentSelect.ice || !currentSelect.sugar) return alert("請完整選擇所有選項（大小/冰塊/甜度）");
         
         let basePrice = currentSelect.item.prices[currentSelect.size];
+        
+        // 點餐時價格計算也要判斷專屬加料
         let activeToppings = toppingPrices[currentSelect.size] || {};
+        if (currentSelect.item.customToppings && currentSelect.item.customToppings[currentSelect.size]) {
+            activeToppings = currentSelect.item.customToppings[currentSelect.size];
+        }
+
         let toppingCost = currentSelect.toppings.reduce((sum, t) => sum + (activeToppings[t] || 0), 0);
         let finalPrice = (basePrice + toppingCost) * currentSelect.qty;
         
@@ -745,7 +905,6 @@
                 let unitPrice = item.price / item.qty;
                 for(let i=0; i<item.qty; i++) allCups.push(unitPrice);
                 
-                // 顯示茶湯與加料明細
                 let teaStr = item.teaSwap ? ` / ${item.teaSwap}` : '';
                 let toppingsStr = item.toppings.length ? ` / 加:${item.toppings.join(',')}` : '';
                 
