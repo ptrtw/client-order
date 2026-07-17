@@ -19,8 +19,12 @@
         /* 頂部搜尋與導覽列容器 (固定於頂部) */
         .sticky-header-container { position: sticky; top: 0; z-index: 999; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         
-        /* 搜尋列 */
-        .search-container { padding: 10px 15px; border-bottom: 1px solid #f0f0f0; }
+        /* 新增：頂部收合式搜尋列美化 */
+        .header-top { display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; }
+        .search-icon { font-size: 1.4rem; cursor: pointer; padding: 5px; color: var(--brand-color); transition: transform 0.2s; }
+        .search-icon:active { transform: scale(0.9); }
+        .search-overlay { display: none; padding: 0 15px 10px 15px; border-bottom: 1px solid #f0f0f0; animation: fadeIn 0.2s; }
+        
         #search-input { width: 100%; padding: 10px 15px; border-radius: 20px; border: 1px solid #ddd; background: #f9f9f9; font-size: 1rem; box-sizing: border-box; outline: none; transition: border-color 0.2s; }
         #search-input:focus { border-color: var(--brand-color); background: #fff; }
 
@@ -104,8 +108,13 @@
     <span id="closed-hours-msg" style="font-size: 1.2rem; margin-top: 10px; font-weight: normal;"></span>
 </div>
 
+<!-- 頂部美化與隱藏式搜尋 -->
 <div class="sticky-header-container">
-    <div class="search-container">
+    <div class="header-top">
+        <div style="font-weight:bold; font-size: 1.1rem; color: var(--text-main);">清心福全左營榮總店</div>
+        <div class="search-icon" onclick="toggleSearch()">🔍</div>
+    </div>
+    <div id="search-overlay" class="search-overlay">
         <input type="text" id="search-input" onkeyup="filterMenu()" placeholder="🔍 搜尋產品關鍵字...">
     </div>
     <div id="nav-bar" class="sticky-nav"></div>
@@ -113,6 +122,7 @@
 
 <div id="menu-content"></div>
 
+<!-- 購物車常駐條 -->
 <button id="cart-bar-btn" onclick="showCart()">
     <span style="display: flex; align-items: center; gap: 10px;">
         🛒 查看購物車 <span id="cart-counter" class="cart-badge">0</span>
@@ -213,6 +223,11 @@
             <input type="text" id="customer-address" placeholder="首次光臨貴賓請務必輸入外送地址">
         </div>
         
+        <!-- 新增：紅色小字說明 -->
+        <div style="color: #d32f2f; font-size: 0.85rem; text-align: center; margin: 15px 0 10px; font-weight: bold;">
+            * 貴賓如有載具或統編，請在聊天室上傳給我們 *
+        </div>
+        
         <button class="submit-btn" onclick="sendToLine()">立即結帳</button>
     </div>
 </div>
@@ -235,7 +250,6 @@
 
     const DEFAULT_TOPPING_PRICES = { M: { "珍珠": 5, "椰果": 5, "布丁": 10, "仙草凍": 10, "QQ": 10 }, L: { "珍珠": 5, "椰果": 5, "布丁": 10, "仙草凍": 10, "QQ": 10 } };
     
-    // 完整預設菜單，方便備份與研究用
     const DEFAULT_MENU_DATA = [
         { category: "茗品", items: [ 
             { name: "特級綠茶", prices: { M: 25, L: 30 } },
@@ -275,7 +289,6 @@
         ] }
     ];
     
-    // 預設營業時間 (0=週日, 1=週一...)
     const DEFAULT_HOURS = {
         1: { open: "09:00", close: "21:00", isClosed: false }, 
         2: { open: "09:00", close: "21:00", isClosed: false },
@@ -325,6 +338,17 @@
     let currentSelect = {};
     let secretCount = 0; let secretTimer = null;
 
+    // 新增：切換搜尋列顯示功能
+    function toggleSearch() {
+        const overlay = document.getElementById('search-overlay');
+        if (overlay.style.display === 'none' || overlay.style.display === '') {
+            overlay.style.display = 'block';
+            document.getElementById('search-input').focus();
+        } else {
+            overlay.style.display = 'none';
+        }
+    }
+
     // ============ 搜尋過濾功能 ============
     function filterMenu() {
         const keyword = document.getElementById('search-input').value.toLowerCase();
@@ -357,7 +381,6 @@
             }
         });
         
-        // 更新上方導覽列的狀態
         document.querySelectorAll('.nav-btn').forEach((b, idx) => {
             b.classList.toggle('active', idx === currentActiveCat);
         });
@@ -365,12 +388,11 @@
 
     // ============ 營業時間狀態檢查 ============
     function checkStoreStatus() {
-        // 取得台灣時間
         const now = new Date();
         const twTimeStr = now.toLocaleString("en-US", { timeZone: "Asia/Taipei", hour12: false });
         const twTime = new Date(twTimeStr);
         
-        const day = twTime.getDay(); // 0(Sun) - 6(Sat)
+        const day = twTime.getDay(); 
         const hh = String(twTime.getHours()).padStart(2, '0');
         const mm = String(twTime.getMinutes()).padStart(2, '0');
         const currentTime = `${hh}:${mm}`;
@@ -400,13 +422,16 @@
         updateCounter(); 
     }
 
-    setInterval(checkStoreStatus, 60000); // 每分鐘檢查一次狀態
+    setInterval(checkStoreStatus, 60000); 
 
     function updateCounter() {
         document.getElementById('cart-counter').innerText = cart.length;
         let total = cart.reduce((sum, i) => sum + i.price, 0);
         document.getElementById('cart-total-preview').innerText = `$${total}`;
-        document.getElementById('cart-bar-btn').style.display = (!isStoreCurrentlyClosed && cart.length > 0) ? 'flex' : 'none';
+        
+        // 修改：只要不是店休，就固定顯示底部購物車（無論有沒有商品）
+        document.getElementById('cart-bar-btn').style.display = (!isStoreCurrentlyClosed) ? 'flex' : 'none';
+        
         try { localStorage.setItem('pos_cart_data', JSON.stringify(cart)); } catch(e) {}
     }
 
@@ -425,7 +450,6 @@
                 document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
                 const targetEl = document.getElementById('cat-header-'+cIdx);
-                // 扣除頂部 header 高度進行平滑滾動
                 const headerHeight = document.querySelector('.sticky-header-container').offsetHeight;
                 const y = targetEl.getBoundingClientRect().top + window.scrollY - headerHeight;
                 window.scrollTo({top: y, behavior: 'smooth'});
@@ -470,7 +494,6 @@
             container.appendChild(grid);
         });
         
-        // 依據搜尋欄位復原顯示狀態
         filterMenu(); 
     }
 
@@ -545,7 +568,7 @@
         const daysZh = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
         let html = '';
         for(let i=1; i<=7; i++) {
-            let dayIdx = i % 7; // 將週日(0)排在最後
+            let dayIdx = i % 7; 
             let conf = storeHours[dayIdx];
             html += `<div style="display:flex; justify-content:space-between; padding:8px 5px; border-bottom:1px dotted #00bcd4; align-items:center;">
                 <span style="font-weight:bold; width: 40px;">${daysZh[dayIdx]}</span>
@@ -563,7 +586,7 @@
 
     function updateStoreHour(day, key, val) {
         storeHours[day][key] = val;
-        if(key === 'isClosed') renderHoursAdmin(); // 刷新以套用 disable 樣式
+        if(key === 'isClosed') renderHoursAdmin(); 
     }
 
     function renderCategoryAdmin() { let html = ''; menuData.forEach((cat, idx) => { html += `<div class="admin-row" style="padding: 5px 0; border-bottom: 1px dotted #e1bee7;"><input type="text" value="${cat.category}" onchange="renameCategory(${idx}, this.value)" style="padding:4px; flex:1; border:1px solid #ccc; margin-right:5px;"><button onclick="deleteCategory(${idx})" style="background:#ff4d4d; color:white; border:none; padding:4px 10px;">刪除</button></div>`; }); document.getElementById('admin-category-list').innerHTML = html; }
@@ -577,7 +600,7 @@
     function copyConfig() { const ta = document.getElementById('sync_textarea'); ta.select(); navigator.clipboard.writeText(ta.value); alert("複製成功"); }
     function importConfig() { try { const bundle = JSON.parse(decodeURIComponent(escape(atob(document.getElementById('sync_textarea').value.trim())))); localStorage.setItem('pos_menu_custom', JSON.stringify(bundle.menu)); localStorage.setItem('pos_store_hours', JSON.stringify(bundle.storeHours)); loadSavedConfig(); alert("匯入成功"); openAdminModal(); } catch(e) { alert("失敗"); } }
     
-    // ============ 單品專屬設定 (新增更換茶湯) ============
+    // ============ 單品專屬設定 ============
     function toggleItemSettings(cIdx, iIdx) { 
         const panel = document.getElementById(`admin_settings_panel_${cIdx}_${iIdx}`); 
         if (panel.style.display === 'block') { panel.style.display = 'none'; } else { renderSingleItemSettingsAdmin(cIdx, iIdx); panel.style.display = 'block'; } 
@@ -591,17 +614,14 @@
         let html = `<div style="padding: 10px; background: #e3f2fd; border: 1px solid #90caf9; border-radius: 8px; font-size: 0.9em;">`;
         html += `<div style="color: #1565c0; margin-bottom: 10px; font-weight: bold;">📝 單品專屬設定</div>`;
         
-        // 茶湯開關
         html += `<label style="display:flex; align-items:center; margin-bottom: 15px; font-weight:bold; color:#00695c; cursor:pointer;">
             <input type="checkbox" onchange="updateItemTeaSwap(${cIdx}, ${iIdx}, this.checked)" ${item.enableTeaSwap ? 'checked' : ''} style="margin-right: 5px; transform: scale(1.2);"> 
             🍵 開放「更換茶湯」選項
         </label>`;
 
-        // 冰塊設定
         let iceVal = item.customIce ? item.customIce.join(',') : '';
         html += `<div style="margin-bottom: 10px;"><b style="color:#0277bd;">🧊 專屬冰塊選項</b> (半形逗號分隔)<br><input type="text" class="admin-input" style="width:100%; box-sizing:border-box; margin-top:4px;" value="${iceVal}" placeholder="如: 正常冰,少冰,去冰" onchange="updateItemIce(${cIdx}, ${iIdx}, this.value)"></div>`;
 
-        // 甜度設定
         let sugarVal = item.customSugar ? item.customSugar.join(',') : '';
         html += `<div style="margin-bottom: 15px;"><b style="color:#e65100;">🍬 專屬甜度選項</b><br><input type="text" class="admin-input" style="width:100%; box-sizing:border-box; margin-top:4px;" value="${sugarVal}" placeholder="如: 半糖,微糖,無糖" onchange="updateItemSugar(${cIdx}, ${iIdx}, this.value)"></div>`;
         
@@ -626,11 +646,10 @@
         document.getElementById('modal-title').innerText = item.name;
         document.getElementById('item-qty').innerText = 1;
         
-        // 茶湯開關 UI 邏輯
         const teaSwapSelect = document.getElementById('tea-swap-select');
         if (item.enableTeaSwap) {
             teaSwapSelect.style.display = 'block';
-            teaSwapSelect.value = ""; // 重置為預設
+            teaSwapSelect.value = ""; 
             teaSwapSelect.onchange = (e) => { currentSelect.teaSwap = e.target.value; };
         } else {
             teaSwapSelect.style.display = 'none';
@@ -670,7 +689,6 @@
         const isSugar = (containerId === 'sugar-btns');
 
         options.forEach(opt => {
-            // 如果是甜度的「其他」，渲染成自訂的下拉式選單
             if (isSugar && opt === "其他") {
                 const sel = document.createElement('select');
                 sel.className = 'opt-btn';
@@ -695,7 +713,6 @@
                 btn.onclick = () => {
                     container.querySelectorAll('.opt-btn').forEach(b => {
                         b.classList.remove('active');
-                        // 如果其他按鈕中包含下拉選單，將其重置
                         if (b.tagName === 'SELECT') b.selectedIndex = 0; 
                     });
                     btn.classList.add('active');
@@ -745,7 +762,6 @@
                 let unitPrice = item.price / item.qty;
                 for(let i=0; i<item.qty; i++) allCups.push(unitPrice);
                 
-                // 顯示茶湯與加料明細
                 let teaStr = item.teaSwap ? ` / ${item.teaSwap}` : '';
                 let toppingsStr = item.toppings.length ? ` / 加:${item.toppings.join(',')}` : '';
                 
