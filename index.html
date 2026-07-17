@@ -640,7 +640,7 @@
         
         renderBtns('size-btns', Object.keys(item.prices), (val) => { currentSelect.size = val; currentSelect.toppings = []; renderToppings(item, val); }, defaultSize);
         
-        let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : ["正常冰", "少冰", "微冰", "去冰", "溫飲"];
+        let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : ["正常冰", "少冰", "微冰", "去冰", "常溫", "溫飲"];
         if (!item.customIce && (item.name.includes("優多") || item.name.includes("冰淇淋"))) iceOptions = iceOptions.filter(opt => opt !== "溫飲");
         renderBtns('ice-btns', iceOptions, (val) => currentSelect.ice = val, null);
         
