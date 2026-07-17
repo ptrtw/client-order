@@ -92,17 +92,21 @@
         .admin-input { padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
         .admin-title { font-weight: bold; background: #e0e0e0; padding: 8px; margin: 15px -15px 10px -15px; }
 
-        /* 全域加料專屬樣式 */
-        .topping-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #e0e0e0; }
-        .topping-row:last-child { border-bottom: none; }
-        .topping-name { font-weight: bold; font-size: 1.05rem; color: #333; flex: 1; }
-        .topping-ctrl { display: flex; align-items: center; gap: 8px; }
-        .topping-price-input { width: 70px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; text-align: center; }
-        .btn-delete { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
-        .btn-add { background: #06C755; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.95rem; }
-        .add-topping-box { background: #e8f5e9; padding: 15px; border: 1px dashed #81c784; border-radius: 8px; margin-top: 15px; }
+        /* 全域加料(合併版)專屬樣式 */
+        .unified-topping-row { display: flex; align-items: center; gap: 6px; padding: 10px 0; border-bottom: 1px dashed #ccc; }
+        .unified-topping-row:last-child { border-bottom: none; }
+        .unified-topping-name { flex: 1; font-weight: bold; font-size: 0.95rem; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .unified-topping-inputs { display: flex; align-items: center; gap: 4px; }
+        .size-label { font-size: 0.8rem; color: #666; font-weight: bold; }
+        .topping-price-input { width: 40px; padding: 6px 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95rem; text-align: center; }
+        .btn-delete-small { background: #ff4d4d; color: white; border: none; width: 28px; height: 28px; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 0.9rem; cursor: pointer; margin-left: 2px; }
+        
+        .add-topping-box { background: #e8f5e9; padding: 12px; border: 1px dashed #81c784; border-radius: 8px; margin-top: 15px; }
+        .add-grid { display: grid; grid-template-columns: 1fr auto auto; gap: 6px; align-items: center; margin-bottom: 10px; }
+        .add-grid input { padding: 8px 6px; border: 1px solid #a5d6a7; border-radius: 4px; font-size: 0.95rem; }
+        .btn-add-full { width: 100%; background: #06C755; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; }
 
-        /* 新增：單品專屬加料的標籤化 (Chips) 緊湊樣式 */
+        /* 單品專屬加料的標籤化 (Chips) 緊湊樣式 */
         .chip-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
         .topping-chip { background: #ffffff; border: 1px solid #64b5f6; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); color: #1565c0; font-weight: bold; }
         .topping-chip-del { background: #ff4d4d; color: white; border-radius: 50%; width: 16px; height: 16px; display: inline-flex; justify-content: center; align-items: center; font-size: 0.7rem; cursor: pointer; text-decoration: none; padding-bottom: 1px; }
@@ -254,7 +258,7 @@
 
     const DEFAULT_TOPPING_PRICES = { M: { "珍珠": 5, "椰果": 5, "布丁": 15, "仙草凍": 5, "QQ": 5, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 }, L: { "珍珠": 10, "椰果": 10, "布丁": 15, "仙草凍": 10, "QQ": 10, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 } };
     
-    // 完整預設菜單，方便備份與研究用
+    // 完整預設菜單
     const DEFAULT_MENU_DATA = [
         { category: "茗品", items: [ 
             { name: "特級綠茶", prices: { M: 25, L: 30 } },
@@ -344,7 +348,6 @@
     let currentSelect = {};
     let secretCount = 0; let secretTimer = null;
 
-    // ============ 搜尋過濾功能 ============
     function filterMenu() {
         const keyword = document.getElementById('search-input').value.toLowerCase();
         let currentActiveCat = -1;
@@ -381,7 +384,6 @@
         });
     }
 
-    // ============ 營業時間狀態檢查 ============
     function checkStoreStatus() {
         const now = new Date();
         const twTimeStr = now.toLocaleString("en-US", { timeZone: "Asia/Taipei", hour12: false });
@@ -485,7 +487,6 @@
             });
             container.appendChild(grid);
         });
-        
         filterMenu(); 
     }
 
@@ -499,7 +500,8 @@
                 <div id="admin-hours-list"></div>
             </div>
 
-            <div id="global-toppings-container"></div>
+            <!-- 全域加料區塊 (合併版) -->
+            <div id="unified-global-toppings-container"></div>
 
             <div class="admin-section" style="background:#f3e5f5; border-color:#ce93d8;">
                 <h3 style="margin-top:0; color:#6a1b9a;">📂 飲品分類與新增...</h3>
@@ -513,8 +515,8 @@
         menuData.forEach((cat, idx) => { html += `<option value="${idx}">${cat.category}</option>`; });
         html += `</select></div>
                 <div class="admin-row">名稱: <input type="text" id="new_name" placeholder="如: 翡翠檸檬" style="padding:5px; width:60%;"></div>
-                <div class="admin-row">M杯價格: $<input type="number" id="new_m" class="admin-input" style="width:60px;"></div>
-                <div class="admin-row">L杯價格: $<input type="number" id="new_l" class="admin-input" style="width:60px;"></div>
+                <div class="admin-row">M杯: $<input type="number" id="new_m" class="admin-input" style="width:50px;"></div>
+                <div class="admin-row">L杯: $<input type="number" id="new_l" class="admin-input" style="width:50px;"></div>
                 <button onclick="addNewItem()" style="width:100%; padding:10px; background:#4caf50; color:white; border:none; margin-top:10px;">將新品項加入下方清單</button>
             </div>
             
@@ -548,77 +550,95 @@
         
         renderCategoryAdmin();
         renderHoursAdmin(); 
-        renderGlobalToppingsAdmin(); 
+        renderUnifiedGlobalToppingsAdmin(); // 渲染緊湊版全域加料
     }
     
-    // ============ 全域加料編輯邏輯 ============
-    function renderGlobalToppingsAdmin() {
+    // ============ 全域加料編輯邏輯 (緊湊合併版) ============
+    function renderUnifiedGlobalToppingsAdmin() {
+        if(!toppingPrices.M) toppingPrices.M = {};
+        if(!toppingPrices.L) toppingPrices.L = {};
+        
+        // 取得所有唯一的加料名稱
+        let allToppingNames = new Set([...Object.keys(toppingPrices.M), ...Object.keys(toppingPrices.L)]);
+        
         let html = `
             <div class="admin-section" style="background:#fff; border: 1px solid #ddd; padding:0; overflow:hidden;">
-                <h3 style="margin:0; padding:15px; background:#f5f5f5; border-bottom:1px solid #ddd;">🥤 全域加料價格設定</h3>
+                <h3 style="margin:0; padding:15px; background:#f5f5f5; border-bottom:1px solid #ddd; color:#1565c0;">🥤 全域加料價格設定</h3>
                 <div style="padding:15px;">
         `;
         
-        const sizes = ['M', 'L'];
-        sizes.forEach(size => {
-            let sizeName = size === 'M' ? 'M 杯全域加料' : 'L 杯全域加料';
-            html += `
-            <div style="background:#fff; border:1px solid #e0e0e0; border-radius:8px; padding:15px; margin-bottom:20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                <div style="font-weight:bold; color:#0288d1; margin-bottom:15px; font-size: 1.1rem; border-bottom: 2px solid #e1f5fe; padding-bottom: 8px;">🥤 ${sizeName}</div>`;
-            
-            let sizeToppings = toppingPrices[size] || {};
-            for(let t in sizeToppings) {
-                html += `
-                <div class="topping-row">
-                    <span class="topping-name">${t}</span> 
-                    <div class="topping-ctrl">
-                        <span style="color:#555; font-weight:bold;">$</span>
-                        <input type="number" class="topping-price-input" value="${sizeToppings[t]}" onchange="updateGlobalTopping('${size}', '${t}', this.value)">
-                        <button class="btn-delete" onclick="deleteGlobalTopping('${size}', '${t}')">刪除</button>
-                    </div>
-                </div>`;
-            }
+        if (allToppingNames.size === 0) {
+            html += `<div style="text-align:center; color:#999; padding:10px 0;">目前無任何全域加料</div>`;
+        }
+
+        allToppingNames.forEach(tName => {
+            let mPrice = toppingPrices.M[tName] !== undefined ? toppingPrices.M[tName] : '';
+            let lPrice = toppingPrices.L[tName] !== undefined ? toppingPrices.L[tName] : '';
             
             html += `
-                <div class="add-topping-box">
-                    <div style="font-weight:bold; font-size:0.95rem; margin-bottom:10px; color:#2e7d32;">➕ 新增 ${size} 杯全域加料：</div>
-                    <div style="display:flex; gap:8px; align-items:center;">
-                        <input type="text" id="add_global_top_name_${size}" placeholder="名稱 (如:寒天)" style="flex:1; padding:8px; font-size:0.95rem; border:1px solid #a5d6a7; border-radius:4px;">
-                        <span style="color:#2e7d32; font-weight:bold;">$</span>
-                        <input type="number" id="add_global_top_price_${size}" placeholder="價格" style="width:60px; padding:8px; font-size:0.95rem; border:1px solid #a5d6a7; border-radius:4px;">
-                        <button class="btn-add" onclick="addGlobalTopping('${size}')">新增</button>
-                    </div>
+            <div class="unified-topping-row">
+                <span class="unified-topping-name">${tName}</span> 
+                <div class="unified-topping-inputs">
+                    <span class="size-label">M$</span>
+                    <input type="number" class="topping-price-input" value="${mPrice}" placeholder="無" onchange="updateUnifiedGlobalTopping('${tName}', 'M', this.value)">
+                    <span class="size-label" style="margin-left:4px;">L$</span>
+                    <input type="number" class="topping-price-input" value="${lPrice}" placeholder="無" onchange="updateUnifiedGlobalTopping('${tName}', 'L', this.value)">
+                    <button class="btn-delete-small" onclick="deleteUnifiedGlobalTopping('${tName}')">✕</button>
                 </div>
             </div>`;
         });
         
-        html += `</div></div>`;
-        document.getElementById('global-toppings-container').innerHTML = html;
+        html += `
+            <div class="add-topping-box">
+                <div style="font-weight:bold; font-size:0.95rem; margin-bottom:10px; color:#2e7d32;">➕ 新增全域加料</div>
+                <div class="add-grid">
+                    <input type="text" id="add_global_top_name" placeholder="配料名稱">
+                    <div><span class="size-label">M$</span> <input type="number" id="add_global_top_m" style="width:45px;"></div>
+                    <div><span class="size-label">L$</span> <input type="number" id="add_global_top_l" style="width:45px;"></div>
+                </div>
+                <button class="btn-add-full" onclick="addUnifiedGlobalTopping()">確認新增</button>
+            </div>
+        </div></div>`;
+        
+        document.getElementById('unified-global-toppings-container').innerHTML = html;
     }
 
-    function updateGlobalTopping(size, name, val) {
-        if(!toppingPrices[size]) toppingPrices[size] = {};
-        if(val !== '') toppingPrices[size][name] = parseInt(val);
-    }
-
-    function deleteGlobalTopping(size, name) {
-        if(confirm(`確定要刪除 ${size} 杯全域加料「${name}」嗎？`)) {
-            if(toppingPrices[size]) delete toppingPrices[size][name];
-            renderGlobalToppingsAdmin(); 
+    function updateUnifiedGlobalTopping(name, size, val) {
+        if (val === '') {
+            delete toppingPrices[size][name];
+        } else {
+            toppingPrices[size][name] = parseInt(val);
         }
     }
 
-    function addGlobalTopping(size) {
-        const nameInput = document.getElementById(`add_global_top_name_${size}`);
-        const priceInput = document.getElementById(`add_global_top_price_${size}`);
-        const name = nameInput.value.trim();
-        const price = priceInput.value;
-        if(!name || price === '') return alert("請完整輸入加料名稱與價格！");
+    function deleteUnifiedGlobalTopping(name) {
+        if(confirm(`確定要刪除全域加料「${name}」嗎？ (包含 M/L 杯設定)`)) {
+            if(toppingPrices.M && toppingPrices.M[name] !== undefined) delete toppingPrices.M[name];
+            if(toppingPrices.L && toppingPrices.L[name] !== undefined) delete toppingPrices.L[name];
+            renderUnifiedGlobalToppingsAdmin(); 
+        }
+    }
+
+    function addUnifiedGlobalTopping() {
+        const nameInput = document.getElementById('add_global_top_name');
+        const mInput = document.getElementById('add_global_top_m');
+        const lInput = document.getElementById('add_global_top_l');
         
-        if(!toppingPrices[size]) toppingPrices[size] = {};
-        if(toppingPrices[size].hasOwnProperty(name)) return alert("此加料名稱已經存在清單中囉！");
-        toppingPrices[size][name] = parseInt(price);
-        renderGlobalToppingsAdmin(); 
+        const name = nameInput.value.trim();
+        const mPrice = mInput.value;
+        const lPrice = lInput.value;
+        
+        if(!name) return alert("請輸入加料名稱！");
+        if(mPrice === '' && lPrice === '') return alert("請至少輸入一個杯量 (M 或 L) 的價格！");
+        
+        if(toppingPrices.M && toppingPrices.M.hasOwnProperty(name) || toppingPrices.L && toppingPrices.L.hasOwnProperty(name)) {
+            return alert("此加料名稱已經存在清單中囉！");
+        }
+        
+        if (mPrice !== '') toppingPrices.M[name] = parseInt(mPrice);
+        if (lPrice !== '') toppingPrices.L[name] = parseInt(lPrice);
+        
+        renderUnifiedGlobalToppingsAdmin(); 
     }
 
     function renderHoursAdmin() {
@@ -732,7 +752,6 @@
     
     function toggleItemCustomToppingActive(cIdx, iIdx, isChecked) {
         if (isChecked) {
-            // 自動帶入全域加料作為起始基底，方便修改
             menuData[cIdx].items[iIdx].customToppings = JSON.parse(JSON.stringify(toppingPrices));
         } else {
             delete menuData[cIdx].items[iIdx].customToppings;
@@ -776,11 +795,10 @@
         document.getElementById('modal-title').innerText = item.name;
         document.getElementById('item-qty').innerText = 1;
         
-        // 茶湯開關 UI 邏輯
         const teaSwapSelect = document.getElementById('tea-swap-select');
         if (item.enableTeaSwap) {
             teaSwapSelect.style.display = 'block';
-            teaSwapSelect.value = ""; // 重置為預設
+            teaSwapSelect.value = ""; 
             teaSwapSelect.onchange = (e) => { currentSelect.teaSwap = e.target.value; };
         } else {
             teaSwapSelect.style.display = 'none';
@@ -857,7 +875,6 @@
     function renderToppings(item, size) {
         const container = document.getElementById('topping-btns'); container.innerHTML = '';
         
-        // 判斷優先使用專屬加料，否則使用全域加料
         let activeToppings = toppingPrices[size] || {}; 
         if (item.customToppings && item.customToppings[size]) {
             activeToppings = item.customToppings[size];
@@ -879,7 +896,6 @@
         
         let basePrice = currentSelect.item.prices[currentSelect.size];
         
-        // 點餐時價格計算也要判斷專屬加料
         let activeToppings = toppingPrices[currentSelect.size] || {};
         if (currentSelect.item.customToppings && currentSelect.item.customToppings[currentSelect.size]) {
             activeToppings = currentSelect.item.customToppings[currentSelect.size];
