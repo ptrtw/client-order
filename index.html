@@ -19,10 +19,39 @@
         /* 頂部搜尋與導覽列容器 (固定於頂部) */
         .sticky-header-container { position: sticky; top: 0; z-index: 999; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         
-        /* 搜尋列 */
-        .search-container { padding: 10px 15px; border-bottom: 1px solid #f0f0f0; }
-        #search-input { width: 100%; padding: 10px 15px; border-radius: 20px; border: 1px solid #ddd; background: #f9f9f9; font-size: 1rem; box-sizing: border-box; outline: none; transition: border-color 0.2s; }
-        #search-input:focus { border-color: var(--brand-color); background: #fff; }
+        /* ===== 搜尋列 – 毛玻璃質感風 (方案二) ===== */
+        .search-container {
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+        }
+
+        #search-input {
+            width: 100%;
+            padding: 14px 20px 14px 48px;
+            border-radius: 40px;
+            border: none;
+            background: rgba(255, 255, 255, 0.5) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>') no-repeat 16px center;
+            background-size: 22px;
+            font-size: 1rem;
+            color: #1e293b;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+            outline: none;
+        }
+
+        #search-input:focus {
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 30px rgba(6, 199, 85, 0.2);
+            transform: scale(1.01);
+        }
+
+        #search-input::placeholder {
+            color: #8a94a6;
+            letter-spacing: 0.3px;
+        }
 
         /* 頂部導覽列 (橫向滑動) */
         .sticky-nav { display: flex; gap: 20px; overflow-x: auto; white-space: nowrap; padding: 0 15px; }
@@ -70,8 +99,30 @@
         .qty-num { padding: 0 12px; font-weight: bold; font-size: 0.9rem; }
         .tea-swap-select { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #f5f6f8; font-size: 0.85rem; color: var(--text-main); outline: none; }
 
-        /* 懸浮購物車列 */
-        #cart-bar-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 500px; background: var(--brand-color); color: white; padding: 16px; box-sizing: border-box; z-index: 1001; cursor: pointer; border: none; font-size: 1.1rem; font-weight: bold; text-align: center; border-radius: 30px; box-shadow: 0 4px 15px rgba(6, 199, 85, 0.3); display: flex; justify-content: space-between; align-items: center; }
+        /* 懸浮購物車列 – 始終顯示 */
+        #cart-bar-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            max-width: 500px;
+            background: var(--brand-color);
+            color: white;
+            padding: 16px;
+            box-sizing: border-box;
+            z-index: 1001;
+            cursor: pointer;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(6, 199, 85, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
         .cart-badge { background: #fff; color: var(--brand-color); width: 26px; height: 26px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.9rem; }
         
         /* 購物車列表 */
@@ -129,13 +180,14 @@
 
 <div class="sticky-header-container">
     <div class="search-container">
-        <input type="text" id="search-input" onkeyup="filterMenu()" placeholder="🔍 搜尋產品關鍵字...">
+        <input type="text" id="search-input" onkeyup="filterMenu()" placeholder="搜尋產品關鍵字...">
     </div>
     <div id="nav-bar" class="sticky-nav"></div>
 </div>
 
 <div id="menu-content"></div>
 
+<!-- 購物車按鈕 – 始終顯示 -->
 <button id="cart-bar-btn" onclick="showCart()">
     <span style="display: flex; align-items: center; gap: 10px;">
         🛒 查看購物車 <span id="cart-counter" class="cart-badge">0</span>
@@ -421,11 +473,13 @@
 
     setInterval(checkStoreStatus, 60000); 
 
+    // ===== 修改此處：購物車按鈕永遠顯示 =====
     function updateCounter() {
         document.getElementById('cart-counter').innerText = cart.length;
         let total = cart.reduce((sum, i) => sum + i.price, 0);
         document.getElementById('cart-total-preview').innerText = `$${total}`;
-        document.getElementById('cart-bar-btn').style.display = (!isStoreCurrentlyClosed && cart.length > 0) ? 'flex' : 'none';
+        // 強制顯示購物車按鈕，不受營業時間或購物車內容影響
+        document.getElementById('cart-bar-btn').style.display = 'flex';
         try { localStorage.setItem('pos_cart_data', JSON.stringify(cart)); } catch(e) {}
     }
 
