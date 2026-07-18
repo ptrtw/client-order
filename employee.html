@@ -1053,13 +1053,10 @@
 
         <!-- ===== 訂單資訊欄位 ===== -->
         <div class="order-fields">
-            <!-- 電話 -->
             <div class="field-row">
                 <span class="field-label">📞 電話</span>
                 <input type="tel" id="customerPhone" placeholder="選填">
             </div>
-
-            <!-- 取餐方式 -->
             <div class="field-row">
                 <span class="field-label">🛵 取餐</span>
                 <div class="radio-group">
@@ -1067,13 +1064,9 @@
                     <label><input type="radio" name="deliveryMethod" value="外送" onchange="toggleAddress(true)"> 外送</label>
                 </div>
             </div>
-
-            <!-- 外送地址（預設隱藏） -->
             <div id="address-container">
                 <input type="text" id="customerAddress" placeholder="請輸入外送地址 (選填)">
             </div>
-
-            <!-- 發票 -->
             <div class="field-row" style="flex-wrap:wrap;">
                 <span class="field-label">📄 發票</span>
                 <div class="invoice-group" id="invoiceGroup">
@@ -1088,20 +1081,15 @@
                     </label>
                 </div>
             </div>
-
-            <!-- 統編/載具輸入 -->
             <div class="invoice-input" id="invoiceInput">
                 <input type="text" id="invoiceDetail" placeholder="請輸入統編號碼或載具條碼 (選填)">
             </div>
-
-            <!-- 備註 -->
             <div class="field-row">
                 <span class="field-label">📝 備註</span>
                 <input type="text" id="orderNote" placeholder="少冰、少糖、餐具數量等 (選填)">
             </div>
         </div>
 
-        <!-- ===== 總計與結帳 ===== -->
         <div class="panel-footer">
             <div class="total-row">
                 <span class="total-label">💰 總計</span>
@@ -1400,13 +1388,8 @@
         ];
 
         let toppingPrices = JSON.parse(JSON.stringify(DEFAULT_TOPPINGS));
-
-        // ===== 冰塊排列（由少到多） =====
         let globalIce = ['去冰', '微冰', '少冰', '正常冰', '常溫', '溫飲'];
-
-        // ===== 甜度排列（由少到多） =====
         let globalSugar = ['無糖', '微糖', '半糖', '八分糖', '其他'];
-
         let globalToppings = ['珍珠', '椰果', '布丁', '仙草凍', 'QQ', '咖啡凍', '蘆薈', '茉綠茶凍'];
 
         let cart = [];
@@ -1418,10 +1401,10 @@
         let qty = 1;
         let currentTab = 0;
 
-        // 後台狀態
         let adminItemPage = 0;
         let adminLayoutPage = 0;
         let adminSelectedCell = null;
+        let editingItemId = null;
 
         // =============================================
         // LIFF 初始化
@@ -1438,7 +1421,7 @@
             });
 
         // =============================================
-        // 初始化頁面配置（6×11 = 66 格，只填 60 格）
+        // 初始化頁面配置
         // =============================================
         function initPageLayout() {
             try {
@@ -1455,7 +1438,6 @@
                 }
             } catch (e) {}
 
-            // 確保每頁 66 格 (6×11)
             for (let p = 0; p < 3; p++) {
                 if (!pageLayout[p] || pageLayout[p].length < 66) {
                     const current = pageLayout[p] || [];
@@ -1467,7 +1449,6 @@
                 }
             }
 
-            // 若頁面完全空白，自動填入（只填前 60 格）
             for (let p = 0; p < 3; p++) {
                 const hasItem = pageLayout[p].slice(0, 60).some(id => id !== null);
                 if (!hasItem) {
@@ -1562,7 +1543,6 @@
             } else {
                 container.classList.remove('show');
             }
-            // 取餐方式變更，重新計算購物車總價（影響折扣）
             updateCartUI();
         }
 
@@ -1730,9 +1710,6 @@
             showToast(`✅ 已加入 ${currentItem.name} x${qty}`);
         }
 
-        // =============================================
-        // 購物車 UI（含折扣邏輯修正）
-        // =============================================
         function toggleCart() {
             const panel = document.getElementById('cart-panel');
             panel.classList.toggle('open');
@@ -1761,7 +1738,6 @@
                 return;
             }
 
-            // 計算原始總價
             let originalTotal = 0;
             let allCups = [];
             cart.forEach(item => {
@@ -1771,11 +1747,9 @@
                 }
             });
 
-            // 取得取餐方式
             const methodEl = document.querySelector('input[name="deliveryMethod"]:checked');
             const method = methodEl ? methodEl.value : '自取';
 
-            // 只有「自取」才計算買五送一折扣
             let discount = 0;
             if (method === '自取' && allCups.length >= 6) {
                 allCups.sort((a, b) => b - a);
@@ -1786,7 +1760,6 @@
 
             const finalTotal = originalTotal - discount;
 
-            // 顯示品項列表
             let html = '';
             cart.forEach((item, idx) => {
                 const detail = `${item.size} / ${item.ice} / ${item.sugar}` +
@@ -1804,7 +1777,6 @@
             });
             list.innerHTML = html;
 
-            // 更新金額
             totalEl.textContent = `$${finalTotal}`;
             originalTotalEl.textContent = originalTotal;
             discountEl.textContent = discount;
@@ -1842,7 +1814,7 @@
         }
 
         // =============================================
-        // 結帳（折扣邏輯修正）
+        // 結帳
         // =============================================
         function checkout() {
             if (cart.length === 0) {
@@ -1860,7 +1832,6 @@
                 return;
             }
 
-            // 收集所有欄位
             const phone = document.getElementById('customerPhone').value.trim() || '未提供';
             const methodEl = document.querySelector('input[name="deliveryMethod"]:checked');
             const method = methodEl ? methodEl.value : '自取';
@@ -1874,7 +1845,6 @@
                 invoiceText += `：${invoiceDetail}`;
             }
 
-            // 計算總金額（只有自取才折扣）
             let originalTotal = 0;
             let allCups = [];
             cart.forEach(item => {
@@ -1893,7 +1863,6 @@
             }
             const finalTotal = originalTotal - discount;
 
-            // 建立 Flex Message
             const allItemBoxes = cart.map(i => {
                 let details = `👉 ${i.ice} / ${i.sugar}`;
                 if (i.toppings.length) details += ` / 加:${i.toppings.join(',')}`;
@@ -1929,7 +1898,6 @@
                 ] }
             ];
 
-            // 如果有外送地址，加入
             if (method === '外送' && address) {
                 footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [
                     { type: "text", text: `📍 ${address}`, size: "sm", color: "#64748b", wrap: true }
@@ -1940,7 +1908,6 @@
                 { type: "text", text: `📄 ${invoiceText}`, size: "sm", color: "#64748b" }
             ] });
 
-            // 如果有備註，加入
             if (note) {
                 footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [
                     { type: "text", text: `📝 ${note}`, size: "sm", color: "#64748b", wrap: true }
@@ -2022,7 +1989,7 @@
         }
 
         // =============================================
-        // 後台管理（完整保留）
+        // 後台管理
         // =============================================
         function openAdmin() {
             document.getElementById('adminModal').classList.add('open');
@@ -2081,13 +2048,289 @@
                         <span>${item.name}</span>
                         <span style="display:flex; gap:6px; align-items:center;">
                             <span style="color:#94a3b8; font-size:0.7rem;">M$${item.M??'-'} L$${item.L??'-'}</span>
-                            <button onclick="adminEditItem('${item.id}')" style="background:none; border:none; color:#3b82f6; cursor:pointer;">✏️</button>
+                            <button onclick="openEditItemModal('${item.id}')" style="background:none; border:none; color:#3b82f6; cursor:pointer;">✏️</button>
                             <button onclick="adminDeleteItem('${item.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer;">✕</button>
                         </span>
                     </div>
                 `).join('');
         }
 
+        // =============================================
+        // 開啟編輯品項彈窗（含專屬加料管理）
+        // =============================================
+        function openEditItemModal(itemId) {
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            editingItemId = itemId;
+
+            document.getElementById('editItemName').value = item.name;
+            document.getElementById('editItemMPrice').value = item.M ?? '';
+            document.getElementById('editItemLPrice').value = item.L ?? '';
+
+            // 載入該品項的專屬加料
+            renderEditItemToppings(itemId);
+
+            document.getElementById('editItemModal').classList.add('open');
+        }
+
+        // =============================================
+        // 渲染編輯品項中的專屬加料
+        // =============================================
+        function renderEditItemToppings(itemId) {
+            const container = document.getElementById('editItemToppingList');
+            container.innerHTML = '';
+
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            const customTops = item.customToppings || {};
+
+            // 顯示專屬加料清單
+            if (Object.keys(customTops).length === 0) {
+                container.innerHTML = '<div style="color:#94a3b8; font-size:0.75rem; padding:8px 0;">此品項尚無專屬加料</div>';
+            } else {
+                // 合併 M 和 L 的加料名稱
+                const allNames = new Set();
+                if (customTops.M) Object.keys(customTops.M).forEach(n => allNames.add(n));
+                if (customTops.L) Object.keys(customTops.L).forEach(n => allNames.add(n));
+
+                allNames.forEach(name => {
+                    const mPrice = customTops.M && customTops.M[name] !== undefined ? customTops.M[name] : '';
+                    const lPrice = customTops.L && customTops.L[name] !== undefined ? customTops.L[name] : '';
+
+                    const div = document.createElement('div');
+                    div.style.cssText =
+                        'display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px solid #f1f5f9; font-size:0.8rem;';
+                    div.innerHTML = `
+                            <span style="font-weight:600;">${name}</span>
+                            <span style="color:#94a3b8; font-size:0.7rem;">M: $${mPrice || '-'} / L: $${lPrice || '-'}</span>
+                            <button onclick="removeEditItemTopping('${itemId}', '${name}')" style="background:#fee2e2; color:#dc2626; border:none; border-radius:10px; padding:2px 10px; font-size:0.6rem; cursor:pointer;">✕</button>
+                        `;
+                    container.appendChild(div);
+                });
+            }
+
+            // 更新全域加料的勾選狀態
+            renderEditItemGlobalToppings(itemId);
+        }
+
+        // =============================================
+        // 渲染全域加料勾選（編輯品項彈窗用）
+        // =============================================
+        function renderEditItemGlobalToppings(itemId) {
+            const container = document.getElementById('editItemGlobalToppings');
+            container.innerHTML = '';
+
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            const customTops = item.customToppings || {};
+
+            // 取得該品項已存在的專屬加料名稱
+            const existingNames = new Set();
+            if (customTops.M) Object.keys(customTops.M).forEach(n => existingNames.add(n));
+            if (customTops.L) Object.keys(customTops.L).forEach(n => existingNames.add(n));
+
+            // 顯示全域加料，並標示已選中
+            globalToppings.forEach(name => {
+                const isChecked = existingNames.has(name);
+
+                const label = document.createElement('label');
+                label.style.cssText =
+                    'display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer; padding:2px 8px; border-radius:12px; border:1px solid #e2e8f0; background:#fff;';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = isChecked;
+                checkbox.onchange = function() {
+                    toggleEditItemGlobalTopping(itemId, name, this.checked);
+                };
+
+                const text = document.createElement('span');
+                text.textContent = name;
+
+                label.appendChild(checkbox);
+                label.appendChild(text);
+                container.appendChild(label);
+            });
+        }
+
+        // =============================================
+        // 切換品項的全域加料
+        // =============================================
+        function toggleEditItemGlobalTopping(itemId, name, checked) {
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            if (!item.customToppings) item.customToppings = {};
+
+            // 從 M 和 L 中新增或刪除
+            ['M', 'L'].forEach(size => {
+                if (!item.customToppings[size]) item.customToppings[size] = {};
+
+                if (checked) {
+                    // 從全域加料價格取得價格
+                    const price = toppingPrices[size] && toppingPrices[size][name];
+                    if (price !== undefined) {
+                        item.customToppings[size][name] = price;
+                    }
+                } else {
+                    delete item.customToppings[size][name];
+                    // 如果該 size 沒有加料了，刪除整個 size 物件
+                    if (Object.keys(item.customToppings[size]).length === 0) {
+                        delete item.customToppings[size];
+                    }
+                }
+            });
+
+            // 如果沒有任何加料，刪除 customToppings
+            if (Object.keys(item.customToppings).length === 0) {
+                delete item.customToppings;
+            }
+
+            // 更新顯示
+            renderEditItemToppings(itemId);
+            renderEditItemGlobalToppings(itemId);
+        }
+
+        // =============================================
+        // 新增專屬加料（編輯品項彈窗）
+        // =============================================
+        function addEditItemTopping() {
+            const itemId = editingItemId;
+            if (!itemId) return;
+
+            const nameInput = document.getElementById('editItemNewToppingName');
+            const mInput = document.getElementById('editItemNewToppingM');
+            const lInput = document.getElementById('editItemNewToppingL');
+
+            const name = nameInput.value.trim();
+            const mPrice = mInput.value.trim();
+            const lPrice = lInput.value.trim();
+
+            if (!name) {
+                showToast('⚠️ 請輸入加料名稱');
+                nameInput.focus();
+                return;
+            }
+
+            if (mPrice === '' && lPrice === '') {
+                showToast('⚠️ 請至少輸入 M 或 L 的價格');
+                mInput.focus();
+                return;
+            }
+
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            if (!item.customToppings) item.customToppings = {};
+
+            // 檢查是否已存在同名加料
+            const existingNames = new Set();
+            if (item.customToppings.M) Object.keys(item.customToppings.M).forEach(n => existingNames.add(n));
+            if (item.customToppings.L) Object.keys(item.customToppings.L).forEach(n => existingNames.add(n));
+
+            if (existingNames.has(name)) {
+                showToast(`⚠️ 加料「${name}」已存在`);
+                return;
+            }
+
+            if (mPrice !== '') {
+                if (!item.customToppings.M) item.customToppings.M = {};
+                item.customToppings.M[name] = parseInt(mPrice);
+            }
+            if (lPrice !== '') {
+                if (!item.customToppings.L) item.customToppings.L = {};
+                item.customToppings.L[name] = parseInt(lPrice);
+            }
+
+            // 清空輸入框
+            nameInput.value = '';
+            mInput.value = '';
+            lInput.value = '';
+
+            showToast(`✅ 已新增專屬加料「${name}」`);
+            renderEditItemToppings(itemId);
+            renderEditItemGlobalToppings(itemId);
+            // 自動儲存
+            saveToLocal();
+        }
+
+        // =============================================
+        // 刪除專屬加料（編輯品項彈窗）
+        // =============================================
+        function removeEditItemTopping(itemId, name) {
+            if (!confirm(`確定要刪除加料「${name}」嗎？`)) return;
+
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            if (item.customToppings) {
+                if (item.customToppings.M) delete item.customToppings.M[name];
+                if (item.customToppings.L) delete item.customToppings.L[name];
+
+                // 清空空的 size
+                if (item.customToppings.M && Object.keys(item.customToppings.M).length === 0) {
+                    delete item.customToppings.M;
+                }
+                if (item.customToppings.L && Object.keys(item.customToppings.L).length === 0) {
+                    delete item.customToppings.L;
+                }
+                if (Object.keys(item.customToppings).length === 0) {
+                    delete item.customToppings;
+                }
+            }
+
+            showToast(`已刪除「${name}」`);
+            renderEditItemToppings(itemId);
+            renderEditItemGlobalToppings(itemId);
+            saveToLocal();
+        }
+
+        // =============================================
+        // 儲存編輯品項
+        // =============================================
+        function saveEditItem() {
+            const itemId = editingItemId;
+            if (!itemId) return;
+
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            const name = document.getElementById('editItemName').value.trim();
+            const mPrice = parseInt(document.getElementById('editItemMPrice').value);
+            const lPrice = parseInt(document.getElementById('editItemLPrice').value);
+
+            if (!name) {
+                showToast('⚠️ 請輸入品項名稱');
+                return;
+            }
+
+            item.name = name;
+            item.M = isNaN(mPrice) ? null : mPrice;
+            item.L = isNaN(lPrice) ? null : lPrice;
+
+            // 專屬加料已透過 toggleEditItemGlobalTopping 和 addEditItemTopping 處理
+
+            document.getElementById('editItemModal').classList.remove('open');
+            renderAdminItems();
+            renderGrid(currentTab);
+            saveToLocal();
+            showToast(`✅ 已更新「${name}」`);
+        }
+
+        // =============================================
+        // 關閉編輯彈窗
+        // =============================================
+        function closeEditItemModal() {
+            document.getElementById('editItemModal').classList.remove('open');
+            editingItemId = null;
+        }
+
+        // =============================================
+        // 新增品項
+        // =============================================
         function adminAddItem() {
             const name = prompt('請輸入品項名稱：');
             if (!name) return;
@@ -2119,22 +2362,6 @@
                 renderAdminLayout();
                 saveToLocal();
             }
-        }
-
-        function adminEditItem(id) {
-            const item = items.find(i => i.id === id);
-            if (!item) return;
-            const name = prompt('品項名稱：', item.name);
-            if (!name) return;
-            const mPrice = prompt('M 杯價格：', item.M ?? '');
-            const lPrice = prompt('L 杯價格：', item.L ?? '');
-            item.name = name;
-            item.M = mPrice ? parseInt(mPrice) : null;
-            item.L = lPrice ? parseInt(lPrice) : null;
-            renderAdminItems();
-            renderGrid(currentTab);
-            showToast(`✅ 已更新「${name}」`);
-            saveToLocal();
         }
 
         function adminDeleteItem(id) {
@@ -2306,9 +2533,6 @@
             ).join('');
         }
 
-        // =============================================
-        // 修復：新增全域選項後自動儲存
-        // =============================================
         function adminAddGlobal(type) {
             const inputMap = { ice: 'adminNewIce', sugar: 'adminNewSugar', topping: 'adminNewTopping' };
             const listMap = { ice: 'globalIce', sugar: 'globalSugar', topping: 'globalToppings' };
@@ -2323,13 +2547,10 @@
             window[listMap[type]].push(val);
             input.value = '';
             renderAdminTagGroup(tagMap[type], window[listMap[type]]);
-            saveToLocal();  // 新增後自動儲存
+            saveToLocal();
             showToast(`✅ 已新增「${val}」`);
         }
 
-        // =============================================
-        // 修復：刪除全域選項後自動儲存
-        // =============================================
         function adminRemoveGlobalItem(containerId, idx) {
             const map = {
                 'adminIceTags': 'globalIce',
@@ -2341,7 +2562,7 @@
             const removed = arr[idx];
             arr.splice(idx, 1);
             renderAdminTagGroup(containerId, arr);
-            saveToLocal();  // 刪除後自動儲存
+            saveToLocal();
             showToast(`已移除「${removed}」`);
         }
 
@@ -2445,5 +2666,65 @@
         console.log('📋 品項數量：', items.length);
         console.log('📐 頁面配置：', pageLayout.map(p => p.slice(0, 60).filter(id => id !== null).length));
     </script>
+
+    <!-- ===== 編輯品項彈窗（獨立於後台彈窗之外） ===== -->
+    <div class="modal-overlay" id="editItemModal" onclick="if(event.target===this) closeEditItemModal()">
+        <div class="modal-content" style="max-width:500px; max-height:90vh; overflow-y:auto;">
+            <div class="modal-header">
+                <h3>✏️ 編輯品項</h3>
+                <button class="close-btn" onclick="closeEditItemModal()">✕</button>
+            </div>
+
+            <!-- 基本資料 -->
+            <div class="form-group" style="margin-bottom:10px;">
+                <label style="font-size:0.75rem; font-weight:700; color:#64748b; display:block; margin-bottom:2px;">品項名稱</label>
+                <input type="text" id="editItemName" placeholder="請輸入品項名稱" style="width:100%; padding:6px 10px; border:1px solid #e2e8f0; border-radius:6px; font-size:0.85rem; outline:none;">
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
+                <div class="form-group">
+                    <label style="font-size:0.75rem; font-weight:700; color:#64748b; display:block; margin-bottom:2px;">M 杯價格</label>
+                    <input type="number" id="editItemMPrice" placeholder="如 25" style="width:100%; padding:6px 10px; border:1px solid #e2e8f0; border-radius:6px; font-size:0.85rem; outline:none;">
+                </div>
+                <div class="form-group">
+                    <label style="font-size:0.75rem; font-weight:700; color:#64748b; display:block; margin-bottom:2px;">L 杯價格</label>
+                    <input type="number" id="editItemLPrice" placeholder="如 30" style="width:100%; padding:6px 10px; border:1px solid #e2e8f0; border-radius:6px; font-size:0.85rem; outline:none;">
+                </div>
+            </div>
+
+            <hr style="border:0; border-top:2px solid #f1f5f9; margin:12px 0;">
+
+            <!-- 加料管理 -->
+            <div style="font-size:0.85rem; font-weight:700; color:#1e293b; margin-bottom:8px;">🧋 加料管理</div>
+
+            <!-- 從全域加料勾選 -->
+            <div style="margin-bottom:10px;">
+                <div style="font-size:0.7rem; font-weight:600; color:#64748b; margin-bottom:4px;">從全域加料列表中選擇</div>
+                <div id="editItemGlobalToppings" style="display:flex; flex-wrap:wrap; gap:4px;"></div>
+            </div>
+
+            <!-- 專屬加料清單 -->
+            <div style="margin-bottom:10px;">
+                <div style="font-size:0.7rem; font-weight:600; color:#64748b; margin-bottom:4px;">專屬加料清單</div>
+                <div id="editItemToppingList" style="border:1px solid #e2e8f0; border-radius:6px; padding:4px 10px; min-height:40px; background:#fafafa;"></div>
+            </div>
+
+            <!-- 新增專屬加料 -->
+            <div style="background:#f8fafc; border-radius:8px; padding:10px; border:1px dashed #cbd5e1;">
+                <div style="font-size:0.7rem; font-weight:600; color:#64748b; margin-bottom:4px;">➕ 新增專屬加料</div>
+                <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center;">
+                    <input type="text" id="editItemNewToppingName" placeholder="加料名稱" style="flex:1; min-width:80px; padding:5px 8px; border:1px solid #e2e8f0; border-radius:4px; font-size:0.75rem; outline:none;">
+                    <span style="font-size:0.7rem; font-weight:600; color:#64748b;">M$</span>
+                    <input type="number" id="editItemNewToppingM" placeholder="價格" style="width:50px; padding:5px 8px; border:1px solid #e2e8f0; border-radius:4px; font-size:0.75rem; outline:none;">
+                    <span style="font-size:0.7rem; font-weight:600; color:#64748b;">L$</span>
+                    <input type="number" id="editItemNewToppingL" placeholder="價格" style="width:50px; padding:5px 8px; border:1px solid #e2e8f0; border-radius:4px; font-size:0.75rem; outline:none;">
+                    <button onclick="addEditItemTopping()" style="background:#06C755; color:#fff; border:none; border-radius:6px; padding:5px 14px; font-size:0.75rem; font-weight:600; cursor:pointer;">新增</button>
+                </div>
+            </div>
+
+            <button onclick="saveEditItem()" style="width:100%; padding:12px; background:#06C755; color:#fff; border:none; border-radius:10px; font-weight:700; font-size:0.9rem; cursor:pointer; margin-top:14px;">💾 儲存品項</button>
+        </div>
+    </div>
+
 </body>
 </html>
