@@ -120,14 +120,14 @@
             transform: scale(0.95);
         }
 
-        /* ===== 10x6 商品網格（文字自動換行） ===== */
+        /* ===== 6x10 商品網格（文字自動換行） ===== */
         .pos-grid {
             flex: 1;
             display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            grid-template-rows: repeat(6, 1fr);
-            gap: 3px;
-            padding: 3px;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            gap: 4px;
+            padding: 4px;
             background: #e2e8f0;
             min-height: 0;
             height: 100%;
@@ -135,23 +135,23 @@
 
         .pos-item {
             background: #ffffff;
-            border-radius: 4px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 700;
             color: #1e293b;
             cursor: pointer;
             transition: all 0.1s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            line-height: 1.2;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            line-height: 1.3;
             padding: 4px 2px;
             border: 1px solid transparent;
             position: relative;
             height: 100%;
-            /* 關鍵：讓文字自動換行 */
+            /* 關鍵：自動換行 */
             white-space: normal;
             word-break: break-word;
             overflow-wrap: break-word;
@@ -162,11 +162,11 @@
             background: #dcfce7;
             border-color: #06C755;
         }
-        /* 顏色小點 */
+        /* 顏色小點（可選） */
         .pos-item .dot {
             position: absolute;
-            top: 2px;
-            left: 3px;
+            top: 3px;
+            left: 4px;
             width: 6px;
             height: 6px;
             border-radius: 50%;
@@ -790,7 +790,7 @@
 
         .admin-modal .admin-section .item-grid-preview {
             display: grid;
-            grid-template-columns: repeat(10, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 2px;
             margin: 8px 0;
         }
@@ -898,7 +898,7 @@
         /* ===== 自適應 ===== */
         @media (max-width: 380px) {
             .pos-item {
-                font-size: 10px;
+                font-size: 12px;
                 padding: 2px 1px;
             }
             .tab-btn {
@@ -959,7 +959,7 @@
         }
         @media (min-width: 500px) {
             .pos-item {
-                font-size: 14px;
+                font-size: 16px;
             }
             .tab-btn {
                 font-size: 0.9rem;
@@ -995,7 +995,7 @@
         <button class="tab-btn" data-tab="2">🥛 鮮奶·加料</button>
     </div>
 
-    <!-- ===== 10x6 商品網格 ===== -->
+    <!-- ===== 6x10 商品網格 ===== -->
     <div class="pos-grid" id="posGrid"></div>
 
     <!-- ===== 浮動購物車 ===== -->
@@ -1143,7 +1143,7 @@
 
             <!-- 頁面配置 -->
             <div class="admin-section" id="adminLayout">
-                <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:6px;">點擊格子選擇品項（10×6）</div>
+                <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:6px;">點擊格子選擇品項（6×10）</div>
                 <div class="page-tabs" id="adminLayoutPages">
                     <button class="active" data-page="0">常用類</button>
                     <button data-page="1">特調·果醋</button>
@@ -1388,7 +1388,7 @@
             });
 
         // =============================================
-        // 初始化頁面配置（10×6 = 60 格）
+        // 初始化頁面配置（6×10 = 60 格）
         // =============================================
         function initPageLayout() {
             try {
@@ -1405,7 +1405,7 @@
                 }
             } catch (e) {}
 
-            // 確保每頁 60 格 (10×6)
+            // 確保每頁 60 格 (6×10)
             for (let p = 0; p < 3; p++) {
                 if (!pageLayout[p] || pageLayout[p].length < 60) {
                     const current = pageLayout[p] || [];
@@ -1432,16 +1432,14 @@
         }
 
         // =============================================
-        // 渲染商品網格（10×6，文字自動換行）
+        // 渲染商品網格（6×10，文字自動換行）
         // =============================================
         function renderGrid(tabIndex) {
             const grid = document.getElementById('posGrid');
             grid.innerHTML = '';
             const layout = pageLayout[tabIndex] || [];
 
-            const colors = ['#06C755', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444', '#ec4899', '#14b8a6', '#f97316', '#a855f7',
-                '#06b6d4'
-            ];
+            const colors = ['#06C755', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444', '#ec4899'];
 
             for (let i = 0; i < 60; i++) {
                 const div = document.createElement('div');
@@ -1450,7 +1448,7 @@
                 const item = items.find(it => it.id === itemId);
 
                 if (item) {
-                    // 直接顯示完整品名（會自動換行）
+                    // 直接顯示完整品名（自動換行）
                     div.textContent = item.name;
                     // 顏色小點
                     const dot = document.createElement('span');
