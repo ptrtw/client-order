@@ -1400,8 +1400,13 @@
         ];
 
         let toppingPrices = JSON.parse(JSON.stringify(DEFAULT_TOPPINGS));
+
+        // ===== 冰塊排列（由少到多） =====
         let globalIce = ['去冰', '微冰', '少冰', '正常冰', '常溫', '溫飲'];
+
+        // ===== 甜度排列（由少到多） =====
         let globalSugar = ['無糖', '微糖', '半糖', '八分糖', '其他'];
+
         let globalToppings = ['珍珠', '椰果', '布丁', '仙草凍', 'QQ', '咖啡凍', '蘆薈', '茉綠茶凍'];
 
         let cart = [];
@@ -2301,6 +2306,9 @@
             ).join('');
         }
 
+        // =============================================
+        // 修復：新增全域選項後自動儲存
+        // =============================================
         function adminAddGlobal(type) {
             const inputMap = { ice: 'adminNewIce', sugar: 'adminNewSugar', topping: 'adminNewTopping' };
             const listMap = { ice: 'globalIce', sugar: 'globalSugar', topping: 'globalToppings' };
@@ -2315,9 +2323,13 @@
             window[listMap[type]].push(val);
             input.value = '';
             renderAdminTagGroup(tagMap[type], window[listMap[type]]);
+            saveToLocal();  // 新增後自動儲存
             showToast(`✅ 已新增「${val}」`);
         }
 
+        // =============================================
+        // 修復：刪除全域選項後自動儲存
+        // =============================================
         function adminRemoveGlobalItem(containerId, idx) {
             const map = {
                 'adminIceTags': 'globalIce',
@@ -2329,7 +2341,7 @@
             const removed = arr[idx];
             arr.splice(idx, 1);
             renderAdminTagGroup(containerId, arr);
-            saveToLocal();
+            saveToLocal();  // 刪除後自動儲存
             showToast(`已移除「${removed}」`);
         }
 
