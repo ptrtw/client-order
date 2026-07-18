@@ -511,11 +511,6 @@
         .modal-overlay.open {
             display: flex;
         }
-        /* 確保編輯品項彈窗層級最高 */
-        #editItemModal {
-            z-index: 600 !important;
-        }
-
         .modal-content {
             background: #fff;
             width: 100%;
@@ -926,6 +921,137 @@
             font-size: 0.7rem;
         }
 
+        /* ===== 編輯品項彈窗（專屬加料管理） ===== */
+        #editItemModal {
+            z-index: 600 !important;
+        }
+        #editItemModal .modal-content {
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        #editItemModal .form-group {
+            margin-bottom: 10px;
+        }
+        #editItemModal .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 2px;
+        }
+        #editItemModal .form-group input,
+        #editItemModal .form-group select {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        #editItemModal .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        #editItemModal .edit-topping-list {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 4px 10px;
+            min-height: 40px;
+            background: #fafafa;
+            margin-bottom: 10px;
+        }
+        #editItemModal .edit-topping-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.8rem;
+        }
+        #editItemModal .edit-topping-item .del-btn {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            border-radius: 10px;
+            padding: 2px 10px;
+            font-size: 0.6rem;
+            cursor: pointer;
+        }
+        #editItemModal .edit-global-toppings {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+        #editItemModal .edit-global-toppings label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+        }
+        #editItemModal .edit-global-toppings label input {
+            margin: 0;
+        }
+        #editItemModal .add-topping-area {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px dashed #cbd5e1;
+            margin-bottom: 10px;
+        }
+        #editItemModal .add-topping-area .add-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+        #editItemModal .add-topping-area .add-row input {
+            padding: 5px 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            outline: none;
+        }
+        #editItemModal .add-topping-area .add-row input:focus {
+            border-color: #06C755;
+        }
+        #editItemModal .add-topping-area .add-row .price-input {
+            width: 50px;
+        }
+        #editItemModal .add-topping-area .add-btn {
+            background: #06C755;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 14px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        #editItemModal .save-edit-btn {
+            width: 100%;
+            padding: 12px;
+            background: #06C755;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-top: 14px;
+        }
+        #editItemModal .save-edit-btn:active {
+            transform: scale(0.97);
+        }
+
         /* ===== 自適應 ===== */
         @media (max-width: 380px) {
             .pos-item {
@@ -989,6 +1115,13 @@
             }
             .order-fields .invoice-group {
                 font-size: 0.6rem;
+            }
+            #editItemModal .add-topping-area .add-row input {
+                font-size: 0.65rem;
+                padding: 3px 5px;
+            }
+            #editItemModal .add-topping-area .add-row .price-input {
+                width: 40px;
             }
         }
         @media (min-width: 500px) {
@@ -1234,6 +1367,66 @@
 
     <!-- ===== 隱藏的上傳 input ===== -->
     <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="adminHandleImport(event)">
+
+    <!-- ===================== 編輯品項彈窗（已補上） ===================== -->
+    <div class="modal-overlay" id="editItemModal" onclick="if(event.target===this) closeEditItemModal()">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✏️ 編輯品項</h3>
+                <button class="close-btn" onclick="closeEditItemModal()">✕</button>
+            </div>
+
+            <!-- 基本資料 -->
+            <div class="form-group">
+                <label>品項名稱</label>
+                <input type="text" id="editItemName" placeholder="請輸入品項名稱">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>M 杯價格</label>
+                    <input type="number" id="editItemMPrice" placeholder="如 25">
+                </div>
+                <div class="form-group">
+                    <label>L 杯價格</label>
+                    <input type="number" id="editItemLPrice" placeholder="如 30">
+                </div>
+            </div>
+
+            <hr style="border:0; border-top:2px solid #f1f5f9; margin:12px 0;">
+
+            <!-- 加料管理 -->
+            <div style="font-size:0.85rem; font-weight:700; color:#1e293b; margin-bottom:8px;">🧋 加料管理</div>
+
+            <!-- 從全域加料勾選 -->
+            <div style="margin-bottom:10px;">
+                <div style="font-size:0.7rem; font-weight:600; color:#64748b; margin-bottom:4px;">從全域加料列表中選擇</div>
+                <div class="edit-global-toppings" id="editItemGlobalToppings"></div>
+            </div>
+
+            <!-- 專屬加料清單 -->
+            <div style="margin-bottom:10px;">
+                <div style="font-size:0.7rem; font-weight:600; color:#64748b; margin-bottom:4px;">專屬加料清單</div>
+                <div class="edit-topping-list" id="editItemToppingList"></div>
+            </div>
+
+            <!-- 新增專屬加料 -->
+            <div class="add-topping-area">
+                <div style="font-size:0.7rem; font-weight:600; color:#64748b; margin-bottom:4px;">➕ 新增專屬加料</div>
+                <div class="add-row">
+                    <input type="text" id="editItemNewToppingName" placeholder="加料名稱" style="flex:1; min-width:80px;">
+                    <span style="font-size:0.7rem; font-weight:600; color:#64748b;">M$</span>
+                    <input type="number" class="price-input" id="editItemNewToppingM" placeholder="價格">
+                    <span style="font-size:0.7rem; font-weight:600; color:#64748b;">L$</span>
+                    <input type="number" class="price-input" id="editItemNewToppingL" placeholder="價格">
+                    <button class="add-btn" onclick="addEditItemTopping()">新增</button>
+                </div>
+            </div>
+
+            <button class="save-edit-btn" onclick="saveEditItem()">💾 儲存品項</button>
+        </div>
+    </div>
+    <!-- ===================== 編輯品項彈窗結束 ===================== -->
 
     <script>
         // =============================================
@@ -2133,12 +2326,11 @@
                     const lPrice = customTops.L && customTops.L[name] !== undefined ? customTops.L[name] : '';
 
                     const div = document.createElement('div');
-                    div.style.cssText =
-                        'display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px solid #f1f5f9; font-size:0.8rem;';
+                    div.className = 'edit-topping-item';
                     div.innerHTML = `
                             <span style="font-weight:600;">${name}</span>
                             <span style="color:#94a3b8; font-size:0.7rem;">M: $${mPrice || '-'} / L: $${lPrice || '-'}</span>
-                            <button onclick="removeEditItemTopping('${itemId}', '${name}')" style="background:#fee2e2; color:#dc2626; border:none; border-radius:10px; padding:2px 10px; font-size:0.6rem; cursor:pointer;">✕</button>
+                            <button class="del-btn" onclick="removeEditItemTopping('${itemId}', '${name}')">✕</button>
                         `;
                     container.appendChild(div);
                 });
@@ -2170,9 +2362,6 @@
                 const isChecked = existingNames.has(name);
 
                 const label = document.createElement('label');
-                label.style.cssText =
-                    'display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer; padding:2px 8px; border-radius:12px; border:1px solid #e2e8f0; background:#fff;';
-
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.checked = isChecked;
@@ -2180,8 +2369,7 @@
                     toggleEditItemGlobalTopping(itemId, name, this.checked);
                 };
 
-                const text = document.createElement('span');
-                text.textContent = name;
+                const text = document.createTextNode(name);
 
                 label.appendChild(checkbox);
                 label.appendChild(text);
@@ -2568,18 +2756,17 @@
             const inputMap = { ice: 'adminNewIce', sugar: 'adminNewSugar', topping: 'adminNewTopping' };
             const listMap = { ice: globalIce, sugar: globalSugar, topping: globalToppings };
             const tagMap = { ice: 'adminIceTags', sugar: 'adminSugarTags', topping: 'adminToppingTags' };
-            
+
             const input = document.getElementById(inputMap[type]);
             const val = input.value.trim();
             if (!val) return;
-            
+
             const targetList = listMap[type];
-            
             if (targetList.includes(val)) {
                 showToast('⚠️ 已存在');
                 return;
             }
-            
+
             targetList.push(val);
             input.value = '';
             renderAdminTagGroup(tagMap[type], targetList);
@@ -2593,10 +2780,10 @@
                 'adminSugarTags': globalSugar,
                 'adminToppingTags': globalToppings
             };
-            
+
             const targetList = map[containerId];
             if (!targetList) return;
-            
+
             const removed = targetList[idx];
             targetList.splice(idx, 1);
             renderAdminTagGroup(containerId, targetList);
@@ -2704,5 +2891,6 @@
         console.log('📋 品項數量：', items.length);
         console.log('📐 頁面配置：', pageLayout.map(p => p.slice(0, 60).filter(id => id !== null).length));
     </script>
+
 </body>
 </html>
