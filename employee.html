@@ -327,6 +327,7 @@
             flex-shrink: 0;
         }
 
+        /* ===== 訂單欄位 ===== */
         .order-fields {
             display: flex;
             flex-direction: column;
@@ -417,6 +418,27 @@
             background: #f8fafc;
         }
         .order-fields .invoice-input input:focus {
+            border-color: var(--brand-color);
+            background: #ffffff;
+        }
+
+        /* ===== 外送地址（預設隱藏） ===== */
+        #address-container {
+            display: none;
+        }
+        #address-container.show {
+            display: block;
+        }
+        #address-container input {
+            width: 100%;
+            padding: 5px 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            outline: none;
+            background: #f8fafc;
+        }
+        #address-container input:focus {
             border-color: var(--brand-color);
             background: #ffffff;
         }
@@ -985,13 +1007,12 @@
 </head>
 <body>
 
-    <!-- ===== 標題列（購物車按鈕已移至右上角） ===== -->
+    <!-- ===== 標題列 ===== -->
     <header class="app-header">
         <h1>🧋 快速點餐</h1>
         <div class="header-right">
             <span class="time" id="headerTime"></span>
             <span class="header-badge">👨‍🍳 員工專用</span>
-            <!-- 購物車按鈕（右上角） -->
             <button id="cart-header-btn" onclick="toggleCart()" title="購物車">
                 🛒
                 <span class="badge hidden" id="cartBadge">0</span>
@@ -1030,19 +1051,29 @@
             <div class="empty-cart">購物車是空的</div>
         </div>
 
-        <!-- ===== 訂單資訊欄位（全部選填） ===== -->
+        <!-- ===== 訂單資訊欄位 ===== -->
         <div class="order-fields">
+            <!-- 電話 -->
             <div class="field-row">
                 <span class="field-label">📞 電話</span>
                 <input type="tel" id="customerPhone" placeholder="選填">
             </div>
+
+            <!-- 取餐方式 -->
             <div class="field-row">
                 <span class="field-label">🛵 取餐</span>
                 <div class="radio-group">
-                    <label><input type="radio" name="deliveryMethod" value="自取" checked> 自取</label>
-                    <label><input type="radio" name="deliveryMethod" value="外送"> 外送</label>
+                    <label><input type="radio" name="deliveryMethod" value="自取" checked onchange="toggleAddress(false)"> 自取</label>
+                    <label><input type="radio" name="deliveryMethod" value="外送" onchange="toggleAddress(true)"> 外送</label>
                 </div>
             </div>
+
+            <!-- 外送地址（預設隱藏） -->
+            <div id="address-container">
+                <input type="text" id="customerAddress" placeholder="請輸入外送地址 (選填)">
+            </div>
+
+            <!-- 發票 -->
             <div class="field-row" style="flex-wrap:wrap;">
                 <span class="field-label">📄 發票</span>
                 <div class="invoice-group" id="invoiceGroup">
@@ -1057,8 +1088,16 @@
                     </label>
                 </div>
             </div>
+
+            <!-- 統編/載具輸入 -->
             <div class="invoice-input" id="invoiceInput">
                 <input type="text" id="invoiceDetail" placeholder="請輸入統編號碼或載具條碼 (選填)">
+            </div>
+
+            <!-- ===== 新增：備註欄位 ===== -->
+            <div class="field-row">
+                <span class="field-label">📝 備註</span>
+                <input type="text" id="orderNote" placeholder="少冰、少糖、餐具數量等 (選填)">
             </div>
         </div>
 
@@ -1509,6 +1548,18 @@
         });
 
         // =============================================
+        // 外送地址展開/收合
+        // =============================================
+        function toggleAddress(show) {
+            const container = document.getElementById('address-container');
+            if (show) {
+                container.classList.add('show');
+            } else {
+                container.classList.remove('show');
+            }
+        }
+
+        // =============================================
         // 點餐彈窗
         // =============================================
         function openModal(item) {
@@ -1776,7 +1827,7 @@
         }
 
         // =============================================
-        // 結帳
+        // 結帳（加入備註）
         // =============================================
         function checkout() {
             if (cart.length === 0) {
@@ -1794,16 +1845,20 @@
                 return;
             }
 
+            // 收集所有欄位
             const phone = document.getElementById('customerPhone').value.trim() || '未提供';
             const method = document.querySelector('input[name="deliveryMethod"]:checked')?.value || '自取';
+            const address = document.getElementById('customerAddress').value.trim() || '';
             const invoiceType = document.querySelector('input[name="invoiceType"]:checked')?.value || '紙本';
             const invoiceDetail = document.getElementById('invoiceDetail').value.trim() || '';
+            const note = document.getElementById('orderNote').value.trim() || '';
 
             let invoiceText = invoiceType;
             if (invoiceDetail) {
                 invoiceText += `：${invoiceDetail}`;
             }
 
+            // 計算金額
             let originalTotal = 0;
             let allCups = [];
             cart.forEach(item => {
@@ -1822,6 +1877,7 @@
             }
             const finalTotal = originalTotal - discount;
 
+            // 建立 Flex Message
             const allItemBoxes = cart.map(i => {
                 let details = `👉 ${i.ice} / ${i.sugar}`;
                 if (i.toppings.length) details += ` / 加:${i.toppings.join(',')}`;
@@ -1854,11 +1910,26 @@
                 ] },
                 { type: "box", layout: "vertical", margin: "sm", contents: [
                     { type: "text", text: `🛵 ${method}`, size: "sm", color: "#64748b" }
-                ] },
-                { type: "box", layout: "vertical", margin: "sm", contents: [
-                    { type: "text", text: `📄 ${invoiceText}`, size: "sm", color: "#64748b" }
                 ] }
             ];
+
+            // 如果有外送地址，加入
+            if (method === '外送' && address) {
+                footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [
+                    { type: "text", text: `📍 ${address}`, size: "sm", color: "#64748b", wrap: true }
+                ] });
+            }
+
+            footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [
+                { type: "text", text: `📄 ${invoiceText}`, size: "sm", color: "#64748b" }
+            ] });
+
+            // 如果有備註，加入
+            if (note) {
+                footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [
+                    { type: "text", text: `📝 ${note}`, size: "sm", color: "#64748b", wrap: true }
+                ] });
+            }
 
             if (discount > 0) {
                 footerBox.push({ type: "box", layout: "baseline", margin: "md", contents: [
@@ -1935,7 +2006,7 @@
         }
 
         // =============================================
-        // 後台管理
+        // 後台管理（完整保留）
         // =============================================
         function openAdmin() {
             document.getElementById('adminModal').classList.add('open');
@@ -1981,7 +2052,6 @@
             });
         });
 
-        // 後台功能（與之前相同，此處保持完整）
         function renderAdminItems() {
             const container = document.getElementById('adminItemList');
             const pageItems = items.filter(item => item.page === adminItemPage);
