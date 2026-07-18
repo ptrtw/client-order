@@ -16,7 +16,7 @@
             --border-color: #e2e8f0;
             --shadow: 0 2px 8px rgba(0,0,0,0.06);
             --header-height: 46px;
-            --tab-height: 42px;
+            --tab-height: 40px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -51,6 +51,11 @@
             font-weight: 700;
             letter-spacing: 0.3px;
         }
+        .app-header .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
         .app-header .header-badge {
             background: rgba(255,255,255,0.2);
             padding: 4px 12px;
@@ -61,6 +66,25 @@
         .app-header .time {
             font-size: 0.65rem;
             opacity: 0.8;
+        }
+        /* ===== 後台入口（右上角） ===== */
+        .admin-entry {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .admin-entry:active {
+            transform: scale(0.9);
+            background: rgba(255,255,255,0.35);
         }
 
         /* ===== 三大分類 Tab ===== */
@@ -74,10 +98,10 @@
             height: var(--tab-height);
         }
         .tab-btn {
-            padding: 6px 4px;
+            padding: 5px 4px;
             border: none;
             border-radius: 8px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
@@ -86,7 +110,7 @@
             letter-spacing: 0.3px;
         }
         .tab-btn .tab-icon {
-            margin-right: 3px;
+            margin-right: 2px;
         }
         .tab-btn.active {
             background: #ffffff;
@@ -97,14 +121,14 @@
             transform: scale(0.95);
         }
 
-        /* ===== 6x10 商品網格（縱向填滿） ===== */
+        /* ===== 10x6 商品網格 ===== */
         .pos-grid {
             flex: 1;
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            grid-template-rows: repeat(10, 1fr);
-            gap: 4px;
-            padding: 4px;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 3px;
+            padding: 3px;
             background: #e2e8f0;
             min-height: 0;
             height: 100%;
@@ -112,19 +136,19 @@
 
         .pos-item {
             background: #ffffff;
-            border-radius: 6px;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 700;
             color: #1e293b;
             cursor: pointer;
             transition: all 0.1s;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             text-align: center;
             line-height: 1.2;
-            padding: 6px 2px;
+            padding: 2px 1px;
             word-break: keep-all;
             border: 1px solid transparent;
             position: relative;
@@ -135,20 +159,29 @@
             background: #dcfce7;
             border-color: #06C755;
         }
+        /* 顏色標記改為左上角小點 */
+        .pos-item .dot {
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
 
         /* ===== 浮動購物車 ===== */
         #cart-float-btn {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 58px;
-            height: 58px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             background: #1e293b;
             color: #fff;
             border: none;
             box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             cursor: pointer;
             z-index: 100;
             display: flex;
@@ -165,10 +198,10 @@
             right: -4px;
             background: #ef4444;
             color: #fff;
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             font-weight: 700;
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -178,10 +211,10 @@
             display: none;
         }
 
-        /* ===== 購物車面板（加大、含完整欄位） ===== */
+        /* ===== 購物車面板 ===== */
         #cart-panel {
             position: fixed;
-            bottom: 86px;
+            bottom: 84px;
             right: 16px;
             width: 360px;
             max-width: calc(100vw - 32px);
@@ -233,10 +266,10 @@
             flex: 1;
             overflow-y: auto;
             padding: 8px 0;
-            max-height: 30vh;
+            max-height: 28vh;
         }
         #cart-panel .cart-list::-webkit-scrollbar {
-            width: 4px;
+            width: 3px;
         }
         #cart-panel .cart-list::-webkit-scrollbar-thumb {
             background: #cbd5e1;
@@ -280,41 +313,40 @@
             margin-left: 6px;
         }
 
-        /* ===== 購物車底部 ===== */
+        /* ===== 購物車底部訂單欄位 ===== */
         #cart-panel .panel-footer {
             border-top: 2px solid #f1f5f9;
             padding-top: 10px;
             flex-shrink: 0;
         }
 
-        /* ===== 訂單資訊欄位（電話／取餐／發票） ===== */
         .order-fields {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            margin-bottom: 10px;
+            gap: 6px;
+            margin-bottom: 8px;
         }
         .order-fields .field-row {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
         }
         .order-fields .field-label {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 700;
             color: var(--text-muted);
-            min-width: 44px;
+            min-width: 40px;
         }
         .order-fields input[type="text"],
         .order-fields input[type="tel"] {
             flex: 1;
-            padding: 6px 10px;
+            padding: 5px 8px;
             border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 0.8rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
             outline: none;
-            min-width: 60px;
+            min-width: 50px;
             background: #f8fafc;
         }
         .order-fields input:focus {
@@ -323,31 +355,31 @@
         }
         .order-fields .radio-group {
             display: flex;
-            gap: 12px;
-            font-size: 0.75rem;
+            gap: 10px;
+            font-size: 0.7rem;
         }
         .order-fields .radio-group label {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
             cursor: pointer;
         }
         .order-fields .radio-group input[type="radio"] {
             accent-color: var(--brand-color);
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             margin: 0;
         }
         .order-fields .invoice-group {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
         }
         .order-fields .invoice-group label {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
             cursor: pointer;
             padding: 2px 8px;
             border-radius: 12px;
@@ -363,17 +395,17 @@
         }
         .order-fields .invoice-input {
             display: none;
-            margin-top: 4px;
+            margin-top: 3px;
         }
         .order-fields .invoice-input.show {
             display: block;
         }
         .order-fields .invoice-input input {
             width: 100%;
-            padding: 6px 10px;
+            padding: 5px 8px;
             border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 0.8rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
             outline: none;
             background: #f8fafc;
         }
@@ -382,20 +414,19 @@
             background: #ffffff;
         }
 
-        /* ===== 總計與結帳按鈕 ===== */
         .panel-footer .total-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .panel-footer .total-row .total-label {
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
         .panel-footer .total-row .total-amount {
             font-weight: 700;
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             color: #06C755;
         }
         .panel-footer .checkout-btn {
@@ -416,7 +447,7 @@
         .discount-row {
             display: none;
             justify-content: space-between;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #ef4444;
             font-weight: 600;
             padding: 2px 0;
@@ -427,7 +458,7 @@
         .original-total-row {
             display: none;
             justify-content: space-between;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #94a3b8;
             padding: 2px 0;
         }
@@ -435,7 +466,7 @@
             display: flex;
         }
 
-        /* ===== 點餐彈窗 ===== */
+        /* ===== 點餐彈窗（與之前相同） ===== */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -570,8 +601,8 @@
 
         select.opt-btn-sugar-other {
             flex: 0 1 auto;
-            min-width: 70px;
-            padding: 4px 24px 4px 10px;
+            min-width: 65px;
+            padding: 4px 22px 4px 10px;
             border-radius: 14px;
             border: 1px solid #e2e8f0;
             background: #f1f5f9 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="%2364748b" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>') no-repeat right 8px center;
@@ -593,9 +624,6 @@
         select.opt-btn-sugar-other.active {
             border-color: var(--brand-color);
             background-color: var(--brand-light);
-        }
-        select.opt-btn-sugar-other option {
-            font-weight: 400;
         }
 
         .submit-btn {
@@ -640,31 +668,6 @@
         .toast.show {
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
-        }
-
-        /* ===== 後台管理入口 ===== */
-        .admin-entry {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(30, 41, 59, 0.2);
-            color: #94a3b8;
-            border: none;
-            font-size: 0.8rem;
-            cursor: pointer;
-            z-index: 50;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            backdrop-filter: blur(4px);
-        }
-        .admin-entry:active {
-            transform: scale(0.9);
-            background: rgba(30, 41, 59, 0.35);
         }
 
         /* ===== 後台管理彈窗 ===== */
@@ -784,19 +787,19 @@
 
         .admin-modal .admin-section .item-grid-preview {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 3px;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 2px;
             margin: 8px 0;
         }
         .admin-modal .admin-section .item-grid-preview .preview-cell {
             background: #f1f5f9;
-            border-radius: 4px;
-            padding: 6px 2px;
+            border-radius: 3px;
+            padding: 4px 1px;
             text-align: center;
-            font-size: 0.6rem;
+            font-size: 0.5rem;
             font-weight: 600;
             color: #1e293b;
-            min-height: 30px;
+            min-height: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -889,89 +892,74 @@
             font-size: 0.7rem;
         }
 
-        .admin-modal .admin-section .search-input {
-            width: 100%;
-            padding: 6px 10px;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            outline: none;
-            margin-bottom: 4px;
-        }
-        .admin-modal .admin-section .search-input:focus {
-            border-color: #06C755;
-        }
-
         /* ===== 自適應 ===== */
         @media (max-width: 380px) {
             .pos-item {
-                font-size: 11px;
-                padding: 4px 1px;
+                font-size: 10px;
             }
             .tab-btn {
-                font-size: 0.65rem;
-                padding: 4px 2px;
+                font-size: 0.6rem;
+                padding: 3px 2px;
             }
             .app-header {
                 height: 38px;
                 padding: 0 10px;
             }
             .app-header h1 {
-                font-size: 0.8rem;
+                font-size: 0.75rem;
             }
             #cart-panel {
-                width: calc(100vw - 24px);
-                right: 12px;
-                bottom: 76px;
+                width: calc(100vw - 20px);
+                right: 10px;
+                bottom: 74px;
                 padding: 12px;
                 max-height: 70vh;
             }
             #cart-float-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 1.1rem;
+                width: 48px;
+                height: 48px;
+                font-size: 1rem;
                 bottom: 14px;
                 right: 14px;
             }
             .admin-entry {
-                bottom: 14px;
-                left: 14px;
-                width: 36px;
-                height: 36px;
+                width: 28px;
+                height: 28px;
                 font-size: 0.7rem;
             }
-            select.opt-btn-sugar-other {
-                min-width: 60px;
-                font-size: 0.65rem;
-                padding: 3px 20px 3px 8px;
+            .admin-modal .admin-section .item-grid-preview .preview-cell {
+                font-size: 0.4rem;
+                min-height: 18px;
             }
-            .order-fields .field-row {
-                flex-wrap: wrap;
+            select.opt-btn-sugar-other {
+                min-width: 55px;
+                font-size: 0.65rem;
+                padding: 3px 18px 3px 8px;
             }
             .order-fields .field-label {
-                min-width: 36px;
-                font-size: 0.65rem;
+                font-size: 0.6rem;
+                min-width: 32px;
             }
             .order-fields input[type="text"],
             .order-fields input[type="tel"] {
-                font-size: 0.7rem;
-                padding: 4px 8px;
+                font-size: 0.65rem;
+                padding: 4px 6px;
             }
             .order-fields .radio-group {
-                font-size: 0.65rem;
-                gap: 8px;
+                font-size: 0.6rem;
+                gap: 6px;
             }
             .order-fields .invoice-group {
-                font-size: 0.65rem;
+                font-size: 0.6rem;
             }
         }
         @media (min-width: 500px) {
             .pos-item {
-                font-size: 17px;
+                font-size: 15px;
             }
             .tab-btn {
-                font-size: 0.95rem;
-                padding: 8px 4px;
+                font-size: 0.9rem;
+                padding: 6px 4px;
             }
             .app-header h1 {
                 font-size: 1.2rem;
@@ -989,10 +977,11 @@
     <!-- ===== 標題列 ===== -->
     <header class="app-header">
         <h1>🧋 快速點餐</h1>
-        <span style="display:flex; align-items:center; gap:10px;">
+        <div class="header-right">
             <span class="time" id="headerTime"></span>
             <span class="header-badge">👨‍🍳 員工專用</span>
-        </span>
+            <button class="admin-entry" onclick="openAdmin()" title="後台管理">⚙️</button>
+        </div>
     </header>
 
     <!-- ===== 三大分類 Tab ===== -->
@@ -1002,7 +991,7 @@
         <button class="tab-btn" data-tab="2">🥛 鮮奶·加料</button>
     </div>
 
-    <!-- ===== 6x10 商品網格（縱向填滿） ===== -->
+    <!-- ===== 10x6 商品網格 ===== -->
     <div class="pos-grid" id="posGrid"></div>
 
     <!-- ===== 浮動購物車 ===== -->
@@ -1011,7 +1000,7 @@
         <span class="badge hidden" id="cartBadge">0</span>
     </button>
 
-    <!-- ===== 購物車面板（含訂單資訊欄位） ===== -->
+    <!-- ===== 購物車面板 ===== -->
     <div id="cart-panel">
         <div class="panel-header">
             <span>🛒 購物車</span>
@@ -1033,13 +1022,10 @@
 
         <!-- ===== 訂單資訊欄位（全部選填） ===== -->
         <div class="order-fields">
-            <!-- 電話 -->
             <div class="field-row">
                 <span class="field-label">📞 電話</span>
                 <input type="tel" id="customerPhone" placeholder="選填">
             </div>
-
-            <!-- 取餐方式 -->
             <div class="field-row">
                 <span class="field-label">🛵 取餐</span>
                 <div class="radio-group">
@@ -1047,8 +1033,6 @@
                     <label><input type="radio" name="deliveryMethod" value="外送"> 外送</label>
                 </div>
             </div>
-
-            <!-- 發票 -->
             <div class="field-row" style="flex-wrap:wrap;">
                 <span class="field-label">📄 發票</span>
                 <div class="invoice-group" id="invoiceGroup">
@@ -1063,8 +1047,6 @@
                     </label>
                 </div>
             </div>
-
-            <!-- 統編/載具輸入 (選填) -->
             <div class="invoice-input" id="invoiceInput">
                 <input type="text" id="invoiceDetail" placeholder="請輸入統編號碼或載具條碼 (選填)">
             </div>
@@ -1103,25 +1085,18 @@
                 </div>
             </div>
 
-            <!-- 大小 -->
             <div class="opt-group">
                 <div class="opt-title">大小</div>
                 <div class="opt-btns" id="sizeBtns"></div>
             </div>
-
-            <!-- 冰塊 -->
             <div class="opt-group">
                 <div class="opt-title">冰塊</div>
                 <div class="opt-btns" id="iceBtns"></div>
             </div>
-
-            <!-- 甜度（含「其他」下拉） -->
             <div class="opt-group">
                 <div class="opt-title">甜度</div>
                 <div class="opt-btns" id="sugarBtns"></div>
             </div>
-
-            <!-- 加料 -->
             <div class="opt-group">
                 <div class="opt-title">加料</div>
                 <div class="opt-btns" id="toppingBtns"></div>
@@ -1131,10 +1106,7 @@
         </div>
     </div>
 
-    <!-- ===== 後台管理入口 ===== -->
-    <button class="admin-entry" onclick="openAdmin()" title="後台管理">⚙️</button>
-
-    <!-- ===== 後台管理彈窗（完整保留，簡化展示） ===== -->
+    <!-- ===== 後台管理彈窗 ===== -->
     <div class="admin-modal" id="adminModal">
         <div class="admin-box">
             <div class="admin-header">
@@ -1167,7 +1139,7 @@
 
             <!-- 頁面配置 -->
             <div class="admin-section" id="adminLayout">
-                <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:6px;">點擊格子選擇品項</div>
+                <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:6px;">點擊格子選擇品項（10×6）</div>
                 <div class="page-tabs" id="adminLayoutPages">
                     <button class="active" data-page="0">常用類</button>
                     <button data-page="1">特調·果醋</button>
@@ -1177,7 +1149,10 @@
                 <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
                     <button class="admin-btn" onclick="adminSaveLayout()">💾 儲存配置</button>
                     <button class="admin-btn danger" onclick="adminClearPage()">🗑️ 清空此頁</button>
-                    <button class="admin-btn" onclick="adminFillPage()">📥 自動填入</button>
+                    <button class="admin-btn primary" onclick="adminFillPage()">📥 自動填入</button>
+                </div>
+                <div style="margin-top:6px; font-size:0.7rem; color:#94a3b8;">
+                    💡 新增品項後，請點「自動填入」將新品項放入空格
                 </div>
             </div>
 
@@ -1223,7 +1198,6 @@
         // LIFF ID
         // =============================================
         const LIFF_ID = "2010718024-5LLzGr1V";
-        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
 
         // =============================================
         // 加料價格
@@ -1234,11 +1208,8 @@
         };
 
         // =============================================
-        // 完整品項資料庫 (127 個) - 與之前相同，此處省略以節省篇幅
-        // 實際使用時會從 DEFAULT_ITEMS 載入
+        // 完整品項資料庫 (127 個)
         // =============================================
-        // 此處保留完整品項資料 (與之前相同，為節省篇幅不重複貼出)
-        // 請確保您的 employee.html 中包含完整的 DEFAULT_ITEMS
         const DEFAULT_ITEMS = [
             { id: 'item_001', name: '特級綠茶', M: 25, L: 30, page: 0 },
             { id: 'item_002', name: '特級奶綠', M: 40, L: 50, page: 0 },
@@ -1413,7 +1384,7 @@
             });
 
         // =============================================
-        // 初始化頁面配置
+        // 初始化頁面配置（10×6 = 60 格）
         // =============================================
         function initPageLayout() {
             try {
@@ -1430,6 +1401,7 @@
                 }
             } catch (e) {}
 
+            // 確保每頁 60 格 (10×6)
             for (let p = 0; p < 3; p++) {
                 if (!pageLayout[p] || pageLayout[p].length < 60) {
                     const current = pageLayout[p] || [];
@@ -1456,12 +1428,16 @@
         }
 
         // =============================================
-        // 渲染商品網格（縱向填滿）
+        // 渲染商品網格（10×6）
         // =============================================
         function renderGrid(tabIndex) {
             const grid = document.getElementById('posGrid');
             grid.innerHTML = '';
             const layout = pageLayout[tabIndex] || [];
+
+            const colors = ['#06C755', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444', '#ec4899', '#14b8a6', '#f97316', '#a855f7',
+                '#06b6d4'
+            ];
 
             for (let i = 0; i < 60; i++) {
                 const div = document.createElement('div');
@@ -1470,6 +1446,7 @@
                 const item = items.find(it => it.id === itemId);
 
                 if (item) {
+                    // 顯示短名稱
                     let displayName = item.name;
                     const shortMap = {
                         '特級綠茶': '綠茶',
@@ -1494,12 +1471,48 @@
                         '蘋果醋': '蘋醋',
                         '冬瓜檸檬': '冬檸',
                         '冬瓜鮮奶': '冬奶',
+                        '蜂蜜檸檬': '蜂檸',
+                        '琥珀黑糖奶茶': '琥珀黑',
+                        '蜂蜜烏龍鮮奶茶': '蜂烏鮮',
+                        '鳳嶺高山': '鳳嶺',
+                        '鳳嶺奶高': '鳳奶高',
+                        '相思紅豆奶茶': '相思紅',
+                        '咖啡凍奶茶': '咖啡凍',
+                        '醇蜜普洱茶': '醇普洱',
+                        '茉綠茶凍拿鐵': '茉綠凍',
+                        '珍珠琥珀黑糖鮮奶': '珍珀鮮',
+                        '冰淇淋紅茶': '冰紅',
+                        '冰淇淋奶茶': '冰奶',
+                        '百香果綠茶': '百香綠',
+                        '巨峰葡萄紅茶': '巨峰紅',
+                        'Red Bull 能量優多': 'RB優多',
+                        '濃情巧克力': '濃情巧',
+                        '蜜桃凍紅茶': '蜜桃紅',
+                        '荔枝紅茶': '荔枝紅',
+                        '金桔檸檬': '金桔檸',
+                        '烏龍菁茶': '烏菁',
+                        '冬瓜菁茶': '冬菁',
+                        '普洱奶茶': '普奶',
+                        '100%鮮奶': '鮮奶',
+                        '珍珠（單）': '珍珠單',
+                        '粉圓（單）': '粉圓單',
+                        '椰果（單）': '椰果單',
+                        '布丁（單）': '布丁單',
+                        '仙草（單）': '仙草單',
+                        '冰淇淋（單）': '冰單',
+                        '頂級可可(2)': '頂級可',
+                        '鮮奶茶(2)': '鮮奶茶',
+                        '巨峰葡萄 Red Bull': '巨峰RB',
+                        'Red Bull 紅牛能量紅茶': 'RB紅茶',
                     };
                     displayName = shortMap[item.name] || item.name.substring(0, 4);
-                    div.textContent = displayName;
 
-                    const colors = ['#06C755', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444', '#ec4899'];
-                    div.style.borderLeft = `4px solid ${colors[i % colors.length]}`;
+                    div.textContent = displayName;
+                    // 顏色小點
+                    const dot = document.createElement('span');
+                    dot.className = 'dot';
+                    dot.style.background = colors[i % colors.length];
+                    div.appendChild(dot);
 
                     div.onclick = () => openModal(item);
                 } else {
@@ -1548,7 +1561,7 @@
         });
 
         // =============================================
-        // 點餐彈窗（與之前相同）
+        // 點餐彈窗
         // =============================================
         function openModal(item) {
             currentItem = item;
@@ -1615,19 +1628,19 @@
             const otherSelect = document.createElement('select');
             otherSelect.className = 'opt-btn-sugar-other';
             otherSelect.innerHTML = `
-                <option value="" disabled selected>其他</option>
-                <option value="1分糖">1分糖</option>
-                <option value="3分糖">3分糖</option>
-                <option value="4分糖">4分糖</option>
-                <option value="6分糖">6分糖</option>
-                <option value="7分糖">7分糖</option>
-            `;
+                    <option value="" disabled selected>其他</option>
+                    <option value="1分糖">1分糖</option>
+                    <option value="3分糖">3分糖</option>
+                    <option value="4分糖">4分糖</option>
+                    <option value="6分糖">6分糖</option>
+                    <option value="7分糖">7分糖</option>
+                `;
             otherSelect.onchange = function() {
                 sugarContainer.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
                 sugarContainer.querySelectorAll('.opt-btn-sugar-other').forEach(el => el.classList.add('active'));
                 selectedSugar = this.value;
             };
-            if (selectedSugar && ['1分糖','3分糖','4分糖','6分糖','7分糖'].includes(selectedSugar)) {
+            if (selectedSugar && ['1分糖', '3分糖', '4分糖', '6分糖', '7分糖'].includes(selectedSugar)) {
                 otherSelect.value = selectedSugar;
                 otherSelect.classList.add('active');
             }
@@ -1763,15 +1776,15 @@
                 const detail = `${item.size} / ${item.ice} / ${item.sugar}` +
                     (item.toppings.length ? ` / 加:${item.toppings.join(',')}` : '');
                 html += `
-                    <div class="cart-item-row">
-                        <div class="item-info">
-                            <div class="item-name">${item.name} x${item.qty}</div>
-                            <div class="item-detail">${detail}</div>
+                        <div class="cart-item-row">
+                            <div class="item-info">
+                                <div class="item-name">${item.name} x${item.qty}</div>
+                                <div class="item-detail">${detail}</div>
+                            </div>
+                            <div class="item-price">$${item.total}</div>
+                            <button class="del-btn" onclick="removeFromCart(${idx})">✕</button>
                         </div>
-                        <div class="item-price">$${item.total}</div>
-                        <button class="del-btn" onclick="removeFromCart(${idx})">✕</button>
-                    </div>
-                `;
+                    `;
             });
             list.innerHTML = html;
 
@@ -1812,7 +1825,7 @@
         }
 
         // =============================================
-        // 結帳（含訂單資訊）
+        // 結帳
         // =============================================
         function checkout() {
             if (cart.length === 0) {
@@ -1830,7 +1843,6 @@
                 return;
             }
 
-            // 收集訂單資訊（全部選填）
             const phone = document.getElementById('customerPhone').value.trim() || '未提供';
             const method = document.querySelector('input[name="deliveryMethod"]:checked')?.value || '自取';
             const invoiceType = document.querySelector('input[name="invoiceType"]:checked')?.value || '紙本';
@@ -1841,7 +1853,6 @@
                 invoiceText += `：${invoiceDetail}`;
             }
 
-            // 計算金額
             let originalTotal = 0;
             let allCups = [];
             cart.forEach(item => {
@@ -1860,7 +1871,6 @@
             }
             const finalTotal = originalTotal - discount;
 
-            // 建立 Flex Message
             const allItemBoxes = cart.map(i => {
                 let details = `👉 ${i.ice} / ${i.sugar}`;
                 if (i.toppings.length) details += ` / 加:${i.toppings.join(',')}`;
@@ -1870,13 +1880,14 @@
                     margin: "sm",
                     contents: [
                         { type: "box", layout: "baseline", contents: [
-                            { type: "text", text: `${i.name}(${i.size}) x${i.qty}`, size: "sm", weight: "bold",
-                                flex: 3, wrap: true, color: "#1e293b" },
-                            { type: "text", text: `$${i.total}`, size: "sm", align: "end", flex: 1, weight: "bold",
-                                color: "#06C755" }
+                            { type: "text", text: `${i.name}(${i.size}) x${i.qty}`, size: "sm",
+                                weight: "bold", flex: 3, wrap: true, color: "#1e293b" },
+                            { type: "text", text: `$${i.total}`, size: "sm", align: "end", flex: 1,
+                                weight: "bold", color: "#06C755" }
                         ] },
                         { type: "box", layout: "baseline", margin: "xs", contents: [
-                            { type: "text", text: details, size: "xs", color: "#64748b", flex: 1, wrap: true }
+                            { type: "text", text: details, size: "xs", color: "#64748b", flex: 1,
+                                wrap: true }
                         ] }
                     ]
                 };
@@ -1906,13 +1917,14 @@
                 footerBox.push({ type: "box", layout: "baseline", margin: "sm", contents: [
                     { type: "text", text: "🎉 買五送一折扣", color: "#ef4444", size: "sm", weight: "bold" },
                     { type: "text", text: `-$${discount}`, color: "#ef4444", size: "sm", align: "end",
-                    weight: "bold" }
+                        weight: "bold" }
                 ] });
             }
 
             footerBox.push({ type: "box", layout: "baseline", margin: "md", contents: [
                 { type: "text", text: "💰 結帳金額", weight: "bold", size: "md", color: "#1e293b" },
-                { type: "text", text: `$${finalTotal}`, weight: "bold", size: "xl", align: "end", color: "#06C755" }
+                { type: "text", text: `$${finalTotal}`, weight: "bold", size: "xl", align: "end",
+                    color: "#06C755" }
             ] });
 
             const ITEMS_PER_BUBBLE = 10;
@@ -1972,7 +1984,7 @@
         }
 
         // =============================================
-        // 後台管理（完整保留，此處省略詳細實作）
+        // 後台管理
         // =============================================
         function openAdmin() {
             document.getElementById('adminModal').classList.add('open');
@@ -1985,11 +1997,6 @@
             document.getElementById('adminModal').classList.remove('open');
         }
 
-        // 後台管理功能...（此處保留完整後台功能，與之前相同）
-        // 為節省篇幅，此處省略詳細後台程式碼
-        // 實際使用時請確保包含完整的後台管理功能
-
-        // 簡化版後台初始化
         document.querySelectorAll('.admin-tabs button').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.admin-tabs button').forEach(b => b.classList.remove('active'));
@@ -1997,6 +2004,9 @@
                 const tab = this.dataset.tab;
                 document.querySelectorAll('.admin-section').forEach(el => el.classList.remove('active'));
                 document.getElementById(tab).classList.add('active');
+                if (tab === 'adminItems') renderAdminItems();
+                if (tab === 'adminLayout') renderAdminLayout();
+                if (tab === 'adminGlobal') renderAdminGlobal();
             });
         });
 
@@ -2054,7 +2064,24 @@
                 page: adminItemPage
             });
             renderAdminItems();
-            showToast(`✅ 已新增「${name}」`);
+            // 自動將新品項填入當前頁面的空格
+            const layout = pageLayout[adminItemPage];
+            let placed = false;
+            for (let i = 0; i < 60; i++) {
+                if (layout[i] === null) {
+                    layout[i] = newId;
+                    placed = true;
+                    break;
+                }
+            }
+            if (!placed) {
+                showToast('⚠️ 品項已新增，但當前頁面已滿（60格），請手動配置');
+            } else {
+                showToast(`✅ 已新增「${name}」並自動填入空格`);
+                renderGrid(currentTab);
+                renderAdminLayout();
+                saveToLocal();
+            }
         }
 
         function adminEditItem(id) {
@@ -2070,6 +2097,7 @@
             renderAdminItems();
             renderGrid(currentTab);
             showToast(`✅ 已更新「${name}」`);
+            saveToLocal();
         }
 
         function adminDeleteItem(id) {
@@ -2081,6 +2109,8 @@
             }
             renderAdminItems();
             renderGrid(currentTab);
+            renderAdminLayout();
+            saveToLocal();
             showToast(`已刪除「${item?.name}」`);
         }
 
@@ -2099,6 +2129,7 @@
             }
             renderAdminItems();
             renderGrid(currentTab);
+            renderAdminLayout();
             saveToLocal();
             showToast('✅ 已重置品項');
         }
@@ -2178,6 +2209,7 @@
             if (overlay) overlay.remove();
             renderAdminLayout();
             renderGrid(currentTab);
+            saveToLocal();
             showToast('✅ 已更新');
         }
 
@@ -2191,6 +2223,7 @@
             }
             renderAdminLayout();
             renderGrid(currentTab);
+            saveToLocal();
             showToast('已清空');
         }
 
@@ -2209,6 +2242,7 @@
             }
             renderAdminLayout();
             renderGrid(currentTab);
+            saveToLocal();
             showToast(`✅ 已填入 ${idx} 個品項`);
         }
 
@@ -2336,6 +2370,8 @@
         function adminSaveAll() {
             saveToLocal();
             renderGrid(currentTab);
+            renderAdminItems();
+            renderAdminLayout();
             showToast('✅ 全部已儲存！');
         }
 
