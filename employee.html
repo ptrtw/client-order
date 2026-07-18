@@ -511,6 +511,11 @@
         .modal-overlay.open {
             display: flex;
         }
+        /* 確保編輯品項彈窗層級最高 */
+        #editItemModal {
+            z-index: 600 !important;
+        }
+
         .modal-content {
             background: #fff;
             width: 100%;
@@ -1245,7 +1250,7 @@
         };
 
         // =============================================
-        // 完整品項資料庫 (127 個)
+        // 完整品項資料庫
         // =============================================
         const DEFAULT_ITEMS = [
             { id: 'item_001', name: '特級綠茶', M: 25, L: 30, page: 0 },
@@ -1547,14 +1552,12 @@
         }
 
         // =============================================
-        // 【新增修正】取得當前品項在指定尺寸下可用的加料（支援專屬加料覆蓋）
+        // 取得當前品項在指定尺寸下可用的加料（支援專屬加料覆蓋）
         // =============================================
         function getAvailableToppings(item, size) {
-            // 如果該品項有被設定專屬加料，則只顯示專屬加料
             if (item.customToppings) {
                 return item.customToppings[size] || {};
             } else {
-                // 如果沒有設定專屬加料，則回傳全部的全域加料
                 const tops = toppingPrices[size] || {};
                 let result = {};
                 globalToppings.forEach(name => {
@@ -1575,7 +1578,7 @@
             selectedSize = (item.L !== null && item.L !== undefined) ? 'L' : 'M';
             selectedIce = null;
             selectedSugar = null;
-            selectedToppings = []; // 每次開啟新商品都清空選擇的加料
+            selectedToppings = [];
 
             document.getElementById('modalTitle').textContent = item.name;
             document.getElementById('qtyNum').textContent = qty;
@@ -1593,7 +1596,6 @@
                     sizeContainer.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     selectedSize = size;
-                    // 先重新渲染加料（會過濾掉切換尺寸後不存在的加料），然後再計算價格
                     renderToppings();
                     updateModalPrice();
                 };
@@ -1653,23 +1655,17 @@
             }
             sugarContainer.appendChild(otherSelect);
 
-            // 渲染加料選單並計算初始價格
             renderToppings();
             updateModalPrice();
             document.getElementById('orderModal').classList.add('open');
         }
 
-        // =============================================
-        // 【修正】渲染加料（支援專屬加料）
-        // =============================================
         function renderToppings() {
             const container = document.getElementById('toppingBtns');
             container.innerHTML = '';
             
-            // 呼叫新函數取得「該品項在這尺寸」下可用的加料清單
             const availableTops = getAvailableToppings(currentItem, selectedSize);
 
-            // 清理掉在不同尺寸/品項下可能不存在的已選加料（避免換大小杯後出現幽靈加料）
             selectedToppings = selectedToppings.filter(t => availableTops[t] !== undefined);
 
             Object.keys(availableTops).forEach(name => {
@@ -1691,9 +1687,6 @@
             });
         }
 
-        // =============================================
-        // 【修正】計算彈窗總價（支援專屬加料）
-        // =============================================
         function updateModalPrice() {
             const base = currentItem[selectedSize] || 0;
             const availableTops = getAvailableToppings(currentItem, selectedSize);
@@ -1717,7 +1710,7 @@
         }
 
         // =============================================
-        // 【修正】加入購物車（支援專屬加料）
+        // 加入購物車
         // =============================================
         function addToCart() {
             if (!selectedIce) { alert('請選擇冰塊'); return; }
@@ -2351,8 +2344,6 @@
             item.M = isNaN(mPrice) ? null : mPrice;
             item.L = isNaN(lPrice) ? null : lPrice;
 
-            // 專屬加料已透過 toggleEditItemGlobalTopping 和 addEditItemTopping 處理
-
             document.getElementById('editItemModal').classList.remove('open');
             renderAdminItems();
             renderGrid(currentTab);
@@ -2713,65 +2704,5 @@
         console.log('📋 品項數量：', items.length);
         console.log('📐 頁面配置：', pageLayout.map(p => p.slice(0, 60).filter(id => id !== null).length));
     </script>
-
-    <!-- ===== 編輯品項彈窗（獨立於後台彈窗之外） ===== -->
-    <div class="modal-overlay" id="editItemModal" onclick="if(event.target===this) closeEditItemModal()">
-        <div class="modal-content" style="max-width:500px; max-height:90vh; overflow-y:auto;">
-            <div class="modal-header">
-                <h3>✏️ 編輯品項</h3>
-                <button class="close-btn" onclick="closeEditItemModal()">✕</button>
-            </div>
-
-            <!-- 基本資料 -->
-            <div class="form-group" style="margin-bottom:10px;">
-                <label style="font-size:0.75rem; font-weight:700; color:#64748b; display:block; margin-bottom:2px;">品項名稱</label>
-                <input type="text" id="editItemName" placeholder="請輸入品項名稱" style="width:100%; padding:6px 10px; border:1px solid #e2e8f0; border-radius:6px; font-size:0.85rem; outline:none;">
-            </div>
-
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
-                <div class="form-group">
-                    <label style="font-size:0.75rem; font-weight:700; color:#64748b; display:block; margin-bottom:2px;">M 杯價格</label>
-                    <input type="number" id="editItemMPrice" placeholder="如 25" style="width:100%; padding:6px 10px; border:1px solid #e2e8f0; border-radius:6px; font-size:0.85rem; outline:none;">
-                </div>
-                <div class="form-group">
-                    <label style="font-size:0.75rem; font-weight:700; color:#64748b; display:block; margin-bottom:2px;">L 杯價格</label>
-                    <input type="number" id="editItemLPrice" placeholder="如 30" style="width:100%; padding:6px 10px; border:1px solid #e2e8f0; border-radius:6px; font-size:0.85rem; outline:none;">
-                </div>
-            </div>
-
-            <hr style="border:0; border-top:2px solid #f1f5f9; margin:12px 0;">
-
-            <!-- 加料管理 -->
-            <div style="font-size:0.85rem; font-weight:700; color:#1e293b; margin-bottom:8px;">🧋 加料管理</div>
-
-            <!-- 從全域加料勾選 -->
-            <div style="margin-bottom:10px;">
-                <div style="font-size:0.7rem; font-weight:600; color:#64748b; margin-bottom:4px;">從全域加料列表中選擇</div>
-                <div id="editItemGlobalToppings" style="display:flex; flex-wrap:wrap; gap:4px;"></div>
-            </div>
-
-            <!-- 專屬加料清單 -->
-            <div style="margin-bottom:10px;">
-                <div style="font-size:0.7rem; font-weight:600; color:#64748b; margin-bottom:4px;">專屬加料清單</div>
-                <div id="editItemToppingList" style="border:1px solid #e2e8f0; border-radius:6px; padding:4px 10px; min-height:40px; background:#fafafa;"></div>
-            </div>
-
-            <!-- 新增專屬加料 -->
-            <div style="background:#f8fafc; border-radius:8px; padding:10px; border:1px dashed #cbd5e1;">
-                <div style="font-size:0.7rem; font-weight:600; color:#64748b; margin-bottom:4px;">➕ 新增專屬加料</div>
-                <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center;">
-                    <input type="text" id="editItemNewToppingName" placeholder="加料名稱" style="flex:1; min-width:80px; padding:5px 8px; border:1px solid #e2e8f0; border-radius:4px; font-size:0.75rem; outline:none;">
-                    <span style="font-size:0.7rem; font-weight:600; color:#64748b;">M$</span>
-                    <input type="number" id="editItemNewToppingM" placeholder="價格" style="width:50px; padding:5px 8px; border:1px solid #e2e8f0; border-radius:4px; font-size:0.75rem; outline:none;">
-                    <span style="font-size:0.7rem; font-weight:600; color:#64748b;">L$</span>
-                    <input type="number" id="editItemNewToppingL" placeholder="價格" style="width:50px; padding:5px 8px; border:1px solid #e2e8f0; border-radius:4px; font-size:0.75rem; outline:none;">
-                    <button onclick="addEditItemTopping()" style="background:#06C755; color:#fff; border:none; border-radius:6px; padding:5px 14px; font-size:0.75rem; font-weight:600; cursor:pointer;">新增</button>
-                </div>
-            </div>
-
-            <button onclick="saveEditItem()" style="width:100%; padding:12px; background:#06C755; color:#fff; border:none; border-radius:10px; font-weight:700; font-size:0.9rem; cursor:pointer; margin-top:14px;">💾 儲存品項</button>
-        </div>
-    </div>
-
 </body>
 </html>
