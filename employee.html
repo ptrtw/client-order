@@ -54,7 +54,7 @@
         .app-header .header-right {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         .app-header .header-badge {
             background: rgba(255,255,255,0.2);
@@ -84,6 +84,45 @@
         .admin-entry:active {
             transform: scale(0.9);
             background: rgba(255,255,255,0.35);
+        }
+
+        /* ===== 購物車按鈕（右上角） ===== */
+        #cart-header-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            position: relative;
+        }
+        #cart-header-btn:active {
+            transform: scale(0.9);
+            background: rgba(255,255,255,0.35);
+        }
+        #cart-header-btn .badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ef4444;
+            color: #fff;
+            font-size: 0.5rem;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #cart-header-btn .badge.hidden {
+            display: none;
         }
 
         /* ===== 三大分類 Tab ===== */
@@ -120,7 +159,7 @@
             transform: scale(0.95);
         }
 
-        /* ===== 6x11 商品網格（品項填 10 行，最後一行留空） ===== */
+        /* ===== 6x11 商品網格 ===== */
         .pos-grid {
             flex: 1;
             display: grid;
@@ -161,7 +200,6 @@
             background: #dcfce7;
             border-color: #06C755;
         }
-        /* 顏色小點 */
         .pos-item .dot {
             position: absolute;
             top: 3px;
@@ -170,7 +208,6 @@
             height: 6px;
             border-radius: 50%;
         }
-        /* 最後一行隱藏（只留背景） */
         .pos-item.empty-row {
             background: transparent !important;
             box-shadow: none !important;
@@ -180,48 +217,6 @@
         }
         .pos-item.empty-row .dot {
             display: none !important;
-        }
-
-        /* ===== 浮動購物車 ===== */
-        #cart-float-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: #1e293b;
-            color: #fff;
-            border: none;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-            font-size: 1.2rem;
-            cursor: pointer;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-        #cart-float-btn:active {
-            transform: scale(0.92);
-        }
-        #cart-float-btn .badge {
-            position: absolute;
-            top: -4px;
-            right: -4px;
-            background: #ef4444;
-            color: #fff;
-            font-size: 0.55rem;
-            font-weight: 700;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #cart-float-btn .badge.hidden {
-            display: none;
         }
 
         /* ===== 購物車面板 ===== */
@@ -326,7 +321,6 @@
             margin-left: 6px;
         }
 
-        /* ===== 購物車底部訂單欄位 ===== */
         #cart-panel .panel-footer {
             border-top: 2px solid #f1f5f9;
             padding-top: 10px;
@@ -929,12 +923,15 @@
                 padding: 12px;
                 max-height: 70vh;
             }
-            #cart-float-btn {
-                width: 48px;
-                height: 48px;
-                font-size: 1rem;
-                bottom: 14px;
-                right: 14px;
+            #cart-header-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 0.85rem;
+            }
+            #cart-header-btn .badge {
+                width: 16px;
+                height: 16px;
+                font-size: 0.45rem;
             }
             .admin-entry {
                 width: 28px;
@@ -988,12 +985,17 @@
 </head>
 <body>
 
-    <!-- ===== 標題列 ===== -->
+    <!-- ===== 標題列（購物車按鈕已移至右上角） ===== -->
     <header class="app-header">
         <h1>🧋 快速點餐</h1>
         <div class="header-right">
             <span class="time" id="headerTime"></span>
             <span class="header-badge">👨‍🍳 員工專用</span>
+            <!-- 購物車按鈕（右上角） -->
+            <button id="cart-header-btn" onclick="toggleCart()" title="購物車">
+                🛒
+                <span class="badge hidden" id="cartBadge">0</span>
+            </button>
             <button class="admin-entry" onclick="openAdmin()" title="後台管理">⚙️</button>
         </div>
     </header>
@@ -1007,12 +1009,6 @@
 
     <!-- ===== 6x11 商品網格 ===== -->
     <div class="pos-grid" id="posGrid"></div>
-
-    <!-- ===== 浮動購物車 ===== -->
-    <button id="cart-float-btn" onclick="toggleCart()">
-        🛒
-        <span class="badge hidden" id="cartBadge">0</span>
-    </button>
 
     <!-- ===== 購物車面板 ===== -->
     <div id="cart-panel">
@@ -1442,7 +1438,7 @@
         }
 
         // =============================================
-        // 渲染商品網格（6×11，品項只填前 10 行，最後一行隱藏）
+        // 渲染商品網格
         // =============================================
         function renderGrid(tabIndex) {
             const grid = document.getElementById('posGrid');
@@ -1457,7 +1453,6 @@
                 const itemId = layout[i] || null;
                 const item = items.find(it => it.id === itemId);
 
-                // 第 60~65 格（最後一行）強制隱藏
                 if (i >= 60) {
                     div.classList.add('empty-row');
                     div.textContent = '';
@@ -1677,6 +1672,9 @@
             showToast(`✅ 已加入 ${currentItem.name} x${qty}`);
         }
 
+        // =============================================
+        // 購物車 UI
+        // =============================================
         function toggleCart() {
             const panel = document.getElementById('cart-panel');
             panel.classList.toggle('open');
@@ -1983,6 +1981,7 @@
             });
         });
 
+        // 後台功能（與之前相同，此處保持完整）
         function renderAdminItems() {
             const container = document.getElementById('adminItemList');
             const pageItems = items.filter(item => item.page === adminItemPage);
@@ -2017,7 +2016,6 @@
                 page: adminItemPage
             });
             renderAdminItems();
-            // 自動將新品項填入當前頁面的空格（只填前 60 格）
             const layout = pageLayout[adminItemPage];
             let placed = false;
             for (let i = 0; i < 60; i++) {
@@ -2058,7 +2056,6 @@
             const item = items.find(i => i.id === id);
             items = items.filter(i => i.id !== id);
             for (let p = 0; p < 3; p++) {
-                // 只清空前 60 格
                 for (let i = 0; i < 60; i++) {
                     if (pageLayout[p][i] === id) pageLayout[p][i] = null;
                 }
@@ -2082,7 +2079,6 @@
                 for (let i = 0; i < 60; i++) {
                     pageLayout[p][i] = i < pageItems.length ? pageItems[i].id : null;
                 }
-                // 第 60~65 格強制清空
                 for (let i = 60; i < 66; i++) {
                     pageLayout[p][i] = null;
                 }
@@ -2106,7 +2102,6 @@
                 const item = items.find(it => it.id === itemId);
 
                 if (i >= 60) {
-                    // 最後一行隱藏（不顯示）
                     cell.style.display = 'none';
                 } else if (item) {
                     cell.classList.add('has-item');
