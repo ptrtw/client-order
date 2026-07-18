@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>員工快速點餐 - 清心福全左營榮總店</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        :root {
+            --brand-color: #06C755;
+            --brand-dark: #05944A;
+            --brand-light: #e8f5e9;
+            --bg-color: #f4f6f9;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.06);
+            --nav-height: 52px;
+            --header-height: 56px;
+            --cart-height: 64px;
+        }
+
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100%;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        /* ===== 頂部標題列 ===== */
+        .app-header {
+            background: var(--brand-color);
+            color: white;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            height: var(--header-height);
+            flex-shrink: 0;
+        }
+        .app-header h1 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+        .app-header .header-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* ===== 主體佈局 (垂直滾動) ===== */
+        .main-layout {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - var(--header-height) - var(--cart-height));
+            overflow: hidden;
+        }
+
+        /* ===== 頂部分類導航 (橫向滑動) ===== */
+        .category-nav {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+            padding: 8px 12px;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+            min-height: var(--nav-height);
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        .category-nav::-webkit-scrollbar { display: none; }
+
+        .cat-nav-btn {
+            flex: 0 0 auto;
+            padding: 6px 14px;
+            border: none;
+            border-radius: 20px;
+            background: #f1f5f9;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .cat-nav-btn:active { transform: scale(0.94); }
+        .cat-nav-btn.active {
+            background: var(--brand-color);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(6, 199, 85, 0.3);
+        }
+
+        /* ===== 商品內容區 (滾動) ===== */
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 10px 20px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .scroll-content::-webkit-scrollbar { width: 3px; }
+        .scroll-content::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+
+        /* ===== 分類區塊 ===== */
+        .category-section {
+            margin-bottom: 16px;
+        }
+        .category-section-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+            padding: 6px 4px 6px 10px;
+            border-left: 4px solid var(--brand-color);
+            margin-bottom: 8px;
+            background: #ffffff;
+            border-radius: 0 8px 8px 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(4px);
+        }
+
+        /* ===== 商品網格 (一行 5~6 個) ===== */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+
+        /* ===== 商品卡片 (緊湊小巧) ===== */
+        .pos-item-card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 10px 6px 8px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.15s;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-height: 76px;
+            justify-content: center;
+        }
+        .pos-item-card:active {
+            transform: scale(0.94);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+        .pos-item-card .item-name {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.2;
+            margin-bottom: 2px;
+            word-break: break-word;
+        }
+        .pos-item-card .item-price-tag {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .pos-item-card .item-price-tag span {
+            background: #f1f5f9;
+            padding: 1px 5px;
+            border-radius: 3px;
+        }
+        /* 無商品時 */
+        .empty-category {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        /* ===== 底部購物車 ===== */
+        #cart-bar-btn {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #1e293b;
+            color: white;
+            padding: 12px 16px;
+            z-index: 1001;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            height: var(--cart-height);
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.15);
+        }
+        #cart-bar-btn .cart-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #cart-bar-btn .cart-badge {
+            background: var(--brand-color);
+            color: #fff;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        #cart-bar-btn .cart-total {
+            background: rgba(255,255,255,0.15);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+        }
+
+        /* ===== 點餐選項彈窗 ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 2000;
+            animation: fadeIn 0.2s ease-out;
+        }
+        .modal-content {
+            background: #ffffff;
+            width: 100%;
+            max-width: 600px;
+            padding: 16px 16px 20px;
+            border-radius: 20px 20px 0 0;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: slideUp 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--brand-light);
+        }
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .modal-header .close-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 1.1rem;
+            color: #666;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .opt-group { margin-bottom: 10px; }
+        .opt-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            letter-spacing: 0.3px;
+        }
+        .opt-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .opt-btn {
+            background: #f1f5f9;
+            color: var(--text-main);
+            border: 1px solid transparent;
+            padding: 5px 10px;
+            border-radius: 14px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+            flex: 0 1 auto;
+        }
+        .opt-btn.active {
+            background: var(--brand-light);
+            color: var(--brand-color);
+            border-color: var(--brand-color);
+        }
+        .opt-btn:active { transform: scale(0.94); }
+
+        .qty-ctrl {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 20px;
+        }
+        .qty-ctrl button {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            background: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .qty-ctrl .qty-num {
+            font-weight: 700;
+            font-size: 1rem;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--brand-color);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.15s;
+        }
+        .submit-btn:active { background: var(--brand-dark); }
+
+        /* ===== 購物車明細彈窗 ===== */
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .cart-item-info { flex: 1; padding-right: 10px; }
+        .cart-item-title { font-weight: 700; font-size: 0.9rem; }
+        .cart-item-desc { font-size: 0.7rem; color: var(--text-muted); }
+        .cart-del-btn {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* ===== 發票選項 ===== */
+        .invoice-option-btns {
+            display: flex;
+            gap: 8px;
+            margin: 8px 0;
+        }
+        .invoice-option-btns label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 2px solid #e0e0e0;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.15s;
+        }
+        .invoice-option-btns label.active {
+            border-color: var(--brand-color);
+            background: var(--brand-light);
+        }
+        .invoice-option-btns input[type="radio"] { display: none; }
+        #invoice-number-container { display: none; margin-top: 6px; }
+        #invoice-number {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        #invoice-number:focus { border-color: var(--brand-color); }
+
+        /* ===== 店休遮罩 ===== */
+        .closed-banner-ui {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.6rem;
+            font-weight: 700;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+        }
+        .closed-banner-ui span:last-child {
+            font-size: 0.9rem;
+            font-weight: 400;
+            margin-top: 10px;
+            color: #ddd;
+        }
+
+        /* ===== 自適應：小螢幕每行 5 個，大螢幕 6 個 ===== */
+        @media (min-width: 600px) {
+            .product-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+        @media (max-width: 420px) {
+            .product-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .pos-item-card .item-name {
+                font-size: 0.65rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 店休遮罩 -->
+<div id="closed-banner-ui" class="closed-banner-ui">
+    <span>⏰ 非營業時間</span>
+    <span id="closed-hours-msg"></span>
+</div>
+
+<!-- 頂部標題 -->
+<div class="app-header">
+    <h1>🧋 快速點餐</h1>
+    <span class="header-badge">👨‍🍳 員工專用</span>
+</div>
+
+<!-- 主體 -->
+<div class="main-layout">
+    <!-- 分類導航列 (橫向滑動) -->
+    <nav class="category-nav" id="category-nav"></nav>
+
+    <!-- 商品內容區 (所有品項一次顯示) -->
+    <div class="scroll-content" id="scroll-content"></div>
+</div>
+
+<!-- 底部購物車 -->
+<button id="cart-bar-btn" onclick="showCart()">
+    <span class="cart-left">
+        🛒 購物車
+        <span class="cart-badge" id="cart-counter">0</span>
+    </span>
+    <span class="cart-total" id="cart-total-preview">$0</span>
+</button>
+
+<!-- ===== 點餐選項彈窗 ===== -->
+<div id="option-modal" class="modal-overlay" onclick="if(event.target==this) this.style.display='none'">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modal-title">飲品名稱</h3>
+            <button class="close-btn" onclick="document.getElementById('option-modal').style.display='none'">✕</button>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div class="qty-ctrl">
+                <button onclick="changeQty(-1)">−</button>
+                <span class="qty-num" id="item-qty">1</span>
+                <button onclick="changeQty(1)">+</button>
+            </div>
+            <span style="font-size:0.75rem; color:var(--text-muted);">數量</span>
+        </div>
+
+        <div class="opt-group">
+            <div class="opt-title">大小</div>
+            <div id="size-btns" class="opt-btns"></div>
+        </div>
+        <div class="opt-group">
+            <div class="opt-title">冰塊</div>
+            <div id="ice-btns" class="opt-btns"></div>
+        </div>
+        <div class="opt-group">
+            <div class="opt-title">甜度</div>
+            <div id="sugar-btns" class="opt-btns"></div>
+        </div>
+        <div class="opt-group">
+            <div class="opt-title">加料</div>
+            <div id="topping-btns" class="opt-btns"></div>
+        </div>
+
+        <button class="submit-btn" onclick="confirmAddToCart()">➕ 加入購物車</button>
+    </div>
+</div>
+
+<!-- ===== 購物車明細彈窗 ===== -->
+<div id="cart-modal" class="modal-overlay" onclick="if(event.target==this) this.style.display='none'">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>🛒 購物車明細</h3>
+            <button class="close-btn" onclick="document.getElementById('cart-modal').style.display='none'">✕</button>
+        </div>
+
+        <div id="cart-list" style="max-height: 35vh; overflow-y: auto;"></div>
+
+        <div style="display:flex; justify-content:space-between; margin:12px 0 8px; font-size:1.1rem; font-weight:700;">
+            <span>總計</span>
+            <span style="color:var(--brand-color);">$<span id="cart-total">0</span></span>
+        </div>
+
+        <hr style="margin:12px 0;">
+
+        <div class="opt-title">📞 聯絡電話 <span style="color:red;">*</span></div>
+        <input type="tel" id="customer-phone" placeholder="輸入電話" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px; font-size:0.9rem; margin-bottom:10px;">
+
+        <div class="opt-title">取餐方式</div>
+        <div style="display:flex; gap:16px; margin:4px 0 10px;">
+            <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer;">
+                <input type="radio" name="delivery-method" value="自取" checked onclick="toggleDeliveryAddress(false)"> 自取
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer;">
+                <input type="radio" name="delivery-method" value="外送" onclick="toggleDeliveryAddress(true)"> 外送
+            </label>
+        </div>
+
+        <div id="address-container" style="display:none;">
+            <input type="text" id="customer-address" placeholder="輸入外送地址" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px; font-size:0.9rem; margin-bottom:10px;">
+        </div>
+
+        <!-- 發票選項 -->
+        <div class="opt-title">📄 發票</div>
+        <div class="invoice-option-btns">
+            <label id="invoice-paper" class="active" onclick="selectInvoice('paper')">
+                <input type="radio" name="invoice-option" value="paper" checked> 紙本
+            </label>
+            <label id="invoice-uniform" onclick="selectInvoice('uniform')">
+                <input type="radio" name="invoice-option" value="uniform"> 統編
+            </label>
+            <label id="invoice-carrier" onclick="selectInvoice('carrier')">
+                <input type="radio" name="invoice-option" value="carrier"> 載具
+            </label>
+        </div>
+        <div id="invoice-number-container">
+            <input type="text" id="invoice-number" placeholder="輸入 8 位統編" maxlength="8" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px; font-size:0.9rem;">
+        </div>
+
+        <button class="submit-btn" onclick="sendToLine()">✅ 送出訂單</button>
+    </div>
+</div>
+
+<script>
+    // ===== 員工版專屬 LIFF ID =====
+    const LIFF_ID = "2010718024-5LLzGr1V";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
+
+    // ===== 菜單資料 =====
+    const DEFAULT_TOPPING_PRICES = {
+        M: { "珍珠": 5, "椰果": 5, "布丁": 15, "仙草凍": 5, "QQ": 5, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 },
+        L: { "珍珠": 10, "椰果": 10, "布丁": 15, "仙草凍": 10, "QQ": 10, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 }
+    };
+
+    const DEFAULT_MENU_DATA = [
+        { category: "茗品", items: [
+            { name: "特級綠茶", prices: { M: 25, L: 30 } },
+            { name: "烏龍綠茶", prices: { M: 25, L: 30 } },
+            { name: "錫蘭紅茶", prices: { M: 25, L: 30 } },
+            { name: "極品菁茶", prices: { M: 25, L: 30 } },
+            { name: "原鄉四季", prices: { M: 25, L: 30 } },
+            { name: "特選普洱", prices: { M: 25, L: 30 } },
+            { name: "高山烏龍", prices: { M: 25, L: 30 } }
+        ] },
+        { category: "奶茶", items: [
+            { name: "奶茶", prices: { M: 40, L: 50 } },
+            { name: "奶綠", prices: { M: 40, L: 50 } },
+            { name: "烏龍奶茶", prices: { M: 40, L: 50 } },
+            { name: "珍珠奶茶", prices: { M: 45, L: 55 } },
+            { name: "布丁奶茶", prices: { M: 50, L: 60 } },
+            { name: "仙草凍奶茶", prices: { M: 50, L: 60 } },
+            { name: "暗黑水晶奶茶", prices: { M: 50, L: 60 } }
+        ] },
+        { category: "鮮奶/拿鐵", items: [
+            { name: "紅茶拿鐵", prices: { M: 55, L: 65 } },
+            { name: "綠茶拿鐵", prices: { M: 55, L: 65 } },
+            { name: "珍珠紅茶拿鐵", prices: { M: 60, L: 70 } },
+            { name: "珍珠絲滑鮮奶茶", prices: { M: 65, L: 75 } }
+        ] },
+        { category: "特調", items: [
+            { name: "優多綠茶", prices: { M: 40, L: 50 } },
+            { name: "檸檬綠茶", prices: { M: 45, L: 55 } },
+            { name: "蜂蜜綠茶", prices: { M: 45, L: 55 } },
+            { name: "梅子綠茶", prices: { M: 40, L: 50 } },
+            { name: "蘋果醋", prices: { M: 45, L: 55 } }
+        ] },
+        { category: "冬瓜", items: [
+            { name: "冬瓜茶", prices: { M: 25, L: 30 } },
+            { name: "冬瓜檸檬", prices: { M: 40, L: 50 } },
+            { name: "冬瓜鮮奶", prices: { M: 45, L: 55 } }
+        ] }
+    ];
+
+    const DEFAULT_HOURS = {
+        1: { open: "09:00", close: "21:00", isClosed: false },
+        2: { open: "09:00", close: "21:00", isClosed: false },
+        3: { open: "09:00", close: "21:00", isClosed: false },
+        4: { open: "09:00", close: "21:00", isClosed: false },
+        5: { open: "09:00", close: "21:00", isClosed: false },
+        6: { open: "09:00", close: "21:00", isClosed: false },
+        0: { open: "09:00", close: "21:00", isClosed: false }
+    };
+
+    let menuData = JSON.parse(JSON.stringify(DEFAULT_MENU_DATA));
+    let toppingPrices = JSON.parse(JSON.stringify(DEFAULT_TOPPING_PRICES));
+    let storeHours = JSON.parse(JSON.stringify(DEFAULT_HOURS));
+    let isStoreCurrentlyClosed = false;
+    let cart = [];
+    let currentSelect = {};
+    let invoiceOption = 'paper';
+    let invoiceNumber = '';
+
+    // ===== 載入設定 =====
+    function loadSavedConfig() {
+        try {
+            const savedMenu = localStorage.getItem('pos_menu_custom');
+            if (savedMenu) menuData = JSON.parse(savedMenu);
+            const savedToppings = localStorage.getItem('pos_toppings_custom');
+            if (savedToppings) toppingPrices = JSON.parse(savedToppings);
+            const savedHours = localStorage.getItem('pos_store_hours');
+            if (savedHours) storeHours = JSON.parse(savedHours);
+        } catch(e) { console.error("載入設定失敗", e); }
+    }
+    loadSavedConfig();
+
+    function loadCloudConfig() {
+        fetch(GAS_API_URL).then(r => r.json()).then(data => {
+            if (data && data.menu && data.menu.length > 0) {
+                menuData = data.menu;
+                if(data.toppings) toppingPrices = data.toppings;
+                if(data.storeHours) storeHours = data.storeHours;
+                saveAllToLocal();
+                renderFullMenu();
+                checkStoreStatus();
+                updateNavActive(''); // 重置導航高亮
+            }
+        }).catch(err => console.error("無法連線雲端", err));
+    }
+
+    // LIFF 初始化（含自動登入）
+    liff.init({ liffId: LIFF_ID }).then(() => {
+        if (!liff.isLoggedIn()) {
+            liff.login();
+        } else {
+            loadCloudConfig();
+        }
+    }).catch(() => {
+        loadCloudConfig();
+    });
+
+    function saveAllToLocal() {
+        localStorage.setItem('pos_menu_custom', JSON.stringify(menuData));
+        localStorage.setItem('pos_store_hours', JSON.stringify(storeHours));
+        localStorage.setItem('pos_toppings_custom', JSON.stringify(toppingPrices));
+    }
+
+    // ===== 營業時間檢查 =====
+    function checkStoreStatus() {
+        const now = new Date();
+        const twTimeStr = now.toLocaleString("en-US", { timeZone: "Asia/Taipei", hour12: false });
+        const twTime = new Date(twTimeStr);
+        const day = twTime.getDay();
+        const currentTime = String(twTime.getHours()).padStart(2,'0') + ":" + String(twTime.getMinutes()).padStart(2,'0');
+        const todayRules = storeHours[day];
+        const daysZh = ["日","一","二","三","四","五","六"];
+
+        if (todayRules.isClosed) {
+            isStoreCurrentlyClosed = true;
+            document.getElementById('closed-hours-msg').innerText = `星期${daysZh[day]} 固定店休`;
+        } else if (currentTime < todayRules.open || currentTime > todayRules.close) {
+            isStoreCurrentlyClosed = true;
+            document.getElementById('closed-hours-msg').innerText = `營業時間 ${todayRules.open} - ${todayRules.close}`;
+        } else {
+            isStoreCurrentlyClosed = false;
+        }
+
+        document.getElementById('closed-banner-ui').style.display = isStoreCurrentlyClosed ? 'flex' : 'none';
+    }
+    setInterval(checkStoreStatus, 60000);
+
+    // ===== 渲染：所有品項一次顯示，頂部導航 =====
+    function renderFullMenu() {
+        const nav = document.getElementById('category-nav');
+        const content = document.getElementById('scroll-content');
+        nav.innerHTML = '';
+        content.innerHTML = '';
+
+        // 建立導航按鈕與內容區塊
+        menuData.forEach((cat, idx) => {
+            if (cat.items.length === 0) return;
+
+            // 導航按鈕
+            const btn = document.createElement('button');
+            btn.className = 'cat-nav-btn';
+            btn.innerText = cat.category;
+            btn.dataset.index = idx;
+            btn.onclick = () => scrollToCategory(idx);
+            nav.appendChild(btn);
+
+            // 內容區塊
+            const section = document.createElement('div');
+            section.className = 'category-section';
+            section.id = `cat-section-${idx}`;
+
+            const title = document.createElement('div');
+            title.className = 'category-section-title';
+            title.innerText = cat.category;
+            section.appendChild(title);
+
+            const grid = document.createElement('div');
+            grid.className = 'product-grid';
+
+            cat.items.forEach((item, iIdx) => {
+                const card = document.createElement('div');
+                card.className = 'pos-item-card';
+                const priceHTML = Object.entries(item.prices).map(([size, price]) =>
+                    `<span>${size}$${price}</span>`
+                ).join(' ');
+                card.innerHTML = `
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-price-tag">${priceHTML}</div>
+                `;
+                card.onclick = () => {
+                    if (isStoreCurrentlyClosed) { alert("目前非營業時間"); return; }
+                    openModal(item, idx, iIdx);
+                };
+                grid.appendChild(card);
+            });
+
+            section.appendChild(grid);
+            content.appendChild(section);
+        });
+
+        // 若無任何分類，顯示提示
+        if (content.children.length === 0) {
+            content.innerHTML = '<div style="text-align:center; padding:40px; color:#999;">目前沒有任何商品</div>';
+        }
+
+        // 更新導航高亮（滾動時自動更新）
+        updateNavOnScroll();
+    }
+
+    // ===== 滾動到指定分類 =====
+    function scrollToCategory(index) {
+        const target = document.getElementById(`cat-section-${index}`);
+        if (!target) return;
+        const container = document.getElementById('scroll-content');
+        const y = target.offsetTop - 12;
+        container.scrollTo({ top: y, behavior: 'smooth' });
+
+        // 更新導航高亮
+        document.querySelectorAll('.cat-nav-btn').forEach((btn, i) => {
+            btn.classList.toggle('active', i === index);
+        });
+    }
+
+    // ===== 滾動時自動更新導航高亮 =====
+    function updateNavOnScroll() {
+        const container = document.getElementById('scroll-content');
+        const navBtns = document.querySelectorAll('.cat-nav-btn');
+
+        container.addEventListener('scroll', () => {
+            const scrollTop = container.scrollTop;
+            let activeIndex = 0;
+            const sections = document.querySelectorAll('.category-section');
+            sections.forEach((sec, idx) => {
+                const offset = sec.offsetTop - 20;
+                if (scrollTop >= offset) {
+                    activeIndex = idx;
+                }
+            });
+            navBtns.forEach((btn, i) => {
+                btn.classList.toggle('active', i === activeIndex);
+            });
+        }, { passive: true });
+    }
+
+    function updateNavActive(index) {
+        document.querySelectorAll('.cat-nav-btn').forEach((btn, i) => {
+            btn.classList.toggle('active', i === index);
+        });
+    }
+
+    // ===== 點餐選項彈窗 =====
+    function openModal(item, cIdx, iIdx) {
+        let defaultSize = item.prices.hasOwnProperty('L') ? 'L' : Object.keys(item.prices)[0];
+        currentSelect = { item, qty: 1, size: defaultSize, ice: null, sugar: null, toppings: [], cIdx, iIdx };
+
+        document.getElementById('modal-title').innerText = item.name;
+        document.getElementById('item-qty').innerText = 1;
+        document.getElementById('option-modal').style.display = 'flex';
+
+        renderBtns('size-btns', Object.keys(item.prices), (val) => {
+            currentSelect.size = val;
+            currentSelect.toppings = [];
+            renderToppings(item, val);
+        }, defaultSize);
+
+        let iceOptions = ["正常冰", "少冰", "微冰", "去冰", "常溫", "溫飲"];
+        renderBtns('ice-btns', iceOptions, (val) => currentSelect.ice = val, null);
+
+        let sugarOptions = ["半糖", "微糖", "無糖", "其他"];
+        renderBtns('sugar-btns', sugarOptions, (val) => currentSelect.sugar = val, null);
+
+        renderToppings(item, defaultSize);
+    }
+
+    function renderBtns(containerId, options, callback, defaultVal) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn' + (opt === defaultVal ? ' active' : '');
+            btn.innerText = opt;
+            btn.onclick = () => {
+                container.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                callback(opt);
+            };
+            container.appendChild(btn);
+        });
+    }
+
+    function renderToppings(item, size) {
+        const container = document.getElementById('topping-btns');
+        container.innerHTML = '';
+        let activeToppings = toppingPrices[size] || {};
+        if (item.customToppings && item.customToppings[size]) {
+            activeToppings = item.customToppings[size];
+        }
+        Object.entries(activeToppings).forEach(([name, price]) => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn';
+            btn.innerText = `${name} +$${price}`;
+            btn.onclick = () => {
+                btn.classList.toggle('active');
+                if (btn.classList.contains('active')) currentSelect.toppings.push(name);
+                else currentSelect.toppings = currentSelect.toppings.filter(t => t !== name);
+            };
+            container.appendChild(btn);
+        });
+    }
+
+    function changeQty(diff) {
+        currentSelect.qty = Math.max(1, currentSelect.qty + diff);
+        document.getElementById('item-qty').innerText = currentSelect.qty;
+    }
+
+    function confirmAddToCart() {
+        if (!currentSelect.size || !currentSelect.ice || !currentSelect.sugar) {
+            return alert("請選擇大小、冰塊、甜度");
+        }
+        let basePrice = currentSelect.item.prices[currentSelect.size];
+        let activeToppings = toppingPrices[currentSelect.size] || {};
+        if (currentSelect.item.customToppings && currentSelect.item.customToppings[currentSelect.size]) {
+            activeToppings = currentSelect.item.customToppings[currentSelect.size];
+        }
+        let toppingCost = currentSelect.toppings.reduce((sum, t) => sum + (activeToppings[t] || 0), 0);
+        let finalPrice = (basePrice + toppingCost) * currentSelect.qty;
+        cart.push({ ...currentSelect, price: finalPrice });
+        updateCounter();
+        document.getElementById('option-modal').style.display = 'none';
+    }
+
+    // ===== 購物車 =====
+    function updateCounter() {
+        document.getElementById('cart-counter').innerText = cart.length;
+        let total = cart.reduce((sum, i) => sum + i.price, 0);
+        document.getElementById('cart-total-preview').innerText = `$${total}`;
+        try { localStorage.setItem('pos_cart_data', JSON.stringify(cart)); } catch(e) {}
+    }
+
+    function showCart() {
+        document.getElementById('cart-modal').style.display = 'flex';
+        updateCartUI();
+    }
+
+    function updateCartUI() {
+        const list = document.getElementById('cart-list');
+        list.innerHTML = '';
+        let total = 0;
+        if (cart.length === 0) {
+            list.innerHTML = '<div style="text-align:center; padding:30px; color:#999;">購物車是空的</div>';
+        } else {
+            cart.forEach((item, index) => {
+                total += item.price;
+                let details = `${item.ice} / ${item.sugar}`;
+                if (item.toppings.length) details += ` / 加:${item.toppings.join(',')}`;
+                list.innerHTML += `
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <div class="cart-item-title">${item.item.name} (${item.size}) x${item.qty}</div>
+                            <div class="cart-item-desc">${details}</div>
+                            <div style="font-weight:700; color:var(--brand-color);">$${item.price}</div>
+                        </div>
+                        <button class="cart-del-btn" onclick="removeFromCart(${index})">移除</button>
+                    </div>
+                `;
+            });
+        }
+        document.getElementById('cart-total').innerText = total;
+    }
+
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        updateCounter();
+        updateCartUI();
+    }
+
+    function toggleDeliveryAddress(show) {
+        document.getElementById('address-container').style.display = show ? 'block' : 'none';
+    }
+
+    // ===== 發票選項 =====
+    function selectInvoice(option) {
+        invoiceOption = option;
+        document.querySelectorAll('.invoice-option-btns label').forEach(el => el.classList.remove('active'));
+        if (option === 'paper') document.getElementById('invoice-paper').classList.add('active');
+        else if (option === 'uniform') document.getElementById('invoice-uniform').classList.add('active');
+        else if (option === 'carrier') document.getElementById('invoice-carrier').classList.add('active');
+        document.getElementById('invoice-number-container').style.display = (option === 'uniform') ? 'block' : 'none';
+        if (option !== 'uniform') document.getElementById('invoice-number').value = '';
+    }
+
+    // ===== 結帳 =====
+    async function sendToLine() {
+        if (!liff.isInClient()) {
+            alert("請在 LINE 聊天室內開啟此頁面");
+            return;
+        }
+        if (!liff.isLoggedIn()) {
+            alert("尚未登入 LINE，即將跳轉登入");
+            liff.login();
+            return;
+        }
+        if (isStoreCurrentlyClosed) {
+            alert("目前非營業時間，暫不開放結帳");
+            return;
+        }
+        if (cart.length === 0) return alert("購物車是空的");
+        let phone = document.getElementById('customer-phone').value.trim();
+        if (!phone) { alert("請輸入聯絡電話"); document.getElementById('customer-phone').focus(); return; }
+
+        if (invoiceOption === 'uniform') {
+            const num = document.getElementById('invoice-number').value.trim();
+            if (!num || num.length !== 8) { alert("請輸入正確的 8 位統編"); return; }
+            invoiceNumber = num;
+        }
+
+        let methodEl = document.querySelector('input[name="delivery-method"]:checked');
+        let method = methodEl ? methodEl.value : "自取";
+        let address = method === "外送" ? document.getElementById('customer-address').value.trim() : "";
+
+        let total = cart.reduce((sum, i) => sum + i.price, 0);
+
+        let invoiceText = '';
+        if (invoiceOption === 'paper') invoiceText = '🧾 紙本發票（店家印出）';
+        else if (invoiceOption === 'uniform') invoiceText = `🏢 統編：${invoiceNumber}`;
+        else if (invoiceOption === 'carrier') invoiceText = '📱 載具（請於聊天室上傳圖片）';
+
+        let allItemBoxes = cart.map(i => {
+            let details = `👉 ${i.ice} / ${i.sugar}`;
+            if (i.toppings.length) details += ` / 加:${i.toppings.join(',')}`;
+            return {
+                type: "box", layout: "vertical", margin: "sm",
+                contents: [
+                    { type: "box", layout: "baseline", contents: [
+                        { type: "text", text: `${i.item.name}(${i.size}) x${i.qty}`, size: "sm", weight: "bold", flex: 3, wrap: true, color: "#1e293b" },
+                        { type: "text", text: `$${i.price}`, size: "sm", align: "end", flex: 1, weight: "bold", color: "#06C755" }
+                    ]},
+                    { type: "box", layout: "baseline", margin: "xs", contents: [
+                        { type: "text", text: details, size: "xs", color: "#64748b", flex: 1, wrap: true }
+                    ]}
+                ]
+            };
+        });
+
+        let footerBox = [
+            { type: "separator", margin: "md", color: "#e2e8f0" },
+            { type: "box", layout: "vertical", margin: "md", contents: [
+                { type: "text", text: `📞 ${phone}`, size: "sm", weight: "bold", color: "#1e293b" }
+            ]},
+            { type: "box", layout: "vertical", margin: "sm", contents: [
+                { type: "text", text: `📄 ${invoiceText}`, size: "sm", weight: "bold", color: "#2563eb" }
+            ]},
+            { type: "box", layout: "vertical", margin: "sm", contents: [
+                { type: "text", text: `🛵 ${method}`, size: "sm", weight: "bold", color: "#1e293b" }
+            ]}
+        ];
+        if (method === "外送" && address) {
+            footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [
+                { type: "text", text: `📍 ${address}`, size: "sm", weight: "bold", color: "#e65100", wrap: true }
+            ]});
+        }
+        footerBox.push(
+            { type: "separator", margin: "md", color: "#e2e8f0" },
+            { type: "box", layout: "baseline", margin: "md", contents: [
+                { type: "text", text: "💰 結帳金額", weight: "bold", size: "md", color: "#1e293b" },
+                { type: "text", text: `$${total}`, weight: "bold", size: "xl", align: "end", color: "#06C755" }
+            ]}
+        );
+
+        const ITEMS_PER_BUBBLE = 10;
+        let bubbles = [];
+        for (let i = 0; i < allItemBoxes.length; i += ITEMS_PER_BUBBLE) {
+            let chunk = allItemBoxes.slice(i, i + ITEMS_PER_BUBBLE);
+            let isLast = (i + ITEMS_PER_BUBBLE >= allItemBoxes.length);
+            let bodyContents = [{ type: "box", layout: "vertical", spacing: "md", contents: chunk }];
+            if (isLast) bodyContents.push(...footerBox);
+            bubbles.push({
+                type: "bubble",
+                size: "mega",
+                header: {
+                    type: "box",
+                    layout: "vertical",
+                    backgroundColor: "#1e293b",
+                    paddingAll: "md",
+                    contents: [
+                        { type: "text", text: `🧋 新訂單 (${Math.floor(i/ITEMS_PER_BUBBLE)+1})`, weight: "bold", size: "xl", color: "#ffffff" }
+                    ]
+                },
+                body: { type: "box", layout: "vertical", contents: bodyContents }
+            });
+        }
+
+        try {
+            await liff.sendMessages([{
+                type: "flex",
+                altText: `🧋 新訂單！總計 $${total}`,
+                contents: { type: "carousel", contents: bubbles }
+            }]);
+            let msg = "✅ 訂單已送出！";
+            if (invoiceOption === 'carrier') msg += "\n\n📌 請在聊天室上傳載具 QR Code 圖片";
+            alert(msg);
+            cart = [];
+            updateCounter();
+            document.getElementById('customer-phone').value = '';
+            document.getElementById('customer-address').value = '';
+            document.querySelector('input[name="delivery-method"][value="自取"]').checked = true;
+            toggleDeliveryAddress(false);
+            selectInvoice('paper');
+            document.getElementById('invoice-number').value = '';
+            document.getElementById('cart-modal').style.display = 'none';
+            liff.closeWindow();
+        } catch (err) {
+            let errorMsg = "傳送失敗：";
+            if (err.code === "UNAUTHORIZED") {
+                errorMsg += "權限不足，請確認已登入 LINE 並已授權此應用。\n\n";
+                errorMsg += "請至 LINE Developers 後台檢查 LIFF 應用是否已開啟「發送訊息」權限。";
+            } else {
+                errorMsg += JSON.stringify(err);
+            }
+            alert(errorMsg);
+            console.error(err);
+        }
+    }
+
+    // ===== 初始化 =====
+    renderFullMenu();
+    checkStoreStatus();
+    updateCounter();
+
+    // 從 localStorage 恢復購物車
+    try {
+        const saved = localStorage.getItem('pos_cart_data');
+        if (saved) { cart = JSON.parse(saved); updateCounter(); }
+    } catch(e) {}
+</script>
+</body>
+</html>
