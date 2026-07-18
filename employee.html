@@ -2533,35 +2533,48 @@
             ).join('');
         }
 
+        // =============================================
+        // 修正：全域設定新增
+        // =============================================
         function adminAddGlobal(type) {
             const inputMap = { ice: 'adminNewIce', sugar: 'adminNewSugar', topping: 'adminNewTopping' };
-            const listMap = { ice: 'globalIce', sugar: 'globalSugar', topping: 'globalToppings' };
+            const listMap = { ice: globalIce, sugar: globalSugar, topping: globalToppings };
             const tagMap = { ice: 'adminIceTags', sugar: 'adminSugarTags', topping: 'adminToppingTags' };
+            
             const input = document.getElementById(inputMap[type]);
             const val = input.value.trim();
             if (!val) return;
-            if (window[listMap[type]].includes(val)) {
+            
+            const targetList = listMap[type];
+            
+            if (targetList.includes(val)) {
                 showToast('⚠️ 已存在');
                 return;
             }
-            window[listMap[type]].push(val);
+            
+            targetList.push(val);
             input.value = '';
-            renderAdminTagGroup(tagMap[type], window[listMap[type]]);
+            renderAdminTagGroup(tagMap[type], targetList);
             saveToLocal();
             showToast(`✅ 已新增「${val}」`);
         }
 
+        // =============================================
+        // 修正：全域設定刪除
+        // =============================================
         function adminRemoveGlobalItem(containerId, idx) {
             const map = {
-                'adminIceTags': 'globalIce',
-                'adminSugarTags': 'globalSugar',
-                'adminToppingTags': 'globalToppings'
+                'adminIceTags': globalIce,
+                'adminSugarTags': globalSugar,
+                'adminToppingTags': globalToppings
             };
-            const key = map[containerId];
-            const arr = window[key];
-            const removed = arr[idx];
-            arr.splice(idx, 1);
-            renderAdminTagGroup(containerId, arr);
+            
+            const targetList = map[containerId];
+            if (!targetList) return;
+            
+            const removed = targetList[idx];
+            targetList.splice(idx, 1);
+            renderAdminTagGroup(containerId, targetList);
             saveToLocal();
             showToast(`已移除「${removed}」`);
         }
