@@ -1094,7 +1094,7 @@
                 <input type="text" id="invoiceDetail" placeholder="請輸入統編號碼或載具條碼 (選填)">
             </div>
 
-            <!-- ===== 新增：備註欄位 ===== -->
+            <!-- 備註 -->
             <div class="field-row">
                 <span class="field-label">📝 備註</span>
                 <input type="text" id="orderNote" placeholder="少冰、少糖、餐具數量等 (選填)">
@@ -1548,7 +1548,7 @@
         });
 
         // =============================================
-        // 外送地址展開/收合
+        // 外送地址展開/收合 + 更新購物車
         // =============================================
         function toggleAddress(show) {
             const container = document.getElementById('address-container');
@@ -1557,6 +1557,8 @@
             } else {
                 container.classList.remove('show');
             }
+            // 取餐方式變更，重新計算購物車總價（影響折扣）
+            updateCartUI();
         }
 
         // =============================================
@@ -1724,7 +1726,7 @@
         }
 
         // =============================================
-        // 購物車 UI
+        // 購物車 UI（含折扣邏輯修正）
         // =============================================
         function toggleCart() {
             const panel = document.getElementById('cart-panel');
@@ -1754,6 +1756,7 @@
                 return;
             }
 
+            // 計算原始總價
             let originalTotal = 0;
             let allCups = [];
             cart.forEach(item => {
@@ -1763,8 +1766,13 @@
                 }
             });
 
+            // 取得取餐方式
+            const methodEl = document.querySelector('input[name="deliveryMethod"]:checked');
+            const method = methodEl ? methodEl.value : '自取';
+
+            // 只有「自取」才計算買五送一折扣
             let discount = 0;
-            if (allCups.length >= 6) {
+            if (method === '自取' && allCups.length >= 6) {
                 allCups.sort((a, b) => b - a);
                 for (let i = 5; i < allCups.length; i += 6) {
                     discount += allCups[i];
@@ -1773,6 +1781,7 @@
 
             const finalTotal = originalTotal - discount;
 
+            // 顯示品項列表
             let html = '';
             cart.forEach((item, idx) => {
                 const detail = `${item.size} / ${item.ice} / ${item.sugar}` +
@@ -1790,6 +1799,7 @@
             });
             list.innerHTML = html;
 
+            // 更新金額
             totalEl.textContent = `$${finalTotal}`;
             originalTotalEl.textContent = originalTotal;
             discountEl.textContent = discount;
@@ -1827,7 +1837,7 @@
         }
 
         // =============================================
-        // 結帳（加入備註）
+        // 結帳（折扣邏輯修正）
         // =============================================
         function checkout() {
             if (cart.length === 0) {
@@ -1847,7 +1857,8 @@
 
             // 收集所有欄位
             const phone = document.getElementById('customerPhone').value.trim() || '未提供';
-            const method = document.querySelector('input[name="deliveryMethod"]:checked')?.value || '自取';
+            const methodEl = document.querySelector('input[name="deliveryMethod"]:checked');
+            const method = methodEl ? methodEl.value : '自取';
             const address = document.getElementById('customerAddress').value.trim() || '';
             const invoiceType = document.querySelector('input[name="invoiceType"]:checked')?.value || '紙本';
             const invoiceDetail = document.getElementById('invoiceDetail').value.trim() || '';
@@ -1858,7 +1869,7 @@
                 invoiceText += `：${invoiceDetail}`;
             }
 
-            // 計算金額
+            // 計算總金額（只有自取才折扣）
             let originalTotal = 0;
             let allCups = [];
             cart.forEach(item => {
@@ -1869,7 +1880,7 @@
             });
 
             let discount = 0;
-            if (allCups.length >= 6) {
+            if (method === '自取' && allCups.length >= 6) {
                 allCups.sort((a, b) => b - a);
                 for (let i = 5; i < allCups.length; i += 6) {
                     discount += allCups[i];
