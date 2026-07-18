@@ -1368,7 +1368,7 @@
     <!-- ===== 隱藏的上傳 input ===== -->
     <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="adminHandleImport(event)">
 
-    <!-- ===================== 編輯品項彈窗（已補上） ===================== -->
+    <!-- ===== 編輯品項彈窗（專屬加料管理） ===== -->
     <div class="modal-overlay" id="editItemModal" onclick="if(event.target===this) closeEditItemModal()">
         <div class="modal-content">
             <div class="modal-header">
@@ -1426,13 +1426,17 @@
             <button class="save-edit-btn" onclick="saveEditItem()">💾 儲存品項</button>
         </div>
     </div>
-    <!-- ===================== 編輯品項彈窗結束 ===================== -->
 
     <script>
         // =============================================
         // LIFF ID
         // =============================================
         const LIFF_ID = "2010718024-5LLzGr1V";
+
+        // =============================================
+        // GAS 雲端網址（沿用原本的）
+        // =============================================
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
 
         // =============================================
         // 加料價格
@@ -1605,21 +1609,82 @@
         let editingItemId = null;
 
         // =============================================
-        // LIFF 初始化
+        // LIFF 初始化 + 從雲端載入
         // =============================================
         liff.init({ liffId: LIFF_ID })
             .then(() => {
                 console.log('LIFF 初始化成功');
                 if (!liff.isLoggedIn()) {
                     liff.login();
+                } else {
+                    // 從雲端載入最新資料
+                    loadCloudConfig();
                 }
             })
             .catch(err => {
                 console.error('LIFF 初始化失敗', err);
+                // 無法初始化時仍嘗試載入
+                loadCloudConfig();
             });
 
         // =============================================
-        // 初始化頁面配置
+        // 從 GAS 雲端載入資料
+        // =============================================
+        function loadCloudConfig() {
+            fetch(GAS_API_URL)
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.items && data.items.length > 0) {
+                        items = data.items;
+                        if (data.overrides) overrides = data.overrides;
+                        if (data.pageLayout) pageLayout = data.pageLayout;
+                        if (data.globalIce) globalIce = data.globalIce;
+                        if (data.globalSugar) globalSugar = data.globalSugar;
+                        if (data.globalToppings) globalToppings = data.globalToppings;
+                        if (data.toppingPrices) toppingPrices = data.toppingPrices;
+
+                        // 確保 pageLayout 每頁有 66 格
+                        for (let p = 0; p < 3; p++) {
+                            if (!pageLayout[p] || pageLayout[p].length < 66) {
+                                const current = pageLayout[p] || [];
+                                const newLayout = [];
+                                for (let i = 0; i < 66; i++) {
+                                    newLayout[i] = i < current.length ? current[i] : null;
+                                }
+                                pageLayout[p] = newLayout;
+                            }
+                        }
+
+                        // 若頁面完全空白，自動填入
+                        for (let p = 0; p < 3; p++) {
+                            const hasItem = pageLayout[p].slice(0, 60).some(id => id !== null);
+                            if (!hasItem) {
+                                const pageItems = items.filter(item => item.page === p);
+                                for (let i = 0; i < 60 && i < pageItems.length; i++) {
+                                    pageLayout[p][i] = pageItems[i].id;
+                                }
+                            }
+                        }
+
+                        saveToLocal();
+                        renderGrid(currentTab);
+                        renderAdminItems();
+                        renderAdminLayout();
+                        renderAdminGlobal();
+                        console.log('✅ 已從雲端載入資料');
+                    } else {
+                        // 雲端無資料，使用本地或預設
+                        initPageLayout();
+                    }
+                })
+                .catch(err => {
+                    console.error('無法連線雲端，使用本地資料', err);
+                    initPageLayout();
+                });
+        }
+
+        // =============================================
+        // 初始化頁面配置（從 localStorage 或預設）
         // =============================================
         function initPageLayout() {
             try {
@@ -1658,6 +1723,10 @@
             }
 
             saveToLocal();
+            renderGrid(currentTab);
+            renderAdminItems();
+            renderAdminLayout();
+            renderAdminGlobal();
         }
 
         // =============================================
@@ -1856,7 +1925,7 @@
         function renderToppings() {
             const container = document.getElementById('toppingBtns');
             container.innerHTML = '';
-            
+
             const availableTops = getAvailableToppings(currentItem, selectedSize);
 
             selectedToppings = selectedToppings.filter(t => availableTops[t] !== undefined);
@@ -1883,12 +1952,12 @@
         function updateModalPrice() {
             const base = currentItem[selectedSize] || 0;
             const availableTops = getAvailableToppings(currentItem, selectedSize);
-            
+
             let toppingCost = 0;
-            selectedToppings.forEach(t => { 
-                toppingCost += availableTops[t] || 0; 
+            selectedToppings.forEach(t => {
+                toppingCost += availableTops[t] || 0;
             });
-            
+
             const total = base + toppingCost;
             document.getElementById('optionPrice').textContent = total;
         }
@@ -1911,12 +1980,12 @@
 
             const base = currentItem[selectedSize] || 0;
             const availableTops = getAvailableToppings(currentItem, selectedSize);
-            
+
             let toppingCost = 0;
-            selectedToppings.forEach(t => { 
-                toppingCost += availableTops[t] || 0; 
+            selectedToppings.forEach(t => {
+                toppingCost += availableTops[t] || 0;
             });
-            
+
             const unitPrice = base + toppingCost;
             const total = unitPrice * qty;
 
@@ -2855,6 +2924,9 @@
             event.target.value = '';
         }
 
+        // =============================================
+        // 儲存到本機（localStorage）
+        // =============================================
         function saveToLocal() {
             const data = {
                 items: items,
@@ -2868,20 +2940,46 @@
             localStorage.setItem('pos_employee_data', JSON.stringify(data));
         }
 
+        // =============================================
+        // 儲存全部（本機 + 雲端 GAS）
+        // =============================================
         function adminSaveAll() {
+            // 先存本機
             saveToLocal();
-            renderGrid(currentTab);
-            renderAdminItems();
-            renderAdminLayout();
-            showToast('✅ 全部已儲存！');
+
+            // 再上傳雲端
+            const bundle = {
+                items: items,
+                overrides: overrides,
+                pageLayout: pageLayout,
+                globalIce: globalIce,
+                globalSugar: globalSugar,
+                globalToppings: globalToppings,
+                toppingPrices: toppingPrices
+            };
+
+            fetch(GAS_API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify(bundle)
+                })
+                .then(() => {
+                    showToast('✅ 全部已儲存（本機 + 雲端同步）！');
+                    renderGrid(currentTab);
+                    renderAdminItems();
+                    renderAdminLayout();
+                })
+                .catch(() => {
+                    showToast('⚠️ 已儲存本機，但雲端同步失敗，請檢查網路');
+                });
         }
 
         // =============================================
         // 初始化
         // =============================================
+        // 初次載入時，先從 localStorage 讀取（如果有）
+        // 然後 loadCloudConfig 會從雲端拉取最新資料覆蓋
         initPageLayout();
-        renderGrid(0);
-        updateCartUI();
 
         document.getElementById('adminModal').addEventListener('click', function(e) {
             if (e.target === this) closeAdmin();
