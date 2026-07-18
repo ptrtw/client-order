@@ -2329,6 +2329,7 @@
             const removed = arr[idx];
             arr.splice(idx, 1);
             renderAdminTagGroup(containerId, arr);
+            saveToLocal();
             showToast(`已移除「${removed}」`);
         }
 
