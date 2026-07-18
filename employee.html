@@ -1547,6 +1547,26 @@
         }
 
         // =============================================
+        // 【新增修正】取得當前品項在指定尺寸下可用的加料（支援專屬加料覆蓋）
+        // =============================================
+        function getAvailableToppings(item, size) {
+            // 如果該品項有被設定專屬加料，則只顯示專屬加料
+            if (item.customToppings) {
+                return item.customToppings[size] || {};
+            } else {
+                // 如果沒有設定專屬加料，則回傳全部的全域加料
+                const tops = toppingPrices[size] || {};
+                let result = {};
+                globalToppings.forEach(name => {
+                    if (tops[name] !== undefined) {
+                        result[name] = tops[name];
+                    }
+                });
+                return result;
+            }
+        }
+
+        // =============================================
         // 點餐彈窗
         // =============================================
         function openModal(item) {
@@ -1555,7 +1575,7 @@
             selectedSize = (item.L !== null && item.L !== undefined) ? 'L' : 'M';
             selectedIce = null;
             selectedSugar = null;
-            selectedToppings = [];
+            selectedToppings = []; // 每次開啟新商品都清空選擇的加料
 
             document.getElementById('modalTitle').textContent = item.name;
             document.getElementById('qtyNum').textContent = qty;
@@ -1573,8 +1593,9 @@
                     sizeContainer.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     selectedSize = size;
-                    updateModalPrice();
+                    // 先重新渲染加料（會過濾掉切換尺寸後不存在的加料），然後再計算價格
                     renderToppings();
+                    updateModalPrice();
                 };
                 sizeContainer.appendChild(btn);
             });
@@ -1632,41 +1653,56 @@
             }
             sugarContainer.appendChild(otherSelect);
 
+            // 渲染加料選單並計算初始價格
             renderToppings();
             updateModalPrice();
             document.getElementById('orderModal').classList.add('open');
         }
 
+        // =============================================
+        // 【修正】渲染加料（支援專屬加料）
+        // =============================================
         function renderToppings() {
             const container = document.getElementById('toppingBtns');
             container.innerHTML = '';
-            const tops = toppingPrices[selectedSize] || {};
-            globalToppings.forEach(name => {
-                const price = tops[name];
-                if (price !== undefined) {
-                    const btn = document.createElement('button');
-                    btn.className = 'opt-btn';
-                    btn.textContent = `${name} +$${price}`;
-                    btn.onclick = () => {
-                        btn.classList.toggle('active');
-                        const idx = selectedToppings.indexOf(name);
-                        if (idx > -1) {
-                            selectedToppings.splice(idx, 1);
-                        } else {
-                            selectedToppings.push(name);
-                        }
-                        updateModalPrice();
-                    };
-                    container.appendChild(btn);
-                }
+            
+            // 呼叫新函數取得「該品項在這尺寸」下可用的加料清單
+            const availableTops = getAvailableToppings(currentItem, selectedSize);
+
+            // 清理掉在不同尺寸/品項下可能不存在的已選加料（避免換大小杯後出現幽靈加料）
+            selectedToppings = selectedToppings.filter(t => availableTops[t] !== undefined);
+
+            Object.keys(availableTops).forEach(name => {
+                const price = availableTops[name];
+                const btn = document.createElement('button');
+                btn.className = 'opt-btn' + (selectedToppings.includes(name) ? ' active' : '');
+                btn.textContent = `${name} +$${price}`;
+                btn.onclick = () => {
+                    btn.classList.toggle('active');
+                    const idx = selectedToppings.indexOf(name);
+                    if (idx > -1) {
+                        selectedToppings.splice(idx, 1);
+                    } else {
+                        selectedToppings.push(name);
+                    }
+                    updateModalPrice();
+                };
+                container.appendChild(btn);
             });
         }
 
+        // =============================================
+        // 【修正】計算彈窗總價（支援專屬加料）
+        // =============================================
         function updateModalPrice() {
             const base = currentItem[selectedSize] || 0;
-            const tops = toppingPrices[selectedSize] || {};
+            const availableTops = getAvailableToppings(currentItem, selectedSize);
+            
             let toppingCost = 0;
-            selectedToppings.forEach(t => { toppingCost += tops[t] || 0; });
+            selectedToppings.forEach(t => { 
+                toppingCost += availableTops[t] || 0; 
+            });
+            
             const total = base + toppingCost;
             document.getElementById('optionPrice').textContent = total;
         }
@@ -1681,16 +1717,20 @@
         }
 
         // =============================================
-        // 購物車
+        // 【修正】加入購物車（支援專屬加料）
         // =============================================
         function addToCart() {
             if (!selectedIce) { alert('請選擇冰塊'); return; }
             if (!selectedSugar) { alert('請選擇甜度'); return; }
 
             const base = currentItem[selectedSize] || 0;
-            const tops = toppingPrices[selectedSize] || {};
+            const availableTops = getAvailableToppings(currentItem, selectedSize);
+            
             let toppingCost = 0;
-            selectedToppings.forEach(t => { toppingCost += tops[t] || 0; });
+            selectedToppings.forEach(t => { 
+                toppingCost += availableTops[t] || 0; 
+            });
+            
             const unitPrice = base + toppingCost;
             const total = unitPrice * qty;
 
@@ -2533,9 +2573,6 @@
             ).join('');
         }
 
-        // =============================================
-        // 修正：全域設定新增
-        // =============================================
         function adminAddGlobal(type) {
             const inputMap = { ice: 'adminNewIce', sugar: 'adminNewSugar', topping: 'adminNewTopping' };
             const listMap = { ice: globalIce, sugar: globalSugar, topping: globalToppings };
@@ -2559,9 +2596,6 @@
             showToast(`✅ 已新增「${val}」`);
         }
 
-        // =============================================
-        // 修正：全域設定刪除
-        // =============================================
         function adminRemoveGlobalItem(containerId, idx) {
             const map = {
                 'adminIceTags': globalIce,
