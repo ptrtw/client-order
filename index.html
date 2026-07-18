@@ -19,7 +19,7 @@
         /* 頂部搜尋與導覽列容器 (固定於頂部) */
         .sticky-header-container { position: sticky; top: 0; z-index: 999; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         
-        /* ===== 搜尋列 – 毛玻璃質感風 (方案二) ===== */
+        /* ===== 搜尋列 – 毛玻璃質感風 ===== */
         .search-container {
             padding: 16px 20px;
             background: rgba(255, 255, 255, 0.7);
@@ -191,6 +191,109 @@
         }
         .paper-invoice-hint.show { display: block; }
 
+        /* 載具提示 */
+        #carrier-hint {
+            display: none;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin: 4px 0 12px 0;
+            padding: 6px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        #carrier-hint.show { display: block; }
+
+        /* ===== 訂單確認頁面 ===== */
+        #confirm-modal .modal-content {
+            max-height: 92vh;
+        }
+        .confirm-order-summary {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            max-height: 40vh;
+            overflow-y: auto;
+        }
+        .confirm-order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #eef2f6;
+            font-size: 0.9rem;
+        }
+        .confirm-order-item:last-child { border-bottom: none; }
+        .confirm-order-item .item-left {
+            flex: 1;
+            padding-right: 10px;
+        }
+        .confirm-order-item .item-name {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .confirm-order-item .item-detail {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .confirm-order-item .item-price {
+            font-weight: 700;
+            color: var(--brand-color);
+            white-space: nowrap;
+        }
+        .confirm-order-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0 8px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            border-top: 2px solid var(--brand-color);
+            margin-top: 4px;
+        }
+        .confirm-order-total .total-amount {
+            color: var(--brand-color);
+            font-size: 1.3rem;
+        }
+        .confirm-order-info {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            padding: 8px 0 4px;
+            line-height: 1.6;
+        }
+        .confirm-order-info strong {
+            color: var(--text-main);
+        }
+        .confirm-btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .confirm-btn-group .btn-confirm {
+            padding: 14px;
+            background: var(--brand-color);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .confirm-btn-group .btn-confirm:active { background: var(--brand-dark); }
+        .confirm-btn-group .btn-back {
+            padding: 14px;
+            background: #e2e8f0;
+            color: var(--text-main);
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .confirm-btn-group .btn-back:active { background: #cbd5e1; }
+
         /* 後台專用樣式 */
         .admin-section { margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; }
         .admin-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.9em; }
@@ -361,7 +464,7 @@
             <input type="text" id="customer-address" placeholder="首次光臨貴賓請務必輸入外送地址">
         </div>
 
-        <!-- ===== 發票選項：紙本發票 / 統編 / 載具(純選項) ===== -->
+        <!-- ===== 發票選項 ===== -->
         <div class="invoice-option-group">
             <div class="opt-title">📄 發票選項</div>
             <div class="invoice-option-btns">
@@ -392,17 +495,46 @@
                 <input type="text" id="invoice-number" placeholder="請輸入統一編號（8位數字）" maxlength="8" inputmode="numeric">
             </div>
 
-            <!-- 載具純選項提示（無輸入框） -->
-            <div id="carrier-hint" style="display: none; font-size: 0.75rem; color: var(--text-muted); text-align: center; margin: 4px 0 12px 0; padding: 6px; background: #f5f5f5; border-radius: 8px;">
+            <!-- 載具提示 -->
+            <div id="carrier-hint">
                 📌 訂單送出後，請在聊天室上傳載具 QR Code 圖片
             </div>
         </div>
         
-        <button class="submit-btn" onclick="sendToLine()">立即結帳</button>
+        <!-- 「立即結帳」改為「確認訂單」 -->
+        <button class="submit-btn" onclick="showConfirmModal()">📋 確認訂單</button>
 
         <!-- 備註小提醒 -->
         <div style="color: #888; font-size: 0.75rem; text-align: center; margin-top: 12px;">
             ⚠️ 如有其他需求（如餐具數量、少冰等），請於聊天室中告知我們
+        </div>
+    </div>
+</div>
+
+<!-- ===== 訂單確認頁面 ===== -->
+<div id="confirm-modal" class="modal-overlay" onclick="if(event.target==this) this.style.display='none'">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>📋 確認訂單</h3>
+            <button class="close-btn" onclick="document.getElementById('confirm-modal').style.display='none'">✕</button>
+        </div>
+
+        <!-- 訂單內容摘要 -->
+        <div class="confirm-order-summary" id="confirm-order-list"></div>
+
+        <!-- 訂單資訊 -->
+        <div class="confirm-order-info" id="confirm-order-info"></div>
+
+        <!-- 總金額 -->
+        <div class="confirm-order-total">
+            <span>💰 結帳總額</span>
+            <span class="total-amount" id="confirm-total-amount">$0</span>
+        </div>
+
+        <!-- 按鈕群組 -->
+        <div class="confirm-btn-group">
+            <button class="btn-back" onclick="closeConfirmModal()">← 繼續點餐</button>
+            <button class="btn-confirm" onclick="sendToLine()">✅ 確認送出</button>
         </div>
     </div>
 </div>
@@ -425,7 +557,6 @@
 
     const DEFAULT_TOPPING_PRICES = { M: { "珍珠": 5, "椰果": 5, "布丁": 15, "仙草凍": 5, "QQ": 5, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 }, L: { "珍珠": 10, "椰果": 10, "布丁": 15, "仙草凍": 10, "QQ": 10, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 } };
     
-    // 完整預設菜單
     const DEFAULT_MENU_DATA = [
         { category: "茗品", items: [ 
             { name: "特級綠茶", prices: { M: 25, L: 30 } },
@@ -465,7 +596,6 @@
         ] }
     ];
     
-    // 預設營業時間
     const DEFAULT_HOURS = {
         1: { open: "09:00", close: "21:00", isClosed: false }, 
         2: { open: "09:00", close: "21:00", isClosed: false },
@@ -480,19 +610,15 @@
     let menuData = JSON.parse(JSON.stringify(DEFAULT_MENU_DATA));
     let storeHours = JSON.parse(JSON.stringify(DEFAULT_HOURS));
     let isStoreCurrentlyClosed = false;
-
-    // ===== 發票選項全域變數 =====
-    let invoiceOption = 'paper'; // 'paper' | 'uniform' | 'carrier'
-    let invoiceNumber = '';     // 統編號碼
+    let invoiceOption = 'paper';
+    let invoiceNumber = '';
 
     function loadSavedConfig() {
         try {
             const savedMenu = localStorage.getItem('pos_menu_custom');
             if (savedMenu) menuData = JSON.parse(savedMenu);
-            
             const savedToppings = localStorage.getItem('pos_toppings_custom');
             if (savedToppings) toppingPrices = JSON.parse(savedToppings);
-
             const savedHours = localStorage.getItem('pos_store_hours');
             if (savedHours) storeHours = JSON.parse(savedHours);
         } catch(e) { console.error("載入設定失敗", e); }
@@ -512,12 +638,27 @@
         }).catch(err => console.error("無法連線雲端", err));
     }
 
-    liff.init({ liffId: LIFF_ID }).then(() => loadCloudConfig()).catch(() => loadCloudConfig());
+    liff.init({ liffId: LIFF_ID }).then(() => {
+        if (!liff.isLoggedIn()) {
+            liff.login();
+        } else {
+            loadCloudConfig();
+        }
+    }).catch(() => {
+        loadCloudConfig();
+    });
 
     let cart = [];
     try { const savedData = localStorage.getItem('pos_cart_data'); if (savedData) cart = JSON.parse(savedData); } catch(e) {}
     let currentSelect = {};
     let secretCount = 0; let secretTimer = null;
+    let confirmData = null;
+
+    function saveAllToLocal() {
+        localStorage.setItem('pos_menu_custom', JSON.stringify(menuData));
+        localStorage.setItem('pos_store_hours', JSON.stringify(storeHours));
+        localStorage.setItem('pos_toppings_custom', JSON.stringify(toppingPrices));
+    }
 
     function filterMenu() {
         const keyword = document.getElementById('search-input').value.toLowerCase();
@@ -559,12 +700,10 @@
         const now = new Date();
         const twTimeStr = now.toLocaleString("en-US", { timeZone: "Asia/Taipei", hour12: false });
         const twTime = new Date(twTimeStr);
-        
         const day = twTime.getDay(); 
         const hh = String(twTime.getHours()).padStart(2, '0');
         const mm = String(twTime.getMinutes()).padStart(2, '0');
         const currentTime = `${hh}:${mm}`;
-        
         const todayRules = storeHours[day];
         const daysZh = ["日", "一", "二", "三", "四", "五", "六"];
 
@@ -589,14 +728,12 @@
         }
         updateCounter(); 
     }
-
-    setInterval(checkStoreStatus, 60000); 
+    setInterval(checkStoreStatus, 60000);
 
     function updateCounter() {
         document.getElementById('cart-counter').innerText = cart.length;
         let total = cart.reduce((sum, i) => sum + i.price, 0);
         document.getElementById('cart-total-preview').innerText = `$${total}`;
-        // 強制顯示購物車按鈕，不受營業時間或購物車內容影響
         document.getElementById('cart-bar-btn').style.display = 'flex';
         try { localStorage.setItem('pos_cart_data', JSON.stringify(cart)); } catch(e) {}
     }
@@ -672,7 +809,6 @@
                 <div id="admin-hours-list"></div>
             </div>
 
-            <!-- 全域加料區塊 (合併版) -->
             <div id="unified-global-toppings-container"></div>
 
             <div class="admin-section" style="background:#f3e5f5; border-color:#ce93d8;">
@@ -722,15 +858,14 @@
         
         renderCategoryAdmin();
         renderHoursAdmin(); 
-        renderUnifiedGlobalToppingsAdmin(); // 渲染緊湊版全域加料
+        renderUnifiedGlobalToppingsAdmin();
     }
     
-    // ============ 全域加料編輯邏輯 (緊湊合併版) ============
+    // ============ 全域加料編輯邏輯 ============
     function renderUnifiedGlobalToppingsAdmin() {
         if(!toppingPrices.M) toppingPrices.M = {};
         if(!toppingPrices.L) toppingPrices.L = {};
         
-        // 取得所有唯一的加料名稱
         let allToppingNames = new Set([...Object.keys(toppingPrices.M), ...Object.keys(toppingPrices.L)]);
         
         let html = `
@@ -845,7 +980,7 @@
     function moveItem(oldCIdx, iIdx, selectElement) { let newCIdx = parseInt(selectElement.value); if(oldCIdx === newCIdx) return; const itemToMove = menuData[oldCIdx].items.splice(iIdx, 1)[0]; menuData[newCIdx].items.push(itemToMove); renderAdminContent(); }
     function addNewItem() { let cIdx = document.getElementById('new_cat').value; let name = document.getElementById('new_name').value; let mStr = document.getElementById('new_m').value; let lStr = document.getElementById('new_l').value; if(!name) return; let prices = {}; if(mStr) prices.M = parseInt(mStr); if(lStr) prices.L = parseInt(lStr); menuData[cIdx].items.push({ name: name, prices: prices }); renderAdminContent(); }
     
-    // ============ 單品專屬設定 (結合緊湊型加料編輯) ============
+    // ============ 單品專屬設定 ============
     function toggleItemSettings(cIdx, iIdx) { 
         const panel = document.getElementById(`admin_settings_panel_${cIdx}_${iIdx}`); 
         if (panel.style.display === 'block') { panel.style.display = 'none'; } else { renderSingleItemSettingsAdmin(cIdx, iIdx); panel.style.display = 'block'; } 
@@ -859,21 +994,17 @@
         let html = `<div style="padding: 12px; background: #e3f2fd; border: 1px solid #90caf9; border-radius: 8px; font-size: 0.9em;">`;
         html += `<div style="color: #1565c0; margin-bottom: 12px; font-weight: bold; font-size: 1.05rem;">📝 單品專屬設定</div>`;
         
-        // 茶湯開關
         html += `<label style="display:flex; align-items:center; margin-bottom: 15px; font-weight:bold; color:#00695c; cursor:pointer;">
             <input type="checkbox" onchange="updateItemTeaSwap(${cIdx}, ${iIdx}, this.checked)" ${item.enableTeaSwap ? 'checked' : ''} style="margin-right: 5px; transform: scale(1.2);"> 
             🍵 開放「更換茶湯」選項
         </label>`;
 
-        // 冰塊設定
         let iceVal = item.customIce ? item.customIce.join(',') : '';
         html += `<div style="margin-bottom: 10px;"><b style="color:#0277bd;">🧊 專屬冰塊選項</b> (半形逗號分隔)<br><input type="text" class="admin-input" style="width:100%; box-sizing:border-box; margin-top:4px;" value="${iceVal}" placeholder="如: 正常冰,少冰,去冰" onchange="updateItemIce(${cIdx}, ${iIdx}, this.value)"></div>`;
 
-        // 甜度設定
         let sugarVal = item.customSugar ? item.customSugar.join(',') : '';
         html += `<div style="margin-bottom: 15px;"><b style="color:#e65100;">🍬 專屬甜度選項</b><br><input type="text" class="admin-input" style="width:100%; box-sizing:border-box; margin-top:4px;" value="${sugarVal}" placeholder="如: 半糖,微糖,無糖" onchange="updateItemSugar(${cIdx}, ${iIdx}, this.value)"></div>`;
         
-        // --- 緊湊型標籤化加料設定 ---
         let hasCustomToppings = !!item.customToppings;
         html += `<hr style="border: 0; border-top: 1px dashed #90caf9; margin: 15px 0;">`;
         html += `<label style="display:flex; align-items:center; font-weight:bold; color:#1565c0; cursor:pointer; margin-bottom:10px;">
@@ -887,7 +1018,6 @@
                 html += `<div style="margin-bottom: ${size === 'M' ? '18px' : '0'};">`;
                 html += `<div style="font-size: 0.95rem; font-weight: bold; color: #0277bd; margin-bottom: 8px;">🥤 ${size} 杯專屬清單</div>`;
                 
-                // 渲染現有標籤 (Chips)
                 html += `<div class="chip-container">`;
                 let tops = item.customToppings[size] || {};
                 let topCount = 0;
@@ -901,7 +1031,6 @@
                 if(topCount === 0) html += `<span style="font-size:0.85rem; color:#999;">目前無加料項目</span>`;
                 html += `</div>`;
 
-                // 緊湊新增輸入框
                 html += `<div class="compact-add-row">
                     <input type="text" id="add_item_top_name_${cIdx}_${iIdx}_${size}" placeholder="加料名稱" style="flex:1; min-width:60px;">
                     <span style="font-size:0.85rem; font-weight:bold; color:#555;">$</span>
@@ -955,8 +1084,16 @@
     }
 
     function saveAdminDataSilent() { menuData.forEach((cat, cIdx) => { cat.items.forEach((item, iIdx) => { let mInput = document.getElementById(`admin_m_${cIdx}_${iIdx}`); let lInput = document.getElementById(`admin_l_${cIdx}_${iIdx}`); if (mInput && lInput) { item.prices = {}; if(mInput.value !== '') item.prices.M = parseInt(mInput.value); if(lInput.value !== '') item.prices.L = parseInt(lInput.value); } }); }); }
-    function saveAllToLocal() { localStorage.setItem('pos_menu_custom', JSON.stringify(menuData)); localStorage.setItem('pos_store_hours', JSON.stringify(storeHours)); localStorage.setItem('pos_toppings_custom', JSON.stringify(toppingPrices)); }
-    function saveAdminData() { saveAdminDataSilent(); saveAllToLocal(); const bundle = { menu: menuData, toppings: toppingPrices, storeHours: storeHours }; document.getElementById('admin-modal').style.display = 'none'; fetch(GAS_API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(bundle) }).then(()=> { alert("✅ 雲端同步成功！"); checkStoreStatus(); renderMenu(); }).catch(()=>{ alert("同步失敗，已儲存於本機"); checkStoreStatus(); renderMenu(); }); }
+    
+    function saveAdminData() { 
+        saveAdminDataSilent(); 
+        saveAllToLocal(); 
+        const bundle = { menu: menuData, toppings: toppingPrices, storeHours: storeHours }; 
+        document.getElementById('admin-modal').style.display = 'none'; 
+        fetch(GAS_API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(bundle) })
+            .then(()=> { alert("✅ 雲端同步成功！"); checkStoreStatus(); renderMenu(); })
+            .catch(()=>{ alert("同步失敗，已儲存於本機"); checkStoreStatus(); renderMenu(); }); 
+    }
     function closeAdminModal() { document.getElementById('admin-modal').style.display = 'none'; loadSavedConfig(); checkStoreStatus(); renderMenu(); }
 
     // ============ 點餐功能邏輯 ============
@@ -1046,12 +1183,10 @@
 
     function renderToppings(item, size) {
         const container = document.getElementById('topping-btns'); container.innerHTML = '';
-        
         let activeToppings = toppingPrices[size] || {}; 
         if (item.customToppings && item.customToppings[size]) {
             activeToppings = item.customToppings[size];
         }
-
         Object.entries(activeToppings).forEach(([name, price]) => {
             const btn = document.createElement('button');
             btn.className = 'opt-btn' + (currentSelect.toppings.includes(name) ? ' active' : '');
@@ -1065,17 +1200,13 @@
 
     function confirmAddToCart() {
         if(!currentSelect.size || !currentSelect.ice || !currentSelect.sugar) return alert("請完整選擇所有選項（大小/冰塊/甜度）");
-        
         let basePrice = currentSelect.item.prices[currentSelect.size];
-        
         let activeToppings = toppingPrices[currentSelect.size] || {};
         if (currentSelect.item.customToppings && currentSelect.item.customToppings[currentSelect.size]) {
             activeToppings = currentSelect.item.customToppings[currentSelect.size];
         }
-
         let toppingCost = currentSelect.toppings.reduce((sum, t) => sum + (activeToppings[t] || 0), 0);
         let finalPrice = (basePrice + toppingCost) * currentSelect.qty;
-        
         cart.push({ ...currentSelect, price: finalPrice });
         updateCounter(); 
         document.getElementById('option-modal').style.display = 'none';
@@ -1084,8 +1215,6 @@
     // ===== 發票選項相關函數 =====
     function selectInvoiceOption(option) {
         invoiceOption = option;
-        
-        // 更新選項按鈕樣式
         document.querySelectorAll('.invoice-option-btns label').forEach(el => el.classList.remove('active'));
         if (option === 'paper') {
             document.getElementById('invoice-option-paper').classList.add('active');
@@ -1101,31 +1230,20 @@
                 document.getElementById('carrier-hint').style.display = 'block';
             }
         }
-        
-        // 顯示／隱藏對應的輸入區塊
         document.getElementById('invoice-number-container').style.display = (option === 'uniform') ? 'block' : 'none';
-        
-        // 切換時清空統編輸入
         if (option !== 'uniform') {
             document.getElementById('invoice-number').value = '';
             invoiceNumber = '';
         }
-        // 自動對焦
         if (option === 'uniform') {
             setTimeout(() => document.getElementById('invoice-number').focus(), 300);
         }
     }
 
-    // 顯示購物車（並控制非營業時間警告橫幅）
     function showCart() { 
         document.getElementById('cart-modal').style.display = 'flex'; 
         const warning = document.getElementById('cart-closed-warning');
-        if (isStoreCurrentlyClosed) {
-            warning.style.display = 'block';
-        } else {
-            warning.style.display = 'none';
-        }
-        // 預設選擇「紙本發票」
+        warning.style.display = isStoreCurrentlyClosed ? 'block' : 'none';
         selectInvoiceOption('paper');
         document.querySelector('input[name="invoice-option"][value="paper"]').checked = true;
         updateCartUI(); 
@@ -1140,10 +1258,8 @@
                 originalTotal += item.price;
                 let unitPrice = item.price / item.qty;
                 for(let i=0; i<item.qty; i++) allCups.push(unitPrice);
-                
                 let teaStr = item.teaSwap ? ` / ${item.teaSwap}` : '';
                 let toppingsStr = item.toppings.length ? ` / 加:${item.toppings.join(',')}` : '';
-                
                 list.innerHTML += `
                 <div class="cart-item">
                     <div class="cart-item-info">
@@ -1160,7 +1276,6 @@
         let method = methodEl ? methodEl.value : ""; 
         let discount = 0;
         if (method === "自取" && allCups.length >= 6) { allCups.sort((a, b) => b - a); for (let i = 5; i < allCups.length; i += 6) discount += allCups[i]; }
-        
         let finalTotal = originalTotal - discount;
         document.getElementById('cart-original-total-row').style.display = discount > 0 ? 'flex' : 'none';
         document.getElementById('cart-original-total').innerText = originalTotal;
@@ -1172,19 +1287,20 @@
     function removeFromCart(index) { cart.splice(index, 1); updateCounter(); updateCartUI(); }
     function toggleDeliveryAddress(show) { document.getElementById('address-container').style.display = show ? 'block' : 'none'; updateCartUI(); }
 
-    // ===== 結帳功能（載具改為純選項，無需輸入） =====
-    function sendToLine() {
-        // 檢查是否為非營業時間
-        if (isStoreCurrentlyClosed) {
-            alert("⚠️ 目前為非營業時間，暫不開放結帳！\n請於營業時間再送出訂單。");
+    // ===== 訂單確認頁面 =====
+    function showConfirmModal() {
+        if (cart.length === 0) {
+            alert("購物車是空的喔！請先點餐。");
             return;
         }
 
-        if(cart.length === 0) return alert("購物車是空的喔！");
         let phone = document.getElementById('customer-phone').value.trim();
-        if(!phone) { alert("請輸入聯絡電話！"); document.getElementById('customer-phone').focus(); return; }
+        if (!phone) {
+            alert("請先輸入聯絡電話！");
+            document.getElementById('customer-phone').focus();
+            return;
+        }
 
-        // ===== 檢查統編（若有選統編） =====
         if (invoiceOption === 'uniform') {
             const num = document.getElementById('invoice-number').value.trim();
             if (!num || num.length !== 8) {
@@ -1194,21 +1310,30 @@
             }
             invoiceNumber = num;
         }
-        // 載具與紙本發票不需要任何檢查
 
         let methodEl = document.querySelector('input[name="delivery-method"]:checked');
-        let method = methodEl ? methodEl.value : "";
+        let method = methodEl ? methodEl.value : "自取";
         let address = method === "外送" ? document.getElementById('customer-address').value.trim() : "";
 
-        if (!liff.isInClient()) return alert("請在 LINE 聊天室內開啟此連結，才能直接送出訂單喔！");
+        let allCups = [];
+        let originalTotal = 0;
+        cart.forEach((item) => {
+            originalTotal += item.price;
+            let unitPrice = item.price / item.qty;
+            for (let i = 0; i < item.qty; i++) {
+                allCups.push(unitPrice);
+            }
+        });
 
-        let allCups = []; let originalTotal = 0;
-        cart.forEach((item) => { originalTotal += item.price; let unitPrice = item.price / item.qty; for(let i=0; i<item.qty; i++) { allCups.push(unitPrice); } });
         let discount = 0;
-        if (method === "自取" && allCups.length >= 6) { allCups.sort((a, b) => b - a); for (let i = 5; i < allCups.length; i += 6) discount += allCups[i]; }
+        if (method === "自取" && allCups.length >= 6) {
+            allCups.sort((a, b) => b - a);
+            for (let i = 5; i < allCups.length; i += 6) {
+                discount += allCups[i];
+            }
+        }
         let finalTotal = originalTotal - discount;
 
-        // ===== 建立發票資訊文字 =====
         let invoiceText = '';
         if (invoiceOption === 'paper') {
             invoiceText = '🧾 紙本發票（店家印出）';
@@ -1218,74 +1343,209 @@
             invoiceText = '📱 載具（請於聊天室上傳圖片）';
         }
 
-        let allItemBoxes = cart.map(i => {
+        confirmData = {
+            phone: phone,
+            method: method,
+            address: address,
+            finalTotal: finalTotal,
+            originalTotal: originalTotal,
+            discount: discount,
+            invoiceText: invoiceText,
+            cartItems: JSON.parse(JSON.stringify(cart))
+        };
+
+        renderConfirmModal(confirmData);
+        document.getElementById('cart-modal').style.display = 'none';
+        document.getElementById('confirm-modal').style.display = 'flex';
+    }
+
+    function renderConfirmModal(data) {
+        const listContainer = document.getElementById('confirm-order-list');
+        listContainer.innerHTML = '';
+
+        data.cartItems.forEach((item) => {
+            let details = `${item.ice} / ${item.sugar}`;
+            if (item.teaSwap) details += ` / ${item.teaSwap}`;
+            if (item.toppings.length) details += ` / 加:${item.toppings.join(',')}`;
+
+            const div = document.createElement('div');
+            div.className = 'confirm-order-item';
+            div.innerHTML = `
+                <div class="item-left">
+                    <div class="item-name">${item.item.name} (${item.size}) x ${item.qty}</div>
+                    <div class="item-detail">${details}</div>
+                </div>
+                <div class="item-price">$${item.price}</div>
+            `;
+            listContainer.appendChild(div);
+        });
+
+        const infoContainer = document.getElementById('confirm-order-info');
+        let infoHTML = `
+            <strong>📞 聯絡電話：</strong>${data.phone}<br>
+            <strong>🛵 取餐方式：</strong>${data.method}
+        `;
+        if (data.method === "外送" && data.address) {
+            infoHTML += `<br><strong>📍 外送地址：</strong>${data.address}`;
+        }
+        infoHTML += `<br><strong>📄 發票：</strong>${data.invoiceText}`;
+        if (data.discount > 0) {
+            infoHTML += `<br><strong>🎉 自取買五送一折扣：</strong> -$${data.discount}`;
+        }
+        infoContainer.innerHTML = infoHTML;
+        document.getElementById('confirm-total-amount').innerText = `$${data.finalTotal}`;
+    }
+
+    function closeConfirmModal() {
+        document.getElementById('confirm-modal').style.display = 'none';
+        document.getElementById('cart-modal').style.display = 'flex';
+        updateCartUI();
+    }
+
+    // ===== 結帳功能 =====
+    async function sendToLine() {
+        if (!liff.isInClient()) {
+            alert("請在 LINE 聊天室內開啟此頁面，否則無法送出訂單。");
+            return;
+        }
+
+        if (!liff.isLoggedIn()) {
+            alert("尚未登入 LINE，即將跳轉至登入頁面，請完成授權後再試。");
+            liff.login();
+            return;
+        }
+
+        if (isStoreCurrentlyClosed) {
+            alert("⚠️ 目前為非營業時間，暫不開放結帳！\n請於營業時間再送出訂單。");
+            return;
+        }
+
+        if (!confirmData || confirmData.cartItems.length === 0) {
+            alert("訂單資料有誤，請重新操作。");
+            return;
+        }
+
+        const data = confirmData;
+        const phone = data.phone;
+        const method = data.method;
+        const address = data.address;
+        const finalTotal = data.finalTotal;
+        const originalTotal = data.originalTotal;
+        const discount = data.discount;
+        const invoiceText = data.invoiceText;
+
+        let allItemBoxes = data.cartItems.map(i => {
             let details = `👉 ${i.ice} / ${i.sugar}`;
-            if(i.teaSwap) details += ` / ${i.teaSwap}`;
-            if(i.toppings && i.toppings.length > 0) details += ` / 加:${i.toppings.join(',')}`;
+            if (i.teaSwap) details += ` / ${i.teaSwap}`;
+            if (i.toppings && i.toppings.length > 0) details += ` / 加:${i.toppings.join(',')}`;
 
             return {
                 type: "box", layout: "vertical", margin: "sm",
                 contents: [
-                    { type: "box", layout: "baseline", contents: [ { type: "text", text: `${i.item.name}(${i.size}) x${i.qty}`, size: "sm", weight: "bold", flex: 3, wrap: true }, { type: "text", text: `$${i.price}`, size: "sm", align: "end", flex: 1, weight: "bold" } ] },
-                    { type: "box", layout: "baseline", margin: "xs", contents: [ { type: "text", text: details, size: "xs", color: "#888888", flex: 1, wrap: true } ] }
+                    { type: "box", layout: "baseline", contents: [
+                        { type: "text", text: `${i.item.name}(${i.size}) x${i.qty}`, size: "sm", weight: "bold", flex: 3, wrap: true, color: "#1e293b" },
+                        { type: "text", text: `$${i.price}`, size: "sm", align: "end", flex: 1, weight: "bold", color: "#06C755" }
+                    ]},
+                    { type: "box", layout: "baseline", margin: "xs", contents: [
+                        { type: "text", text: details, size: "xs", color: "#64748b", flex: 1, wrap: true }
+                    ]}
                 ]
             };
         });
 
         let footerBox = [];
-        footerBox.push({ type: "separator", margin: "md", color: "#dddddd" });
-        footerBox.push({ type: "box", layout: "vertical", margin: "md", contents: [ { type: "text", text: `📞 聯絡電話：${phone}`, size: "sm", weight: "bold", color: "#333333" } ] });
-
-        // 加入發票資訊
-        footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [ { type: "text", text: `📄 發票：${invoiceText}`, size: "sm", weight: "bold", color: "#1565c0" } ] });
-
-        if (method) {
-            footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [ { type: "text", text: `🛵 取餐方式：${method}`, size: "sm", weight: "bold", color: "#333333" } ] });
-            if (method === "外送" && address) footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [ { type: "text", text: `📍 外送地址：${address}`, size: "sm", weight: "bold", color: "#e65100", wrap: true } ] });
+        footerBox.push({ type: "separator", margin: "md", color: "#e2e8f0" });
+        footerBox.push({ type: "box", layout: "vertical", margin: "md", contents: [
+            { type: "text", text: `📞 ${phone}`, size: "sm", weight: "bold", color: "#1e293b" }
+        ]});
+        footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [
+            { type: "text", text: `📄 ${invoiceText}`, size: "sm", weight: "bold", color: "#2563eb" }
+        ]});
+        footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [
+            { type: "text", text: `🛵 ${method}`, size: "sm", weight: "bold", color: "#1e293b" }
+        ]});
+        if (method === "外送" && address) {
+            footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [
+                { type: "text", text: `📍 ${address}`, size: "sm", weight: "bold", color: "#e65100", wrap: true }
+            ]});
         }
-
-        footerBox.push({ type: "separator", margin: "md", color: "#dddddd" });
+        footerBox.push({ type: "separator", margin: "md", color: "#e2e8f0" });
         
         if (discount > 0) {
-            footerBox.push({ type: "box", layout: "baseline", margin: "md", contents: [ { type: "text", text: "商品總計", color: "#888888", size: "sm" }, { type: "text", text: `$${originalTotal}`, color: "#888888", size: "sm", align: "end" } ] });
-            footerBox.push({ type: "box", layout: "baseline", margin: "sm", contents: [ { type: "text", text: "🎉 自取買五送一", color: "#ff4d4d", size: "sm", weight: "bold" }, { type: "text", text: `-$${discount}`, color: "#ff4d4d", size: "sm", align: "end", weight: "bold" } ] });
+            footerBox.push({ type: "box", layout: "baseline", margin: "md", contents: [
+                { type: "text", text: "商品總計", color: "#64748b", size: "sm" },
+                { type: "text", text: `$${originalTotal}`, color: "#64748b", size: "sm", align: "end" }
+            ]});
+            footerBox.push({ type: "box", layout: "baseline", margin: "sm", contents: [
+                { type: "text", text: "🎉 自取買五送一", color: "#ef4444", size: "sm", weight: "bold" },
+                { type: "text", text: `-$${discount}`, color: "#ef4444", size: "sm", align: "end", weight: "bold" }
+            ]});
         }
-        footerBox.push({ type: "box", layout: "baseline", margin: "md", contents: [ { type: "text", text: "💰 結帳金額", weight: "bold", size: "md" }, { type: "text", text: `$${finalTotal}`, weight: "bold", size: "xl", align: "end", color: "#ff4d4d" } ] });
+        footerBox.push({ type: "box", layout: "baseline", margin: "md", contents: [
+            { type: "text", text: "💰 結帳金額", weight: "bold", size: "md", color: "#1e293b" },
+            { type: "text", text: `$${finalTotal}`, weight: "bold", size: "xl", align: "end", color: "#06C755" }
+        ]});
 
-        const ITEMS_PER_BUBBLE = 10; let bubbles = [];
+        const ITEMS_PER_BUBBLE = 10;
+        let bubbles = [];
         for (let i = 0; i < allItemBoxes.length; i += ITEMS_PER_BUBBLE) {
             let chunk = allItemBoxes.slice(i, i + ITEMS_PER_BUBBLE);
             let isLastBubble = (i + ITEMS_PER_BUBBLE >= allItemBoxes.length);
-            let bodyContents = [ { type: "box", layout: "vertical", spacing: "md", contents: chunk } ];
+            let bodyContents = [{ type: "box", layout: "vertical", spacing: "md", contents: chunk }];
             if (isLastBubble) { bodyContents.push(...footerBox); }
-            bubbles.push({ type: "bubble", size: "mega", header: { type: "box", layout: "vertical", backgroundColor: "#06C755", paddingAll: "md", contents: [ { type: "text", text: `🌟 新進顧客訂單 (${Math.floor(i/ITEMS_PER_BUBBLE) + 1})`, weight: "bold", size: "xl", color: "#ffffff" } ] }, body: { type: "box", layout: "vertical", contents: bodyContents } });
+            bubbles.push({
+                type: "bubble",
+                size: "mega",
+                header: {
+                    type: "box",
+                    layout: "vertical",
+                    backgroundColor: "#1e293b",
+                    paddingAll: "md",
+                    contents: [
+                        { type: "text", text: `🌟 新進顧客訂單 (${Math.floor(i/ITEMS_PER_BUBBLE) + 1})`, weight: "bold", size: "xl", color: "#ffffff" }
+                    ]
+                },
+                body: { type: "box", layout: "vertical", contents: bodyContents }
+            });
         }
 
-        // 只發送 Flex Message
-        let messages = [
-            { type: "flex", altText: `🎉 收到新訂單！總計 $${finalTotal}`, contents: { type: "carousel", contents: bubbles } }
-        ];
+        try {
+            await liff.sendMessages([{
+                type: "flex",
+                altText: `🎉 收到新訂單！總計 $${finalTotal}`,
+                contents: { type: "carousel", contents: bubbles }
+            }]);
 
-        liff.sendMessages(messages).then(() => {
-            let successMsg = "訂單已成功送出！";
-            // 如果選擇載具，額外提示
+            let successMsg = "✅ 訂單已成功送出！";
             if (invoiceOption === 'carrier') {
                 successMsg += "\n\n📌 請在聊天室上傳您的載具 QR Code 圖片，方便店家掃描。";
             }
             alert(successMsg);
-            cart = []; updateCounter(); 
-            document.getElementById('customer-phone').value = ""; document.getElementById('customer-address').value = "";
-            let sm = document.querySelector('input[name="delivery-method"]:checked'); if (sm) sm.checked = false;
+
+            cart = [];
+            updateCounter();
+            document.getElementById('customer-phone').value = "";
+            document.getElementById('customer-address').value = "";
+            let sm = document.querySelector('input[name="delivery-method"]:checked');
+            if (sm) sm.checked = false;
             toggleDeliveryAddress(false);
-            // 重置發票選項為「紙本發票」
             selectInvoiceOption('paper');
             document.querySelector('input[name="invoice-option"][value="paper"]').checked = true;
             document.getElementById('invoice-number').value = '';
-            document.getElementById('cart-modal').style.display = 'none'; 
-            liff.closeWindow(); 
-        }).catch((err) => { 
-            alert('傳送失敗：' + JSON.stringify(err) + '\n請重試或聯繫店家。'); 
-        });
+            confirmData = null;
+            document.getElementById('confirm-modal').style.display = 'none';
+            liff.closeWindow();
+        } catch (err) {
+            let errorMsg = "傳送失敗：";
+            if (err.code === "UNAUTHORIZED") {
+                errorMsg += "權限不足，請確認您已登入 LINE 並已授權此應用。\n\n";
+                errorMsg += "若仍無法解決，請至 LINE Developers 後台檢查 LIFF 應用是否已開啟「發送訊息」權限。";
+            } else {
+                errorMsg += JSON.stringify(err);
+            }
+            alert(errorMsg);
+            console.error(err);
+        }
     }
 
     renderMenu();
