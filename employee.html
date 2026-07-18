@@ -15,9 +15,8 @@
             --text-muted: #64748b;
             --border-color: #e2e8f0;
             --shadow: 0 2px 8px rgba(0,0,0,0.06);
-            --header-height: 40px;
-            --tab-height: 38px;
-            --cart-height: 64px;
+            --header-height: 44px;
+            --tab-height: 40px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -37,7 +36,7 @@
         .app-header {
             background: var(--brand-color);
             color: white;
-            padding: 0 14px;
+            padding: 0 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -48,19 +47,19 @@
             position: relative;
         }
         .app-header h1 {
-            font-size: 0.85rem;
+            font-size: 1rem;
             font-weight: 700;
             letter-spacing: 0.3px;
         }
         .app-header .header-badge {
             background: rgba(255,255,255,0.2);
-            padding: 2px 12px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.6rem;
+            font-size: 0.65rem;
             font-weight: 600;
         }
         .app-header .time {
-            font-size: 0.6rem;
+            font-size: 0.65rem;
             opacity: 0.8;
         }
 
@@ -68,17 +67,17 @@
         .tab-bar {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 3px;
-            padding: 3px 4px;
+            gap: 4px;
+            padding: 4px 6px;
             background: #e2e8f0;
             flex-shrink: 0;
             height: var(--tab-height);
         }
         .tab-btn {
-            padding: 4px 4px;
+            padding: 6px 4px;
             border: none;
-            border-radius: 6px;
-            font-size: 0.7rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
@@ -87,7 +86,7 @@
             letter-spacing: 0.3px;
         }
         .tab-btn .tab-icon {
-            margin-right: 2px;
+            margin-right: 3px;
         }
         .tab-btn.active {
             background: #ffffff;
@@ -98,14 +97,14 @@
             transform: scale(0.95);
         }
 
-        /* ===== 6x10 商品網格 ===== */
+        /* ===== 6x10 商品網格（加大間距與字體） ===== */
         .pos-grid {
             flex: 1;
             display: grid;
             grid-template-columns: repeat(6, 1fr);
             grid-template-rows: repeat(10, 1fr);
-            gap: 2px;
-            padding: 2px;
+            gap: 4px;
+            padding: 4px;
             background: #e2e8f0;
             min-height: 0;
             overflow: hidden;
@@ -113,25 +112,25 @@
 
         .pos-item {
             background: #ffffff;
-            border-radius: 3px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 14px;
+            font-weight: 700;
             color: #1e293b;
             cursor: pointer;
             transition: all 0.1s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
             text-align: center;
             line-height: 1.2;
-            padding: 1px 2px;
+            padding: 4px 2px;
             word-break: keep-all;
             border: 1px solid transparent;
             position: relative;
         }
         .pos-item:active {
-            transform: scale(0.92);
+            transform: scale(0.94);
             background: #dcfce7;
             border-color: #06C755;
         }
@@ -139,16 +138,16 @@
         /* ===== 浮動購物車 ===== */
         #cart-float-btn {
             position: fixed;
-            bottom: 16px;
-            right: 16px;
-            width: 54px;
-            height: 54px;
+            bottom: 20px;
+            right: 20px;
+            width: 58px;
+            height: 58px;
             border-radius: 50%;
             background: #1e293b;
             color: #fff;
             border: none;
             box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             cursor: pointer;
             z-index: 100;
             display: flex;
@@ -165,10 +164,10 @@
             right: -4px;
             background: #ef4444;
             color: #fff;
-            font-size: 0.55rem;
+            font-size: 0.6rem;
             font-weight: 700;
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -181,15 +180,15 @@
         /* ===== 購物車面板 ===== */
         #cart-panel {
             position: fixed;
-            bottom: 78px;
-            right: 14px;
-            width: 320px;
-            max-width: calc(100vw - 28px);
+            bottom: 86px;
+            right: 16px;
+            width: 340px;
+            max-width: calc(100vw - 32px);
             max-height: 65vh;
             background: #ffffff;
-            border-radius: 14px;
+            border-radius: 16px;
             box-shadow: 0 8px 40px rgba(0,0,0,0.2);
-            padding: 14px;
+            padding: 16px;
             z-index: 99;
             display: none;
             overflow: hidden;
@@ -215,15 +214,15 @@
             justify-content: space-between;
             align-items: center;
             font-weight: 700;
-            font-size: 0.9rem;
-            padding-bottom: 8px;
+            font-size: 0.95rem;
+            padding-bottom: 10px;
             border-bottom: 2px solid #f1f5f9;
             flex-shrink: 0;
         }
         #cart-panel .panel-header .close-btn {
             background: none;
             border: none;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             color: #94a3b8;
             cursor: pointer;
             padding: 0 4px;
@@ -232,11 +231,11 @@
         #cart-panel .cart-list {
             flex: 1;
             overflow-y: auto;
-            padding: 6px 0;
+            padding: 8px 0;
             max-height: 35vh;
         }
         #cart-panel .cart-list::-webkit-scrollbar {
-            width: 3px;
+            width: 4px;
         }
         #cart-panel .cart-list::-webkit-scrollbar-thumb {
             background: #cbd5e1;
@@ -247,42 +246,42 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 5px 0;
+            padding: 6px 0;
             border-bottom: 1px solid #f1f5f9;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
         }
         .cart-item-row .item-info {
             flex: 1;
-            padding-right: 6px;
+            padding-right: 8px;
         }
         .cart-item-row .item-name {
             font-weight: 600;
         }
         .cart-item-row .item-detail {
-            font-size: 0.6rem;
+            font-size: 0.65rem;
             color: #94a3b8;
         }
         .cart-item-row .item-price {
             font-weight: 700;
             color: #06C755;
             white-space: nowrap;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
         }
         .cart-item-row .del-btn {
             background: #fee2e2;
             color: #dc2626;
             border: none;
-            border-radius: 10px;
-            padding: 2px 8px;
-            font-size: 0.55rem;
+            border-radius: 12px;
+            padding: 2px 10px;
+            font-size: 0.6rem;
             font-weight: 600;
             cursor: pointer;
-            margin-left: 4px;
+            margin-left: 6px;
         }
 
         #cart-panel .panel-footer {
             border-top: 2px solid #f1f5f9;
-            padding-top: 8px;
+            padding-top: 10px;
             flex-shrink: 0;
             display: flex;
             justify-content: space-between;
@@ -290,7 +289,7 @@
         }
         #cart-panel .panel-footer .total {
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 1.05rem;
         }
         #cart-panel .panel-footer .total span {
             color: #06C755;
@@ -299,10 +298,10 @@
             background: #06C755;
             color: #fff;
             border: none;
-            border-radius: 18px;
-            padding: 6px 18px;
+            border-radius: 20px;
+            padding: 8px 20px;
             font-weight: 700;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             cursor: pointer;
         }
         #cart-panel .panel-footer .checkout-btn:active {
@@ -353,8 +352,8 @@
             background: #fff;
             width: 100%;
             max-width: 400px;
-            padding: 14px 14px 18px;
-            border-radius: 18px 18px 0 0;
+            padding: 16px 16px 20px;
+            border-radius: 20px 20px 0 0;
             max-height: 80vh;
             overflow-y: auto;
             animation: slideUp 0.25s ease-out;
@@ -363,18 +362,18 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 8px;
+            padding-bottom: 10px;
             border-bottom: 2px solid #f1f5f9;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
         .modal-header h3 {
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 700;
         }
         .modal-header .close-btn {
             background: none;
             border: none;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             color: #94a3b8;
             cursor: pointer;
         }
@@ -383,75 +382,75 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 8px;
         }
         .top-ctrl-left {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
         .qty-ctrl {
             display: flex;
             align-items: center;
             background: #f1f5f9;
-            border-radius: 14px;
-            padding: 2px 4px;
+            border-radius: 16px;
+            padding: 2px 6px;
         }
         .qty-ctrl button {
-            width: 26px;
-            height: 26px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             border: none;
             background: #fff;
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
             box-shadow: 0 1px 3px rgba(0,0,0,0.06);
         }
         .qty-ctrl .qty-num {
-            padding: 0 10px;
+            padding: 0 12px;
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
         }
 
         .option-price-display {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 800;
             color: #06C755;
             background: #dcfce7;
-            padding: 4px 14px;
-            border-radius: 16px;
+            padding: 4px 16px;
+            border-radius: 18px;
             white-space: nowrap;
         }
         .option-price-display .price-unit {
-            font-size: 0.6rem;
+            font-size: 0.65rem;
             font-weight: 600;
             color: #94a3b8;
         }
 
         .opt-group {
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         .opt-title {
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             font-weight: 700;
             color: #94a3b8;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
         }
         .opt-btns {
             display: flex;
             flex-wrap: wrap;
-            gap: 3px;
+            gap: 4px;
             align-items: center;
         }
         .opt-btn {
             background: #f1f5f9;
             border: 1px solid transparent;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
+            padding: 5px 10px;
+            border-radius: 14px;
+            font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.15s;
@@ -466,16 +465,15 @@
             transform: scale(0.94);
         }
 
-        /* ===== 甜度「其他」下拉選擇框 ===== */
         select.opt-btn-sugar-other {
             flex: 0 1 auto;
             min-width: 70px;
             padding: 4px 24px 4px 10px;
-            border-radius: 12px;
+            border-radius: 14px;
             border: 1px solid #e2e8f0;
             background: #f1f5f9 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="%2364748b" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>') no-repeat right 8px center;
             background-size: 10px;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 600;
             color: var(--text-main);
             cursor: pointer;
@@ -499,13 +497,13 @@
 
         .submit-btn {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             background: #06C755;
             color: #fff;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             cursor: pointer;
             margin-top: 4px;
         }
@@ -516,8 +514,8 @@
         .empty-cart {
             text-align: center;
             color: #94a3b8;
-            font-size: 0.75rem;
-            padding: 16px 0;
+            font-size: 0.8rem;
+            padding: 20px 0;
         }
 
         .toast {
@@ -544,15 +542,15 @@
         /* ===== 後台管理入口 ===== */
         .admin-entry {
             position: fixed;
-            bottom: 16px;
-            left: 16px;
-            width: 36px;
-            height: 36px;
+            bottom: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background: rgba(30, 41, 59, 0.15);
+            background: rgba(30, 41, 59, 0.2);
             color: #94a3b8;
             border: none;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             cursor: pointer;
             z-index: 50;
             display: flex;
@@ -563,7 +561,7 @@
         }
         .admin-entry:active {
             transform: scale(0.9);
-            background: rgba(30, 41, 59, 0.3);
+            background: rgba(30, 41, 59, 0.35);
         }
 
         /* ===== 後台管理彈窗 ===== */
@@ -630,10 +628,10 @@
             margin-bottom: 12px;
         }
         .admin-modal .admin-tabs button {
-            padding: 5px 12px;
+            padding: 6px 12px;
             border: none;
             border-radius: 8px;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
             background: #f1f5f9;
@@ -657,7 +655,7 @@
         }
         .admin-modal .admin-section .form-group label {
             display: block;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 700;
             color: #64748b;
             margin-bottom: 2px;
@@ -668,7 +666,7 @@
             padding: 6px 10px;
             border: 1px solid #e2e8f0;
             border-radius: 6px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             outline: none;
         }
         .admin-modal .admin-section .form-group input:focus,
@@ -689,13 +687,13 @@
         }
         .admin-modal .admin-section .item-grid-preview .preview-cell {
             background: #f1f5f9;
-            border-radius: 3px;
-            padding: 4px 2px;
+            border-radius: 4px;
+            padding: 6px 2px;
             text-align: center;
-            font-size: 0.55rem;
+            font-size: 0.6rem;
             font-weight: 600;
             color: #1e293b;
-            min-height: 28px;
+            min-height: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -722,10 +720,10 @@
             margin: 6px 0 10px;
         }
         .admin-modal .admin-section .page-tabs button {
-            padding: 3px 12px;
+            padding: 4px 12px;
             border: none;
             border-radius: 12px;
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             font-weight: 600;
             cursor: pointer;
             background: #f1f5f9;
@@ -740,7 +738,7 @@
             padding: 6px 14px;
             border: none;
             border-radius: 6px;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
             background: #f1f5f9;
@@ -776,7 +774,7 @@
             padding: 4px 10px;
             border-bottom: 1px solid #f1f5f9;
             cursor: pointer;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             display: flex;
             justify-content: space-between;
         }
@@ -785,15 +783,15 @@
         }
         .admin-modal .admin-section .item-select-list .select-item .price-tag {
             color: #94a3b8;
-            font-size: 0.65rem;
+            font-size: 0.7rem;
         }
 
         .admin-modal .admin-section .search-input {
             width: 100%;
-            padding: 5px 10px;
+            padding: 6px 10px;
             border: 1px solid #e2e8f0;
             border-radius: 6px;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             outline: none;
             margin-bottom: 4px;
         }
@@ -804,59 +802,61 @@
         /* ===== 自適應 ===== */
         @media (max-width: 380px) {
             .pos-item {
-                font-size: 10px;
+                font-size: 11px;
+                padding: 2px 1px;
             }
             .tab-btn {
-                font-size: 0.6rem;
-                padding: 3px 2px;
+                font-size: 0.65rem;
+                padding: 4px 2px;
             }
             .app-header {
-                height: 34px;
+                height: 38px;
                 padding: 0 10px;
             }
             .app-header h1 {
-                font-size: 0.7rem;
+                font-size: 0.8rem;
             }
             #cart-panel {
-                width: calc(100vw - 20px);
-                right: 10px;
-                bottom: 70px;
+                width: calc(100vw - 24px);
+                right: 12px;
+                bottom: 76px;
+                padding: 12px;
             }
             #cart-float-btn {
-                width: 46px;
-                height: 46px;
-                font-size: 1rem;
-                bottom: 12px;
-                right: 12px;
+                width: 50px;
+                height: 50px;
+                font-size: 1.1rem;
+                bottom: 14px;
+                right: 14px;
             }
             .admin-entry {
-                bottom: 12px;
-                left: 12px;
-                width: 32px;
-                height: 32px;
-                font-size: 0.6rem;
+                bottom: 14px;
+                left: 14px;
+                width: 36px;
+                height: 36px;
+                font-size: 0.7rem;
             }
             select.opt-btn-sugar-other {
                 min-width: 60px;
-                font-size: 0.6rem;
+                font-size: 0.65rem;
                 padding: 3px 20px 3px 8px;
             }
         }
         @media (min-width: 500px) {
             .pos-item {
-                font-size: 14px;
+                font-size: 16px;
             }
             .tab-btn {
-                font-size: 0.85rem;
-                padding: 6px 4px;
+                font-size: 0.95rem;
+                padding: 8px 4px;
             }
             .app-header h1 {
-                font-size: 1rem;
+                font-size: 1.2rem;
             }
             select.opt-btn-sugar-other {
                 min-width: 80px;
-                font-size: 0.75rem;
-                padding: 5px 26px 5px 12px;
+                font-size: 0.8rem;
+                padding: 5px 28px 5px 12px;
             }
         }
     </style>
@@ -921,7 +921,7 @@
 
             <div class="top-ctrl-row">
                 <div class="top-ctrl-left">
-                    <span style="font-size:0.75rem; font-weight:600;">數量</span>
+                    <span style="font-size:0.8rem; font-weight:600;">數量</span>
                     <div class="qty-ctrl">
                         <button onclick="changeQty(-1)">−</button>
                         <span class="qty-num" id="qtyNum">1</span>
@@ -946,7 +946,7 @@
                 <div class="opt-btns" id="iceBtns"></div>
             </div>
 
-            <!-- 甜度（含「其他」下拉選擇） -->
+            <!-- 甜度（含「其他」下拉） -->
             <div class="opt-group">
                 <div class="opt-title">甜度</div>
                 <div class="opt-btns" id="sugarBtns"></div>
@@ -965,7 +965,7 @@
     <!-- ===== 後台管理入口 ===== -->
     <button class="admin-entry" onclick="openAdmin()" title="後台管理">⚙️</button>
 
-    <!-- ===== 後台管理彈窗（保留完整功能） ===== -->
+    <!-- ===== 後台管理彈窗 ===== -->
     <div class="admin-modal" id="adminModal">
         <div class="admin-box">
             <div class="admin-header">
@@ -982,7 +982,7 @@
             <!-- 品項管理 -->
             <div class="admin-section active" id="adminItems">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="font-size:0.8rem; font-weight:700;">品項列表</span>
+                    <span style="font-size:0.85rem; font-weight:700;">品項列表</span>
                     <button class="admin-btn primary" onclick="adminAddItem()">＋ 新增</button>
                 </div>
                 <div class="page-tabs" id="adminItemPages">
@@ -999,7 +999,7 @@
 
             <!-- 頁面配置 -->
             <div class="admin-section" id="adminLayout">
-                <div style="font-size:0.7rem; color:#94a3b8; margin-bottom:6px;">點擊格子選擇品項</div>
+                <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:6px;">點擊格子選擇品項</div>
                 <div class="page-tabs" id="adminLayoutPages">
                     <button class="active" data-page="0">常用類</button>
                     <button data-page="1">特調·果醋</button>
@@ -1015,24 +1015,24 @@
 
             <!-- 全域設定 -->
             <div class="admin-section" id="adminGlobal">
-                <div style="font-size:0.7rem; font-weight:600; color:#64748b; margin-bottom:4px;">🧊 冰塊選項</div>
+                <div style="font-size:0.75rem; font-weight:600; color:#64748b; margin-bottom:4px;">🧊 冰塊選項</div>
                 <div class="tag-group" id="adminIceTags" style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px;"></div>
                 <div style="display:flex; gap:4px; margin-bottom:10px;">
-                    <input type="text" id="adminNewIce" placeholder="新增冰塊..." style="flex:1; padding:4px 8px; border:1px solid #e2e8f0; border-radius:4px; font-size:0.7rem; outline:none;">
+                    <input type="text" id="adminNewIce" placeholder="新增冰塊..." style="flex:1; padding:6px 8px; border:1px solid #e2e8f0; border-radius:4px; font-size:0.75rem; outline:none;">
                     <button class="admin-btn" onclick="adminAddGlobal('ice')">＋</button>
                 </div>
 
-                <div style="font-size:0.7rem; font-weight:600; color:#64748b; margin-bottom:4px;">🍬 甜度選項</div>
+                <div style="font-size:0.75rem; font-weight:600; color:#64748b; margin-bottom:4px;">🍬 甜度選項</div>
                 <div class="tag-group" id="adminSugarTags" style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px;"></div>
                 <div style="display:flex; gap:4px; margin-bottom:10px;">
-                    <input type="text" id="adminNewSugar" placeholder="新增甜度..." style="flex:1; padding:4px 8px; border:1px solid #e2e8f0; border-radius:4px; font-size:0.7rem; outline:none;">
+                    <input type="text" id="adminNewSugar" placeholder="新增甜度..." style="flex:1; padding:6px 8px; border:1px solid #e2e8f0; border-radius:4px; font-size:0.75rem; outline:none;">
                     <button class="admin-btn" onclick="adminAddGlobal('sugar')">＋</button>
                 </div>
 
-                <div style="font-size:0.7rem; font-weight:600; color:#64748b; margin-bottom:4px;">🧋 加料選項</div>
+                <div style="font-size:0.75rem; font-weight:600; color:#64748b; margin-bottom:4px;">🧋 加料選項</div>
                 <div class="tag-group" id="adminToppingTags" style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px;"></div>
                 <div style="display:flex; gap:4px; margin-bottom:10px;">
-                    <input type="text" id="adminNewTopping" placeholder="新增加料..." style="flex:1; padding:4px 8px; border:1px solid #e2e8f0; border-radius:4px; font-size:0.7rem; outline:none;">
+                    <input type="text" id="adminNewTopping" placeholder="新增加料..." style="flex:1; padding:6px 8px; border:1px solid #e2e8f0; border-radius:4px; font-size:0.75rem; outline:none;">
                     <button class="admin-btn" onclick="adminAddGlobal('topping')">＋</button>
                 </div>
 
@@ -1229,7 +1229,6 @@
         let currentTab = 0;
 
         // 後台狀態
-        let adminCurrentPage = 0;
         let adminItemPage = 0;
         let adminLayoutPage = 0;
         let adminSelectedCell = null;
@@ -1249,9 +1248,10 @@
             });
 
         // =============================================
-        // 初始化頁面配置
+        // 初始化頁面配置（確保每個頁面有 60 格）
         // =============================================
         function initPageLayout() {
+            // 嘗試從 localStorage 載入
             try {
                 const saved = localStorage.getItem('pos_employee_data');
                 if (saved) {
@@ -1266,36 +1266,39 @@
                 }
             } catch (e) {}
 
-            if (pageLayout.length === 0 || pageLayout[0].length === 0) {
-                pageLayout = [
-                    [],
-                    [],
-                    []
-                ];
-                for (let p = 0; p < 3; p++) {
-                    const pageItems = items.filter(item => item.page === p);
+            // 確保 pageLayout 有 3 個頁面，每個 60 格
+            for (let p = 0; p < 3; p++) {
+                if (!pageLayout[p] || pageLayout[p].length < 60) {
+                    const current = pageLayout[p] || [];
+                    const newLayout = [];
                     for (let i = 0; i < 60; i++) {
-                        if (i < pageItems.length) {
-                            pageLayout[p][i] = pageItems[i].id;
+                        if (i < current.length) {
+                            newLayout[i] = current[i];
                         } else {
-                            pageLayout[p][i] = null;
+                            newLayout[i] = null;
                         }
+                    }
+                    pageLayout[p] = newLayout;
+                }
+            }
+
+            // 如果頁面完全空白（所有格子都是 null），則自動從品項庫填入
+            for (let p = 0; p < 3; p++) {
+                const hasItem = pageLayout[p].some(id => id !== null);
+                if (!hasItem) {
+                    const pageItems = items.filter(item => item.page === p);
+                    for (let i = 0; i < 60 && i < pageItems.length; i++) {
+                        pageLayout[p][i] = pageItems[i].id;
                     }
                 }
             }
 
-            for (let p = 0; p < 3; p++) {
-                if (pageLayout[p].length < 60) {
-                    const len = pageLayout[p].length;
-                    for (let i = len; i < 60; i++) {
-                        pageLayout[p][i] = null;
-                    }
-                }
-            }
+            // 儲存到 localStorage
+            saveToLocal();
         }
 
         // =============================================
-        // 渲染商品網格
+        // 渲染商品網格（加大字體與間距）
         // =============================================
         function renderGrid(tabIndex) {
             const grid = document.getElementById('posGrid');
@@ -1337,11 +1340,13 @@
                     displayName = shortMap[item.name] || item.name.substring(0, 4);
                     div.textContent = displayName;
 
+                    // 顏色標記
                     const colors = ['#06C755', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444', '#ec4899'];
-                    div.style.borderLeft = `3px solid ${colors[i % colors.length]}`;
+                    div.style.borderLeft = `4px solid ${colors[i % colors.length]}`;
 
                     div.onclick = () => openModal(item);
                 } else {
+                    // 空白格
                     div.style.background = 'transparent';
                     div.style.boxShadow = 'none';
                     div.style.cursor = 'default';
@@ -1387,7 +1392,7 @@
         });
 
         // =============================================
-        // 點餐彈窗 (含「其他」下拉選擇)
+        // 點餐彈窗
         // =============================================
         function openModal(item) {
             currentItem = item;
@@ -1435,11 +1440,9 @@
                 iceContainer.appendChild(btn);
             });
 
-            // ===== 甜度（「其他」改為下拉選擇框） =====
+            // 甜度（含「其他」下拉）
             const sugarContainer = document.getElementById('sugarBtns');
             sugarContainer.innerHTML = '';
-
-            // 先建立一般的甜度按鈕（排除「其他」）
             const sugarOptions = globalSugar.filter(opt => opt !== '其他');
             sugarOptions.forEach(opt => {
                 const btn = document.createElement('button');
@@ -1456,7 +1459,6 @@
                 sugarContainer.appendChild(btn);
             });
 
-            // 建立「其他」下拉選擇框
             const otherSelect = document.createElement('select');
             otherSelect.className = 'opt-btn-sugar-other';
             otherSelect.innerHTML = `
@@ -1468,13 +1470,10 @@
                 <option value="7分糖">7分糖</option>
             `;
             otherSelect.onchange = function() {
-                // 清除其他按鈕的 active 狀態
                 sugarContainer.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
-                // 標記 select 為 active
                 sugarContainer.querySelectorAll('.opt-btn-sugar-other').forEach(el => el.classList.add('active'));
                 selectedSugar = this.value;
             };
-            // 如果已經選了「其他」的值，保持 active
             if (selectedSugar && ['1分糖','3分糖','4分糖','6分糖','7分糖'].includes(selectedSugar)) {
                 otherSelect.value = selectedSugar;
                 otherSelect.classList.add('active');
@@ -1641,7 +1640,7 @@
         }
 
         // =============================================
-        // 結帳 (發送 Flex Message)
+        // 結帳
         // =============================================
         function checkout() {
             if (cart.length === 0) {
@@ -1779,10 +1778,8 @@
         }
 
         // =============================================
-        // 後台管理（保留完整功能）
+        // 後台管理（完整功能）
         // =============================================
-        let adminTab = 'adminItems';
-
         function openAdmin() {
             document.getElementById('adminModal').classList.add('open');
             renderAdminItems();
@@ -1801,7 +1798,6 @@
                 const tab = this.dataset.tab;
                 document.querySelectorAll('.admin-section').forEach(el => el.classList.remove('active'));
                 document.getElementById(tab).classList.add('active');
-                adminTab = tab;
                 if (tab === 'adminItems') renderAdminItems();
                 if (tab === 'adminLayout') renderAdminLayout();
                 if (tab === 'adminGlobal') renderAdminGlobal();
@@ -1837,10 +1833,10 @@
                 return;
             }
             container.innerHTML = pageItems.map(item => `
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 8px; border-bottom:1px solid #f1f5f9; font-size:0.75rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 8px; border-bottom:1px solid #f1f5f9; font-size:0.8rem;">
                         <span>${item.name}</span>
                         <span style="display:flex; gap:6px; align-items:center;">
-                            <span style="color:#94a3b8; font-size:0.65rem;">M$${item.M??'-'} L$${item.L??'-'}</span>
+                            <span style="color:#94a3b8; font-size:0.7rem;">M$${item.M??'-'} L$${item.L??'-'}</span>
                             <button onclick="adminEditItem('${item.id}')" style="background:none; border:none; color:#3b82f6; cursor:pointer;">✏️</button>
                             <button onclick="adminDeleteItem('${item.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer;">✕</button>
                         </span>
@@ -1953,9 +1949,9 @@
                     <input type="text" id="adminSelectSearch" placeholder="搜尋品項..." style="width:100%; padding:4px 8px; border:1px solid #e2e8f0; border-radius:4px; font-size:0.75rem; margin-bottom:6px;" oninput="adminFilterSelectItems(this.value)">
                     <div id="adminSelectList" style="max-height:200px; overflow-y:auto;">
                         ${items.map(item => `
-                            <div style="padding:4px 8px; border-bottom:1px solid #f1f5f9; cursor:pointer; font-size:0.75rem; display:flex; justify-content:space-between;" onclick="adminSetCellItem('${item.id}')">
+                            <div style="padding:4px 8px; border-bottom:1px solid #f1f5f9; cursor:pointer; font-size:0.8rem; display:flex; justify-content:space-between;" onclick="adminSetCellItem('${item.id}')">
                                 <span>${item.name}</span>
-                                <span style="color:#94a3b8; font-size:0.65rem;">M$${item.M??'-'} L$${item.L??'-'}</span>
+                                <span style="color:#94a3b8; font-size:0.7rem;">M$${item.M??'-'} L$${item.L??'-'}</span>
                             </div>
                         `).join('')}
                     </div>
@@ -1974,9 +1970,9 @@
             const kw = keyword.toLowerCase().trim();
             const filtered = kw ? items.filter(item => item.name.includes(kw)) : items;
             list.innerHTML = filtered.map(item => `
-                    <div style="padding:4px 8px; border-bottom:1px solid #f1f5f9; cursor:pointer; font-size:0.75rem; display:flex; justify-content:space-between;" onclick="adminSetCellItem('${item.id}')">
+                    <div style="padding:4px 8px; border-bottom:1px solid #f1f5f9; cursor:pointer; font-size:0.8rem; display:flex; justify-content:space-between;" onclick="adminSetCellItem('${item.id}')">
                         <span>${item.name}</span>
-                        <span style="color:#94a3b8; font-size:0.65rem;">M$${item.M??'-'} L$${item.L??'-'}</span>
+                        <span style="color:#94a3b8; font-size:0.7rem;">M$${item.M??'-'} L$${item.L??'-'}</span>
                     </div>
                 `).join('');
         }
@@ -2033,7 +2029,7 @@
         function renderAdminTagGroup(containerId, items) {
             const container = document.getElementById(containerId);
             container.innerHTML = items.map((item, idx) =>
-                `<span class="tag" style="background:#f1f5f9; padding:2px 10px; border-radius:12px; font-size:0.7rem; display:flex; align-items:center; gap:4px;">${item} <span onclick="adminRemoveGlobalItem('${containerId}', ${idx})" style="color:#ef4444; cursor:pointer;">✕</span></span>`
+                `<span class="tag" style="background:#f1f5f9; padding:2px 10px; border-radius:12px; font-size:0.75rem; display:flex; align-items:center; gap:4px;">${item} <span onclick="adminRemoveGlobalItem('${containerId}', ${idx})" style="color:#ef4444; cursor:pointer;">✕</span></span>`
             ).join('');
         }
 
