@@ -120,12 +120,12 @@
             transform: scale(0.95);
         }
 
-        /* ===== 6x10 商品網格（文字自動換行） ===== */
+        /* ===== 6x11 商品網格（品項填 10 行，最後一行留空） ===== */
         .pos-grid {
             flex: 1;
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            grid-template-rows: repeat(10, 1fr);
+            grid-template-rows: repeat(11, 1fr);
             gap: 4px;
             padding: 4px;
             background: #e2e8f0;
@@ -140,7 +140,7 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             color: #1e293b;
             cursor: pointer;
@@ -151,7 +151,6 @@
             border: 1px solid transparent;
             position: relative;
             height: 100%;
-            /* 關鍵：自動換行 */
             white-space: normal;
             word-break: break-word;
             overflow-wrap: break-word;
@@ -162,7 +161,7 @@
             background: #dcfce7;
             border-color: #06C755;
         }
-        /* 顏色小點（可選） */
+        /* 顏色小點 */
         .pos-item .dot {
             position: absolute;
             top: 3px;
@@ -170,6 +169,17 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
+        }
+        /* 最後一行隱藏（只留背景） */
+        .pos-item.empty-row {
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+            cursor: default !important;
+            color: transparent !important;
+        }
+        .pos-item.empty-row .dot {
+            display: none !important;
         }
 
         /* ===== 浮動購物車 ===== */
@@ -898,7 +908,7 @@
         /* ===== 自適應 ===== */
         @media (max-width: 380px) {
             .pos-item {
-                font-size: 12px;
+                font-size: 11px;
                 padding: 2px 1px;
             }
             .tab-btn {
@@ -959,7 +969,7 @@
         }
         @media (min-width: 500px) {
             .pos-item {
-                font-size: 16px;
+                font-size: 15px;
             }
             .tab-btn {
                 font-size: 0.9rem;
@@ -995,7 +1005,7 @@
         <button class="tab-btn" data-tab="2">🥛 鮮奶·加料</button>
     </div>
 
-    <!-- ===== 6x10 商品網格 ===== -->
+    <!-- ===== 6x11 商品網格 ===== -->
     <div class="pos-grid" id="posGrid"></div>
 
     <!-- ===== 浮動購物車 ===== -->
@@ -1143,7 +1153,7 @@
 
             <!-- 頁面配置 -->
             <div class="admin-section" id="adminLayout">
-                <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:6px;">點擊格子選擇品項（6×10）</div>
+                <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:6px;">點擊格子選擇品項（6×11）</div>
                 <div class="page-tabs" id="adminLayoutPages">
                     <button class="active" data-page="0">常用類</button>
                     <button data-page="1">特調·果醋</button>
@@ -1388,7 +1398,7 @@
             });
 
         // =============================================
-        // 初始化頁面配置（6×10 = 60 格）
+        // 初始化頁面配置（6×11 = 66 格，只填 60 格）
         // =============================================
         function initPageLayout() {
             try {
@@ -1405,21 +1415,21 @@
                 }
             } catch (e) {}
 
-            // 確保每頁 60 格 (6×10)
+            // 確保每頁 66 格 (6×11)
             for (let p = 0; p < 3; p++) {
-                if (!pageLayout[p] || pageLayout[p].length < 60) {
+                if (!pageLayout[p] || pageLayout[p].length < 66) {
                     const current = pageLayout[p] || [];
                     const newLayout = [];
-                    for (let i = 0; i < 60; i++) {
+                    for (let i = 0; i < 66; i++) {
                         newLayout[i] = i < current.length ? current[i] : null;
                     }
                     pageLayout[p] = newLayout;
                 }
             }
 
-            // 若頁面完全空白，自動填入
+            // 若頁面完全空白，自動填入（只填前 60 格）
             for (let p = 0; p < 3; p++) {
-                const hasItem = pageLayout[p].some(id => id !== null);
+                const hasItem = pageLayout[p].slice(0, 60).some(id => id !== null);
                 if (!hasItem) {
                     const pageItems = items.filter(item => item.page === p);
                     for (let i = 0; i < 60 && i < pageItems.length; i++) {
@@ -1432,7 +1442,7 @@
         }
 
         // =============================================
-        // 渲染商品網格（6×10，文字自動換行）
+        // 渲染商品網格（6×11，品項只填前 10 行，最後一行隱藏）
         // =============================================
         function renderGrid(tabIndex) {
             const grid = document.getElementById('posGrid');
@@ -1441,21 +1451,22 @@
 
             const colors = ['#06C755', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444', '#ec4899'];
 
-            for (let i = 0; i < 60; i++) {
+            for (let i = 0; i < 66; i++) {
                 const div = document.createElement('div');
                 div.className = 'pos-item';
                 const itemId = layout[i] || null;
                 const item = items.find(it => it.id === itemId);
 
-                if (item) {
-                    // 直接顯示完整品名（自動換行）
+                // 第 60~65 格（最後一行）強制隱藏
+                if (i >= 60) {
+                    div.classList.add('empty-row');
+                    div.textContent = '';
+                } else if (item) {
                     div.textContent = item.name;
-                    // 顏色小點
                     const dot = document.createElement('span');
                     dot.className = 'dot';
                     dot.style.background = colors[i % colors.length];
                     div.appendChild(dot);
-
                     div.onclick = () => openModal(item);
                 } else {
                     div.style.background = 'transparent';
@@ -2006,7 +2017,7 @@
                 page: adminItemPage
             });
             renderAdminItems();
-            // 自動將新品項填入當前頁面的空格
+            // 自動將新品項填入當前頁面的空格（只填前 60 格）
             const layout = pageLayout[adminItemPage];
             let placed = false;
             for (let i = 0; i < 60; i++) {
@@ -2047,7 +2058,10 @@
             const item = items.find(i => i.id === id);
             items = items.filter(i => i.id !== id);
             for (let p = 0; p < 3; p++) {
-                pageLayout[p] = pageLayout[p].map(cell => cell === id ? null : cell);
+                // 只清空前 60 格
+                for (let i = 0; i < 60; i++) {
+                    if (pageLayout[p][i] === id) pageLayout[p][i] = null;
+                }
             }
             renderAdminItems();
             renderGrid(currentTab);
@@ -2068,6 +2082,10 @@
                 for (let i = 0; i < 60; i++) {
                     pageLayout[p][i] = i < pageItems.length ? pageItems[i].id : null;
                 }
+                // 第 60~65 格強制清空
+                for (let i = 60; i < 66; i++) {
+                    pageLayout[p][i] = null;
+                }
             }
             renderAdminItems();
             renderGrid(currentTab);
@@ -2081,26 +2099,32 @@
             grid.innerHTML = '';
             const layout = pageLayout[adminLayoutPage] || [];
 
-            for (let i = 0; i < 60; i++) {
+            for (let i = 0; i < 66; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'preview-cell';
                 const itemId = layout[i] || null;
                 const item = items.find(it => it.id === itemId);
 
-                if (item) {
+                if (i >= 60) {
+                    // 最後一行隱藏（不顯示）
+                    cell.style.display = 'none';
+                } else if (item) {
                     cell.classList.add('has-item');
                     cell.textContent = item.name.substring(0, 4);
                 } else {
                     cell.classList.add('empty');
                     cell.textContent = '＋';
                 }
-                cell.onclick = () => adminSelectItem(i);
-                cell.title = item ? `點擊更換「${item.name}」` : `點擊選擇品項 (格子 ${i+1})`;
+                if (i < 60) {
+                    cell.onclick = () => adminSelectItem(i);
+                    cell.title = item ? `點擊更換「${item.name}」` : `點擊選擇品項 (格子 ${i+1})`;
+                }
                 grid.appendChild(cell);
             }
         }
 
         function adminSelectItem(gridIndex) {
+            if (gridIndex >= 60) return;
             adminSelectedCell = gridIndex;
             const overlay = document.createElement('div');
             overlay.style.cssText =
@@ -2145,7 +2169,7 @@
         }
 
         function adminSetCellItem(itemId) {
-            if (adminSelectedCell === null) return;
+            if (adminSelectedCell === null || adminSelectedCell >= 60) return;
             pageLayout[adminLayoutPage][adminSelectedCell] = itemId;
             const overlay = document.querySelector('#adminLayoutGrid + div[style]');
             if (overlay) overlay.remove();
@@ -2275,9 +2299,9 @@
                     if (data.globalToppings) globalToppings = data.globalToppings;
                     if (data.toppingPrices) toppingPrices = data.toppingPrices;
                     for (let p = 0; p < 3; p++) {
-                        if (pageLayout[p].length < 60) {
+                        if (pageLayout[p].length < 66) {
                             const len = pageLayout[p].length;
-                            for (let i = len; i < 60; i++) {
+                            for (let i = len; i < 66; i++) {
                                 pageLayout[p][i] = null;
                             }
                         }
@@ -2330,7 +2354,7 @@
 
         console.log('🧋 員工 POS 已啟動！');
         console.log('📋 品項數量：', items.length);
-        console.log('📐 頁面配置：', pageLayout.map(p => p.filter(id => id !== null).length));
+        console.log('📐 頁面配置：', pageLayout.map(p => p.slice(0, 60).filter(id => id !== null).length));
     </script>
 </body>
 </html>
