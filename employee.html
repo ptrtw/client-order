@@ -67,7 +67,6 @@
             font-size: 0.65rem;
             opacity: 0.8;
         }
-        /* ===== 後台入口（右上角） ===== */
         .admin-entry {
             background: rgba(255,255,255,0.2);
             border: none;
@@ -121,7 +120,7 @@
             transform: scale(0.95);
         }
 
-        /* ===== 10x6 商品網格 ===== */
+        /* ===== 10x6 商品網格（文字自動換行） ===== */
         .pos-grid {
             flex: 1;
             display: grid;
@@ -140,26 +139,30 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 13px;
+            text-align: center;
+            font-size: 12px;
             font-weight: 700;
             color: #1e293b;
             cursor: pointer;
             transition: all 0.1s;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            text-align: center;
             line-height: 1.2;
-            padding: 2px 1px;
-            word-break: keep-all;
+            padding: 4px 2px;
             border: 1px solid transparent;
             position: relative;
             height: 100%;
+            /* 關鍵：讓文字自動換行 */
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
         }
         .pos-item:active {
             transform: scale(0.94);
             background: #dcfce7;
             border-color: #06C755;
         }
-        /* 顏色標記改為左上角小點 */
+        /* 顏色小點 */
         .pos-item .dot {
             position: absolute;
             top: 2px;
@@ -466,7 +469,7 @@
             display: flex;
         }
 
-        /* ===== 點餐彈窗（與之前相同） ===== */
+        /* ===== 點餐彈窗 ===== */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -896,6 +899,7 @@
         @media (max-width: 380px) {
             .pos-item {
                 font-size: 10px;
+                padding: 2px 1px;
             }
             .tab-btn {
                 font-size: 0.6rem;
@@ -955,7 +959,7 @@
         }
         @media (min-width: 500px) {
             .pos-item {
-                font-size: 15px;
+                font-size: 14px;
             }
             .tab-btn {
                 font-size: 0.9rem;
@@ -1428,7 +1432,7 @@
         }
 
         // =============================================
-        // 渲染商品網格（10×6）
+        // 渲染商品網格（10×6，文字自動換行）
         // =============================================
         function renderGrid(tabIndex) {
             const grid = document.getElementById('posGrid');
@@ -1446,68 +1450,8 @@
                 const item = items.find(it => it.id === itemId);
 
                 if (item) {
-                    // 顯示短名稱
-                    let displayName = item.name;
-                    const shortMap = {
-                        '特級綠茶': '綠茶',
-                        '烏龍綠茶': '烏龍',
-                        '錫蘭紅茶': '錫蘭',
-                        '極品菁茶': '菁茶',
-                        '原鄉四季': '四季',
-                        '特選普洱': '普洱',
-                        '高山烏龍': '高山',
-                        '珍珠奶茶': '珍奶',
-                        '布丁奶茶': '布奶',
-                        '仙草凍奶茶': '仙奶',
-                        '暗黑水晶奶茶': '水晶',
-                        '紅茶拿鐵': '紅拿',
-                        '綠茶拿鐵': '綠拿',
-                        '珍珠紅茶拿鐵': '珍紅',
-                        '珍珠絲滑鮮奶茶': '絲滑',
-                        '優多綠茶': '優多',
-                        '檸檬綠茶': '檸綠',
-                        '蜂蜜綠茶': '蜂綠',
-                        '梅子綠茶': '梅綠',
-                        '蘋果醋': '蘋醋',
-                        '冬瓜檸檬': '冬檸',
-                        '冬瓜鮮奶': '冬奶',
-                        '蜂蜜檸檬': '蜂檸',
-                        '琥珀黑糖奶茶': '琥珀黑',
-                        '蜂蜜烏龍鮮奶茶': '蜂烏鮮',
-                        '鳳嶺高山': '鳳嶺',
-                        '鳳嶺奶高': '鳳奶高',
-                        '相思紅豆奶茶': '相思紅',
-                        '咖啡凍奶茶': '咖啡凍',
-                        '醇蜜普洱茶': '醇普洱',
-                        '茉綠茶凍拿鐵': '茉綠凍',
-                        '珍珠琥珀黑糖鮮奶': '珍珀鮮',
-                        '冰淇淋紅茶': '冰紅',
-                        '冰淇淋奶茶': '冰奶',
-                        '百香果綠茶': '百香綠',
-                        '巨峰葡萄紅茶': '巨峰紅',
-                        'Red Bull 能量優多': 'RB優多',
-                        '濃情巧克力': '濃情巧',
-                        '蜜桃凍紅茶': '蜜桃紅',
-                        '荔枝紅茶': '荔枝紅',
-                        '金桔檸檬': '金桔檸',
-                        '烏龍菁茶': '烏菁',
-                        '冬瓜菁茶': '冬菁',
-                        '普洱奶茶': '普奶',
-                        '100%鮮奶': '鮮奶',
-                        '珍珠（單）': '珍珠單',
-                        '粉圓（單）': '粉圓單',
-                        '椰果（單）': '椰果單',
-                        '布丁（單）': '布丁單',
-                        '仙草（單）': '仙草單',
-                        '冰淇淋（單）': '冰單',
-                        '頂級可可(2)': '頂級可',
-                        '鮮奶茶(2)': '鮮奶茶',
-                        '巨峰葡萄 Red Bull': '巨峰RB',
-                        'Red Bull 紅牛能量紅茶': 'RB紅茶',
-                    };
-                    displayName = shortMap[item.name] || item.name.substring(0, 4);
-
-                    div.textContent = displayName;
+                    // 直接顯示完整品名（會自動換行）
+                    div.textContent = item.name;
                     // 顏色小點
                     const dot = document.createElement('span');
                     dot.className = 'dot';
