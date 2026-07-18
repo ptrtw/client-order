@@ -92,12 +92,41 @@
         select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padding-right: 20px; text-align: center; background-image: url('data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position-x: 100%; background-position-y: center; background-size: 16px; }
         #size-btns .opt-btn { flex-grow: 1; }
         
-        /* 數量控制器 & 茶湯下拉 */
-        .top-ctrl-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        /* 數量控制器 & 茶湯下拉 & 即時價格 */
+        .top-ctrl-row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 15px; 
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .top-ctrl-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
         .qty-ctrl { display: flex; align-items: center; background: #f5f6f8; border-radius: 15px; padding: 3px; width: fit-content; }
         .qty-btn { width: 28px; height: 28px; border-radius: 50%; border: none; background: #fff; color: var(--text-main); font-size: 1rem; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .qty-num { padding: 0 12px; font-weight: bold; font-size: 0.9rem; }
         .tea-swap-select { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #f5f6f8; font-size: 0.85rem; color: var(--text-main); outline: none; }
+
+        /* 即時價格顯示 - 新增 */
+        .option-price-display {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--brand-color);
+            background: var(--brand-light);
+            padding: 6px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .option-price-display .price-unit {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
 
         /* 懸浮購物車列 – 始終顯示 */
         #cart-bar-btn {
@@ -374,14 +403,21 @@
             <button class="close-btn" onclick="document.getElementById('option-modal').style.display='none'">✕</button>
         </div>
         
+        <!-- 數量 + 即時價格 -->
         <div class="top-ctrl-row">
-            <div style="display:flex; align-items:center; gap: 10px;">
+            <div class="top-ctrl-left">
                 <div class="opt-title" style="margin:0;">數量</div>
                 <div class="qty-ctrl">
                     <button class="qty-btn" onclick="changeQty(-1)">-</button>
                     <span class="qty-num" id="item-qty">1</span>
                     <button class="qty-btn" onclick="changeQty(1)">+</button>
                 </div>
+            </div>
+            
+            <!-- 即時價格顯示（紅圈處） -->
+            <div class="option-price-display" id="option-price-display">
+                $<span id="option-price-value">0</span>
+                <span class="price-unit">/ 杯</span>
             </div>
             
             <select id="tea-swap-select" class="tea-swap-select" style="display:none;">
@@ -501,7 +537,6 @@
             </div>
         </div>
         
-        <!-- 「立即結帳」改為「確認訂單」 -->
         <button class="submit-btn" onclick="showConfirmModal()">📋 確認訂單</button>
 
         <!-- 備註小提醒 -->
@@ -519,19 +554,13 @@
             <button class="close-btn" onclick="document.getElementById('confirm-modal').style.display='none'">✕</button>
         </div>
 
-        <!-- 訂單內容摘要 -->
         <div class="confirm-order-summary" id="confirm-order-list"></div>
-
-        <!-- 訂單資訊 -->
         <div class="confirm-order-info" id="confirm-order-info"></div>
-
-        <!-- 總金額 -->
         <div class="confirm-order-total">
             <span>💰 結帳總額</span>
             <span class="total-amount" id="confirm-total-amount">$0</span>
         </div>
 
-        <!-- 按鈕群組 -->
         <div class="confirm-btn-group">
             <button class="btn-back" onclick="closeConfirmModal()">← 繼續點餐</button>
             <button class="btn-confirm" onclick="sendToLine()">✅ 確認送出</button>
@@ -1115,7 +1144,13 @@
 
         document.getElementById('option-modal').style.display = 'flex';
         
-        renderBtns('size-btns', Object.keys(item.prices), (val) => { currentSelect.size = val; currentSelect.toppings = []; renderToppings(item, val); }, defaultSize);
+        // 大小按鈕
+        renderBtns('size-btns', Object.keys(item.prices), (val) => { 
+            currentSelect.size = val; 
+            currentSelect.toppings = []; 
+            renderToppings(item, val);
+            updateOptionPrice();  // 更新價格
+        }, defaultSize);
         
         let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : ["正常冰", "少冰", "微冰", "去冰", "常溫", "溫飲"];
         if (!item.customIce && (item.name.includes("優多") || item.name.includes("冰淇淋"))) iceOptions = iceOptions.filter(opt => opt !== "溫飲");
@@ -1139,6 +1174,34 @@
         }
         
         renderToppings(item, defaultSize);
+        updateOptionPrice();  // 初始更新價格
+    }
+
+    // ===== 即時價格計算與更新 =====
+    function updateOptionPrice() {
+        if (!currentSelect.item) return;
+        
+        const size = currentSelect.size;
+        if (!size) return;
+        
+        // 基礎價格
+        const basePrice = currentSelect.item.prices[size] || 0;
+        
+        // 加料價格
+        let activeToppings = toppingPrices[size] || {};
+        if (currentSelect.item.customToppings && currentSelect.item.customToppings[size]) {
+            activeToppings = currentSelect.item.customToppings[size];
+        }
+        let toppingCost = 0;
+        if (currentSelect.toppings) {
+            toppingCost = currentSelect.toppings.reduce((sum, t) => sum + (activeToppings[t] || 0), 0);
+        }
+        
+        // 總價（每杯）
+        const total = basePrice + toppingCost;
+        
+        // 更新顯示
+        document.getElementById('option-price-value').innerText = total;
     }
 
     function renderBtns(containerId, options, callback, defaultVal) {
@@ -1191,12 +1254,24 @@
             const btn = document.createElement('button');
             btn.className = 'opt-btn' + (currentSelect.toppings.includes(name) ? ' active' : '');
             btn.innerText = `${name} +$${price}`;
-            btn.onclick = () => { btn.classList.toggle('active'); if(btn.classList.contains('active')) currentSelect.toppings.push(name); else currentSelect.toppings = currentSelect.toppings.filter(t => t !== name); };
+            btn.onclick = () => { 
+                btn.classList.toggle('active'); 
+                if (btn.classList.contains('active')) {
+                    currentSelect.toppings.push(name);
+                } else {
+                    currentSelect.toppings = currentSelect.toppings.filter(t => t !== name);
+                }
+                updateOptionPrice();  // 加料變更時更新價格
+            };
             container.appendChild(btn);
         });
     }
 
-    function changeQty(diff) { currentSelect.qty = Math.max(1, currentSelect.qty + diff); document.getElementById('item-qty').innerText = currentSelect.qty; }
+    function changeQty(diff) { 
+        currentSelect.qty = Math.max(1, currentSelect.qty + diff); 
+        document.getElementById('item-qty').innerText = currentSelect.qty;
+        // 數量變更時價格不變（因為單價不變），但保留此功能以備未來
+    }
 
     function confirmAddToCart() {
         if(!currentSelect.size || !currentSelect.ice || !currentSelect.sugar) return alert("請完整選擇所有選項（大小/冰塊/甜度）");
