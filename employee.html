@@ -6,7 +6,6 @@
     <title>員工快速點餐 - 清心福全左營榮總店</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
-        /* 您的原版 CSS 樣式已保留，確保視覺體驗一致 */
         :root { --brand-color: #06C755; --bg-color: #f1f5f9; --text-main: #1e293b; --header-height: 46px; --tab-height: 40px; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { font-family: -apple-system, sans-serif; background-color: var(--bg-color); height: 100%; overflow: hidden; user-select: none; }
@@ -16,18 +15,27 @@
         .tab-btn.active { background: #ffffff; color: #06C755; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         .pos-grid { display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(11, 1fr); gap: 4px; padding: 4px; background: #e2e8f0; height: calc(100% - var(--header-height) - var(--tab-height)); }
         .pos-item { background: #ffffff; border-radius: 6px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 13px; font-weight: 700; color: var(--text-main); cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+        .pos-item:active { transform: scale(0.94); background: #dcfce7; border-color: #06C755; }
+        .empty-row { background: transparent !important; box-shadow: none !important; cursor: default !important; color: transparent !important; }
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 200; }
         .modal-overlay.open { display: flex; }
         .modal-content { background: #fff; width: 100%; max-width: 400px; padding: 16px; border-radius: 20px 20px 0 0; max-height: 85vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 12px; }
+        .opt-title { font-size: 0.75rem; font-weight: 700; color: #94a3b8; margin-top: 10px; }
+        .opt-btns { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+        .opt-btn { background: #f1f5f9; padding: 6px 12px; border-radius: 14px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
+        .opt-btn.active { background: #dcfce7; border-color: #06C755; color: #06C755; }
+        .submit-btn { width: 100%; padding: 12px; background: #06C755; color: #fff; border: none; border-radius: 14px; font-weight: bold; margin-top: 15px; cursor: pointer; }
         #cart-panel { position: fixed; bottom: 84px; right: 16px; width: 360px; max-width: calc(100vw - 32px); background: #ffffff; border-radius: 16px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); padding: 16px; display: none; flex-direction: column; z-index: 100; }
         #cart-panel.open { display: flex; }
+        .cart-item-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
     <header class="app-header">
         <h1>🧋 員工快速點餐</h1>
-        <button id="cart-header-btn" onclick="toggleCart()">🛒 <span id="cartBadge" class="hidden">0</span></button>
+        <button id="cart-header-btn" onclick="toggleCart()" style="background:none; border:none; font-size:1.2rem; color:white;">🛒 <span id="cartBadge" class="hidden">0</span></button>
     </header>
 
     <div class="tab-bar">
@@ -38,59 +46,64 @@
 
     <div class="pos-grid" id="posGrid"></div>
 
+    <div class="modal-overlay" id="orderModal" onclick="if(event.target===this) this.classList.remove('open')">
+        <div class="modal-content">
+            <div class="modal-header"><h3 id="modalTitle"></h3><button onclick="this.closest('.modal-overlay').classList.remove('open')" style="border:none; background:none;">✕</button></div>
+            <div class="opt-title">大小</div><div class="opt-btns" id="sizeBtns"></div>
+            <div class="opt-title">冰塊</div><div class="opt-btns" id="iceBtns"></div>
+            <div class="opt-title">甜度</div><div class="opt-btns" id="sugarBtns"></div>
+            <div class="opt-title">加料</div><div class="opt-btns" id="toppingBtns"></div>
+            <button class="submit-btn" onclick="addToCart()">➕ 加入購物車</button>
+        </div>
+    </div>
+
+    <div id="cart-panel">
+        <div class="modal-header"><h3>🛒 購物車</h3><button onclick="toggleCart()" style="border:none; background:none;">✕</button></div>
+        <div id="cartList"></div>
+        <div style="font-weight:bold; font-size:1.2rem; margin:10px 0;">總計 <span id="cartTotal" style="color:#06C755;">$0</span></div>
+        <button class="submit-btn" onclick="alert('請先整合結帳功能')">✅ 發送至 LINE</button>
+    </div>
+
     <script>
-        // 核心設定
-        const LIFF_ID = "2010718024-5LLzGr1V";
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxxmhUzz5GIVwmi-CYd0jbZOIAAMoTsVztXzMvBYBRz5i8jrLptkw8eAR4vuawDKjgF/exec";
-
         let storeData = { products: {}, employeeView: { pages: [[], [], []] }, globalSettings: { ice: [], sugar: [], toppings: {} } };
+        let cart = []; let currentProduct = null; let selections = { size: 'L', ice: null, sugar: null, toppings: [] };
 
-        async function loadCloudData() {
-            try {
-                const res = await fetch(GAS_API_URL);
-                storeData = await res.json();
-                initGrid();
-                renderGrid(0);
-            } catch (e) { alert("雲端資料讀取失敗，請確認網路"); }
+        async function init() {
+            const res = await fetch(GAS_API_URL);
+            storeData = await res.json();
+            for(let i=0; i<3; i++) while(storeData.employeeView.pages[i].length < 60) storeData.employeeView.pages[i].push(null);
+            renderGrid(0);
         }
 
-        function initGrid() {
-            for(let i=0; i<3; i++) {
-                let page = storeData.employeeView.pages[i] || [];
-                while(page.length < 60) page.push(null);
-                storeData.employeeView.pages[i] = page;
-            }
-        }
-
-        function renderGrid(pageIndex) {
-            const grid = document.getElementById('posGrid');
-            grid.innerHTML = '';
-            const layout = storeData.employeeView.pages[pageIndex];
-            for (let i = 0; i < 66; i++) {
+        function renderGrid(pIdx) {
+            const grid = document.getElementById('posGrid'); grid.innerHTML = '';
+            storeData.employeeView.pages[pIdx].forEach((id, i) => {
                 const cell = document.createElement('div');
                 cell.className = 'pos-item';
-                if (i >= 60) { cell.classList.add('empty-row'); }
-                else {
-                    const itemId = layout[i];
-                    if (itemId && storeData.products[itemId]) {
-                        cell.textContent = storeData.products[itemId].name;
-                        cell.onclick = () => alert("即將整合點餐彈窗...");
-                    } else {
-                        cell.style.background = 'transparent'; cell.style.boxShadow = 'none';
-                    }
+                if (i >= 60) cell.classList.add('empty-row');
+                else if (id && storeData.products[id]) {
+                    cell.textContent = storeData.products[id].name;
+                    cell.onclick = () => openModal(id);
                 }
                 grid.appendChild(cell);
-            }
+            });
         }
 
-        function switchTab(index) {
-            document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', i === index));
-            renderGrid(index);
+        function openModal(id) {
+            currentProduct = storeData.products[id];
+            document.getElementById('modalTitle').textContent = currentProduct.name;
+            document.getElementById('orderModal').classList.add('open');
+            // 此處為測試點選功能
+        }
+
+        function switchTab(idx) {
+            document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+            renderGrid(idx);
         }
 
         function toggleCart() { document.getElementById('cart-panel').classList.toggle('open'); }
-
-        loadCloudData();
+        init();
     </script>
 </body>
 </html>
