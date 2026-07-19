@@ -291,51 +291,42 @@
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
 
     // ============================================================
-    // 從 index0719.html 搬過來的 26 個預設品項（5 個分類）
+    // 1. 定義本機預設品項（從 index0719 複製過來的 26 個品項）
     // ============================================================
+    const DEFAULT_ITEMS = [
+        { name: "特級綠茶", prices: { M: 25, L: 30 } },
+        { name: "烏龍綠茶", prices: { M: 25, L: 30 } },
+        { name: "錫蘭紅茶", prices: { M: 25, L: 30 } },
+        { name: "極品菁茶", prices: { M: 25, L: 30 } },
+        { name: "原鄉四季", prices: { M: 25, L: 30 } },
+        { name: "特選普洱", prices: { M: 25, L: 30 } },
+        { name: "高山烏龍", prices: { M: 25, L: 30 } },
+        { name: "奶茶", prices: { M: 40, L: 50 } },
+        { name: "奶綠", prices: { M: 40, L: 50 } },
+        { name: "烏龍奶茶", prices: { M: 40, L: 50 } },
+        { name: "珍珠奶茶", prices: { M: 45, L: 55 } },
+        { name: "布丁奶茶", prices: { M: 50, L: 60 } },
+        { name: "仙草凍奶茶", prices: { M: 50, L: 60 } },
+        { name: "暗黑水晶奶茶", prices: { M: 50, L: 60 } },
+        { name: "紅茶拿鐵", prices: { M: 55, L: 65 } },
+        { name: "綠茶拿鐵", prices: { M: 55, L: 65 } },
+        { name: "珍珠紅茶拿鐵", prices: { M: 60, L: 70 } },
+        { name: "珍珠絲滑鮮奶茶", prices: { M: 65, L: 75 } },
+        { name: "優多綠茶", prices: { M: 40, L: 50 } },
+        { name: "檸檬綠茶", prices: { M: 45, L: 55 } },
+        { name: "蜂蜜綠茶", prices: { M: 45, L: 55 } },
+        { name: "梅子綠茶", prices: { M: 40, L: 50 } },
+        { name: "蘋果醋", prices: { M: 45, L: 55 } },
+        { name: "冬瓜茶", prices: { M: 25, L: 30 } },
+        { name: "冬瓜檸檬", prices: { M: 40, L: 50 } },
+        { name: "冬瓜鮮奶", prices: { M: 45, L: 55 } }
+    ];
+
+    // 預設加料與營業時間
     const DEFAULT_TOPPING_PRICES = {
         M: { "珍珠": 5, "椰果": 5, "布丁": 15, "仙草凍": 5, "QQ": 5, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 },
         L: { "珍珠": 10, "椰果": 10, "布丁": 15, "仙草凍": 10, "QQ": 10, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 }
     };
-
-    const DEFAULT_MENU_DATA = [
-        { category: "茗品", items: [
-            { name: "特級綠茶", prices: { M: 25, L: 30 } },
-            { name: "烏龍綠茶", prices: { M: 25, L: 30 } },
-            { name: "錫蘭紅茶", prices: { M: 25, L: 30 } },
-            { name: "極品菁茶", prices: { M: 25, L: 30 } },
-            { name: "原鄉四季", prices: { M: 25, L: 30 } },
-            { name: "特選普洱", prices: { M: 25, L: 30 } },
-            { name: "高山烏龍", prices: { M: 25, L: 30 } }
-        ] },
-        { category: "奶茶", items: [
-            { name: "奶茶", prices: { M: 40, L: 50 } },
-            { name: "奶綠", prices: { M: 40, L: 50 } },
-            { name: "烏龍奶茶", prices: { M: 40, L: 50 } },
-            { name: "珍珠奶茶", prices: { M: 45, L: 55 } },
-            { name: "布丁奶茶", prices: { M: 50, L: 60 } },
-            { name: "仙草凍奶茶", prices: { M: 50, L: 60 } },
-            { name: "暗黑水晶奶茶", prices: { M: 50, L: 60 } }
-        ] },
-        { category: "鮮奶/拿鐵", items: [
-            { name: "紅茶拿鐵", prices: { M: 55, L: 65 } },
-            { name: "綠茶拿鐵", prices: { M: 55, L: 65 } },
-            { name: "珍珠紅茶拿鐵", prices: { M: 60, L: 70 } },
-            { name: "珍珠絲滑鮮奶茶", prices: { M: 65, L: 75 } }
-        ] },
-        { category: "特調", items: [
-            { name: "優多綠茶", prices: { M: 40, L: 50 } },
-            { name: "檸檬綠茶", prices: { M: 45, L: 55 } },
-            { name: "蜂蜜綠茶", prices: { M: 45, L: 55 } },
-            { name: "梅子綠茶", prices: { M: 40, L: 50 } },
-            { name: "蘋果醋", prices: { M: 45, L: 55 } }
-        ] },
-        { category: "冬瓜", items: [
-            { name: "冬瓜茶", prices: { M: 25, L: 30 } },
-            { name: "冬瓜檸檬", prices: { M: 40, L: 50 } },
-            { name: "冬瓜鮮奶", prices: { M: 45, L: 55 } }
-        ] }
-    ];
 
     const DEFAULT_HOURS = {
         1: { open: "09:00", close: "21:00", isClosed: false },
@@ -347,8 +338,26 @@
         0: { open: "09:00", close: "21:00", isClosed: false }
     };
 
-    // ===== 全域變數 =====
-    let menuData = JSON.parse(JSON.stringify(DEFAULT_MENU_DATA));
+    // ============================================================
+    // 2. 核心函數：將品項陣列均分為三大類（分類名稱固定）
+    // ============================================================
+    const CATEGORY_NAMES = ["📋 常用類", "🍹 特調·果醋", "🥛 鮮奶·加料"];
+
+    function buildMenuDataFromItems(items) {
+        // 複製品項並依名稱排序（讓順序固定）
+        const sorted = [...items].sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'));
+        const partSize = Math.ceil(sorted.length / 3);
+        return [
+            { category: CATEGORY_NAMES[0], items: sorted.slice(0, partSize) },
+            { category: CATEGORY_NAMES[1], items: sorted.slice(partSize, partSize * 2) },
+            { category: CATEGORY_NAMES[2], items: sorted.slice(partSize * 2) }
+        ];
+    }
+
+    // ============================================================
+    // 3. 全域變數與初始化
+    // ============================================================
+    let menuData = buildMenuDataFromItems(DEFAULT_ITEMS); // 初始為本機預設
     let toppingPrices = JSON.parse(JSON.stringify(DEFAULT_TOPPING_PRICES));
     let storeHours = JSON.parse(JSON.stringify(DEFAULT_HOURS));
     let isStoreCurrentlyClosed = false;
@@ -363,24 +372,46 @@
     let isEditMode = false;
     let dragSrcEl = null;
 
-    // ==========================================
-    // 從雲端載入（若有的話覆蓋本地，否則保留 26 個品項）
-    // ==========================================
+    // ============================================================
+    // 4. 雲端載入（與本地品項合併，永遠保留本地品項）
+    // ============================================================
     function loadCloudConfig() {
         fetch(GAS_API_URL)
             .then(r => r.json())
             .then(data => {
+                // 先複製本地品項
+                let allItems = [...DEFAULT_ITEMS];
+
+                // 如果有雲端資料，提取其品項（忽略分類）並合併
                 if (data && data.menu && data.menu.length > 0) {
-                    menuData = data.menu;
-                    if(data.toppings) toppingPrices = data.toppings;
-                    if(data.storeHours) storeHours = data.storeHours;
-                    saveAllToLocal();
+                    // 從雲端所有分類中收集品項
+                    const cloudItems = [];
+                    data.menu.forEach(cat => {
+                        if (cat.items && cat.items.length > 0) {
+                            cat.items.forEach(item => cloudItems.push(item));
+                        }
+                    });
+                    // 合併（以 name 為 key 去重，保留第一個出現的價格，但雲端優先？這裡簡單合併，名稱相同則覆蓋）
+                    const itemMap = new Map();
+                    allItems.forEach(item => itemMap.set(item.name, item));
+                    cloudItems.forEach(item => itemMap.set(item.name, item)); // 相同名稱以雲端為主（可調整）
+                    allItems = Array.from(itemMap.values());
                 }
+
+                // 重新分配到三大類
+                menuData = buildMenuDataFromItems(allItems);
+
+                // 更新加料與營業時間（雲端優先）
+                if (data && data.toppings) toppingPrices = data.toppings;
+                if (data && data.storeHours) storeHours = data.storeHours;
+
+                saveAllToLocal();
                 renderMenu();
                 checkStoreStatus();
             })
             .catch(err => {
-                console.error("無法連線雲端，使用本地 26 個品項", err);
+                console.error("無法連線雲端，僅使用本機 26 個品項", err);
+                // 保留本機 menuData
                 renderMenu();
                 checkStoreStatus();
             });
@@ -586,9 +617,9 @@
         dragSrcEl = null;
     });
 
-    // ==========================================
-    // 點餐功能（完整保留）
-    // ==========================================
+    // ============================================================
+    // 以下為原有點餐、購物車、訂單送出等功能（完整保留，未改動）
+    // ============================================================
     function openModal(item, cIdx, iIdx) {
         let defaultSize = item.prices.hasOwnProperty('L') ? 'L' : Object.keys(item.prices)[0];
         currentSelect = {
@@ -748,7 +779,6 @@
         document.getElementById('option-modal').style.display = 'none';
     }
 
-    // ===== 發票選項 =====
     function selectInvoiceOption(option) {
         invoiceOption = option;
         document.querySelectorAll('.invoice-option-btns label').forEach(el => el.classList.remove('active'));
@@ -774,7 +804,6 @@
         if (option === 'uniform') setTimeout(() => document.getElementById('invoice-number').focus(), 300);
     }
 
-    // ===== 購物車 =====
     function showCart() {
         document.getElementById('cart-modal').style.display = 'flex';
         document.getElementById('cart-closed-warning').style.display = isStoreCurrentlyClosed ? 'block' : 'none';
@@ -836,7 +865,6 @@
         updateCartUI();
     }
 
-    // ===== 訂單確認 =====
     function showConfirmModal() {
         if (cart.length === 0) return alert("購物車是空的喔！請先點餐。");
         let phone = document.getElementById('customer-phone').value.trim();
@@ -921,7 +949,6 @@
         updateCartUI();
     }
 
-    // ===== 送出訂單至 LINE =====
     async function sendToLine() {
         if (!liff.isInClient()) return alert("請在 LINE 聊天室內開啟此頁面，否則無法送出訂單。");
         if (!liff.isLoggedIn()) {
@@ -1057,7 +1084,7 @@
         }
     }
 
-    // 初始渲染
+    // ===== 初始渲染 =====
     renderMenu();
     checkStoreStatus();
 </script>
