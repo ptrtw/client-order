@@ -79,7 +79,7 @@
         .pos-item[draggable="true"] { cursor: grab; }
         .pos-item[draggable="true"]:active { cursor: grabbing; }
 
-        /* ===== 其餘原有樣式（Modal、購物車等） ===== */
+        /* ===== 其餘樣式（Modal、購物車等） ===== */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 2000; opacity: 1; animation: fadeIn 0.2s ease-out; }
         .modal-content { background: #ffffff; width: 100%; max-width: 600px; padding: 15px 15px; border-radius: 20px 20px 0 0; max-height: 90vh; overflow-y: auto; box-sizing: border-box; animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); position: relative; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -290,10 +290,54 @@
     const LIFF_ID = "2010718024-rc9ivBx5";
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
 
-    // ===== 全域變數 =====
-    let menuData = [];
-    let toppingPrices = {};
-    let storeHours = {
+    // ============================================================
+    // 從 index0719.html 搬過來的 26 個預設品項（5 個分類）
+    // ============================================================
+    const DEFAULT_TOPPING_PRICES = {
+        M: { "珍珠": 5, "椰果": 5, "布丁": 15, "仙草凍": 5, "QQ": 5, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 },
+        L: { "珍珠": 10, "椰果": 10, "布丁": 15, "仙草凍": 10, "QQ": 10, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 }
+    };
+
+    const DEFAULT_MENU_DATA = [
+        { category: "茗品", items: [
+            { name: "特級綠茶", prices: { M: 25, L: 30 } },
+            { name: "烏龍綠茶", prices: { M: 25, L: 30 } },
+            { name: "錫蘭紅茶", prices: { M: 25, L: 30 } },
+            { name: "極品菁茶", prices: { M: 25, L: 30 } },
+            { name: "原鄉四季", prices: { M: 25, L: 30 } },
+            { name: "特選普洱", prices: { M: 25, L: 30 } },
+            { name: "高山烏龍", prices: { M: 25, L: 30 } }
+        ] },
+        { category: "奶茶", items: [
+            { name: "奶茶", prices: { M: 40, L: 50 } },
+            { name: "奶綠", prices: { M: 40, L: 50 } },
+            { name: "烏龍奶茶", prices: { M: 40, L: 50 } },
+            { name: "珍珠奶茶", prices: { M: 45, L: 55 } },
+            { name: "布丁奶茶", prices: { M: 50, L: 60 } },
+            { name: "仙草凍奶茶", prices: { M: 50, L: 60 } },
+            { name: "暗黑水晶奶茶", prices: { M: 50, L: 60 } }
+        ] },
+        { category: "鮮奶/拿鐵", items: [
+            { name: "紅茶拿鐵", prices: { M: 55, L: 65 } },
+            { name: "綠茶拿鐵", prices: { M: 55, L: 65 } },
+            { name: "珍珠紅茶拿鐵", prices: { M: 60, L: 70 } },
+            { name: "珍珠絲滑鮮奶茶", prices: { M: 65, L: 75 } }
+        ] },
+        { category: "特調", items: [
+            { name: "優多綠茶", prices: { M: 40, L: 50 } },
+            { name: "檸檬綠茶", prices: { M: 45, L: 55 } },
+            { name: "蜂蜜綠茶", prices: { M: 45, L: 55 } },
+            { name: "梅子綠茶", prices: { M: 40, L: 50 } },
+            { name: "蘋果醋", prices: { M: 45, L: 55 } }
+        ] },
+        { category: "冬瓜", items: [
+            { name: "冬瓜茶", prices: { M: 25, L: 30 } },
+            { name: "冬瓜檸檬", prices: { M: 40, L: 50 } },
+            { name: "冬瓜鮮奶", prices: { M: 45, L: 55 } }
+        ] }
+    ];
+
+    const DEFAULT_HOURS = {
         1: { open: "09:00", close: "21:00", isClosed: false },
         2: { open: "09:00", close: "21:00", isClosed: false },
         3: { open: "09:00", close: "21:00", isClosed: false },
@@ -302,6 +346,11 @@
         6: { open: "09:00", close: "21:00", isClosed: false },
         0: { open: "09:00", close: "21:00", isClosed: false }
     };
+
+    // ===== 全域變數 =====
+    let menuData = JSON.parse(JSON.stringify(DEFAULT_MENU_DATA));
+    let toppingPrices = JSON.parse(JSON.stringify(DEFAULT_TOPPING_PRICES));
+    let storeHours = JSON.parse(JSON.stringify(DEFAULT_HOURS));
     let isStoreCurrentlyClosed = false;
     let invoiceOption = 'paper';
     let invoiceNumber = '';
@@ -315,45 +364,44 @@
     let dragSrcEl = null;
 
     // ==========================================
-    // 核心：從雲端抓取資料
+    // 從雲端載入（若有的話覆蓋本地，否則保留 26 個品項）
     // ==========================================
     function loadCloudConfig() {
         fetch(GAS_API_URL)
-        .then(r => r.json())
-        .then(data => {
-            if (data && data.menu && data.menu.length > 0) {
-                let allRealItems = [];
-                data.menu.forEach(cat => {
-                    if(cat.items && cat.items.length > 0) {
-                        allRealItems = allRealItems.concat(cat.items);
-                    }
-                });
-                // 隨機洗牌
-                for (let i = allRealItems.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [allRealItems[i], allRealItems[j]] = [allRealItems[j], allRealItems[i]];
+            .then(r => r.json())
+            .then(data => {
+                if (data && data.menu && data.menu.length > 0) {
+                    menuData = data.menu;
+                    if(data.toppings) toppingPrices = data.toppings;
+                    if(data.storeHours) storeHours = data.storeHours;
+                    saveAllToLocal();
                 }
-                let partSize = Math.ceil(allRealItems.length / 3);
-                menuData = [
-                    { category: "📋 常用類", items: allRealItems.slice(0, partSize) },
-                    { category: "🍹 特調·果醋", items: allRealItems.slice(partSize, partSize * 2) },
-                    { category: "🥛 鮮奶·加料", items: allRealItems.slice(partSize * 2) }
-                ];
-                if(data.toppings) toppingPrices = data.toppings;
-                if(data.storeHours) storeHours = data.storeHours;
                 renderMenu();
                 checkStoreStatus();
-            }
-        }).catch(err => {
-            console.error("無法連線雲端", err);
-            document.getElementById('menu-content').innerHTML = '<div style="padding:20px; text-align:center; color:red;">連線雲端菜單失敗，請重新整理頁面。</div>';
-        });
+            })
+            .catch(err => {
+                console.error("無法連線雲端，使用本地 26 個品項", err);
+                renderMenu();
+                checkStoreStatus();
+            });
     }
 
+    function saveAllToLocal() {
+        localStorage.setItem('pos_menu_custom', JSON.stringify(menuData));
+        localStorage.setItem('pos_store_hours', JSON.stringify(storeHours));
+        localStorage.setItem('pos_toppings_custom', JSON.stringify(toppingPrices));
+    }
+
+    // ===== LIFF 初始化 =====
     liff.init({ liffId: LIFF_ID }).then(() => {
-        if (!liff.isLoggedIn()) liff.login();
-        else loadCloudConfig();
-    }).catch(() => loadCloudConfig());
+        if (!liff.isLoggedIn()) {
+            liff.login();
+        } else {
+            loadCloudConfig();
+        }
+    }).catch(() => {
+        loadCloudConfig();
+    });
 
     // ===== 營業時間檢查 =====
     function checkStoreStatus() {
@@ -394,7 +442,7 @@
         try { localStorage.setItem('pos_cart_data', JSON.stringify(cart)); } catch(e) {}
     }
 
-    // ===== 渲染選單（含儲存佈局套用） =====
+    // ===== 渲染選單（6欄） =====
     function renderMenu() {
         const container = document.getElementById('menu-content');
         const nav = document.getElementById('nav-bar');
@@ -428,14 +476,14 @@
                 el.dataset.category = 'cat-'+cIdx;
                 el.onclick = () => {
                     if(isStoreCurrentlyClosed) { alert("目前非營業時間，暫不開放點餐！"); return; }
-                    openModal(item, cIdx, 0); // 第三參數不再使用，僅傳遞物品
+                    openModal(item, cIdx, 0);
                 };
                 grid.appendChild(el);
             });
             container.appendChild(grid);
         });
 
-        // 套用儲存的佈局順序
+        // 套用儲存的佈局
         applyStoredLayout();
 
         // 若目前是編輯模式，重新設定 draggable
@@ -444,31 +492,63 @@
         }
     }
 
-    // ===== 儲存與套用佈局 =====
+    // ===== 儲存與套用佈局（跨分類） =====
     function saveLayout() {
+        const layout = {};
         document.querySelectorAll('.menu-grid').forEach(grid => {
             const items = Array.from(grid.querySelectorAll('.pos-item')).map(el => el.innerText);
-            localStorage.setItem('employee_layout_' + grid.id, JSON.stringify(items));
+            layout[grid.id] = items;
         });
+        localStorage.setItem('employee_layout', JSON.stringify(layout));
     }
 
     function applyStoredLayout() {
-        document.querySelectorAll('.menu-grid').forEach(grid => {
-            const key = 'employee_layout_' + grid.id;
-            const stored = localStorage.getItem(key);
-            if (!stored) return;
-            try {
-                const order = JSON.parse(stored);
-                if (!Array.isArray(order) || order.length === 0) return;
-                const items = grid.querySelectorAll('.pos-item');
-                const itemMap = new Map();
-                items.forEach(el => itemMap.set(el.innerText, el));
-                order.forEach(name => {
-                    const el = itemMap.get(name);
-                    if (el) grid.appendChild(el);
+        const stored = localStorage.getItem('employee_layout');
+        if (!stored) return;
+        try {
+            const layout = JSON.parse(stored);
+            const allItems = document.querySelectorAll('.pos-item');
+            const allMap = new Map();
+            allItems.forEach(el => allMap.set(el.innerText, el));
+
+            document.querySelectorAll('.menu-grid').forEach(grid => grid.innerHTML = '');
+
+            Object.keys(layout).forEach(gridId => {
+                const grid = document.getElementById(gridId);
+                if (!grid) return;
+                const names = layout[gridId] || [];
+                names.forEach(name => {
+                    const el = allMap.get(name);
+                    if (el) {
+                        grid.appendChild(el);
+                        allMap.delete(name);
+                    }
                 });
-            } catch(e) { /* ignore */ }
-        });
+            });
+
+            // 未分配的元素（新品項）放回所屬分類
+            if (allMap.size > 0) {
+                menuData.forEach((cat, idx) => {
+                    const gridId = 'cat-'+idx;
+                    const grid = document.getElementById(gridId);
+                    if (!grid) return;
+                    const catItemNames = cat.items.map(item => item.name);
+                    catItemNames.forEach(name => {
+                        const el = allMap.get(name);
+                        if (el) {
+                            grid.appendChild(el);
+                            allMap.delete(name);
+                        }
+                    });
+                });
+                if (allMap.size > 0) {
+                    const firstGrid = document.querySelector('.menu-grid');
+                    if (firstGrid) {
+                        allMap.forEach(el => firstGrid.appendChild(el));
+                    }
+                }
+            }
+        } catch(e) { /* ignore */ }
     }
 
     // ===== 編輯模式切換 =====
@@ -481,10 +561,10 @@
         });
         const btn = document.querySelector('.edit-toggle-btn');
         btn.innerText = isEditMode ? '🔒 鎖定' : '✏️ 編輯';
-        alert(isEditMode ? "進入編輯模式：請拖曳飲料方塊調整順序（限同一分類內）" : "已鎖定排版");
+        alert(isEditMode ? "進入編輯模式：可自由拖曳飲料方塊調整順序（可跨分類）" : "已鎖定排版");
     }
 
-    // ===== 拖曳事件（事件委派） =====
+    // ===== 拖曳事件 =====
     document.getElementById('menu-content').addEventListener('dragstart', function(e) {
         const target = e.target.closest('.pos-item');
         if (!target) return;
@@ -500,26 +580,15 @@
         e.preventDefault();
         const target = e.target.closest('.pos-item');
         if (!target || !dragSrcEl) return;
-        if (dragSrcEl.parentNode !== target.parentNode) {
-            alert('只能在同一分類內拖曳交換喔！');
-            return;
-        }
-        if (dragSrcEl !== target) {
-            if (dragSrcEl.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING) {
-                target.parentNode.insertBefore(dragSrcEl, target.nextSibling);
-            } else {
-                target.parentNode.insertBefore(dragSrcEl, target);
-            }
-            saveLayout();
-        }
+        if (dragSrcEl === target) { dragSrcEl = null; return; }
+        target.parentNode.insertBefore(dragSrcEl, target);
+        saveLayout();
         dragSrcEl = null;
     });
 
     // ==========================================
-    // 以下為原有點餐功能（完整保留）
+    // 點餐功能（完整保留）
     // ==========================================
-
-    // 開啟點餐彈窗
     function openModal(item, cIdx, iIdx) {
         let defaultSize = item.prices.hasOwnProperty('L') ? 'L' : Object.keys(item.prices)[0];
         currentSelect = {
@@ -583,7 +652,6 @@
         updateOptionPrice();
     }
 
-    // 更新價格顯示
     function updateOptionPrice() {
         if (!currentSelect.item || !currentSelect.size) return;
         const basePrice = currentSelect.item.prices[currentSelect.size] || 0;
@@ -598,7 +666,6 @@
         document.getElementById('option-price-value').innerText = basePrice + toppingCost;
     }
 
-    // 渲染選項按鈕
     function renderBtns(containerId, options, callback, defaultVal) {
         const container = document.getElementById(containerId);
         container.innerHTML = '';
@@ -633,7 +700,6 @@
         });
     }
 
-    // 渲染加料選項
     function renderToppings(item, size) {
         const container = document.getElementById('topping-btns');
         container.innerHTML = '';
@@ -658,13 +724,11 @@
         });
     }
 
-    // 改變數量
     function changeQty(diff) {
         currentSelect.qty = Math.max(1, currentSelect.qty + diff);
         document.getElementById('item-qty').innerText = currentSelect.qty;
     }
 
-    // 加入購物車
     function confirmAddToCart() {
         if(!currentSelect.size || !currentSelect.ice || !currentSelect.sugar) {
             alert("請完整選擇所有選項（大小/冰塊/甜度）");
@@ -684,7 +748,7 @@
         document.getElementById('option-modal').style.display = 'none';
     }
 
-    // 發票選項切換
+    // ===== 發票選項 =====
     function selectInvoiceOption(option) {
         invoiceOption = option;
         document.querySelectorAll('.invoice-option-btns label').forEach(el => el.classList.remove('active'));
@@ -710,7 +774,7 @@
         if (option === 'uniform') setTimeout(() => document.getElementById('invoice-number').focus(), 300);
     }
 
-    // 顯示購物車
+    // ===== 購物車 =====
     function showCart() {
         document.getElementById('cart-modal').style.display = 'flex';
         document.getElementById('cart-closed-warning').style.display = isStoreCurrentlyClosed ? 'block' : 'none';
@@ -719,7 +783,6 @@
         updateCartUI();
     }
 
-    // 更新購物車 UI
     function updateCartUI() {
         const list = document.getElementById('cart-list');
         list.innerHTML = '';
@@ -762,20 +825,18 @@
         document.getElementById('cart-total').innerText = finalTotal;
     }
 
-    // 移除購物車項目
     function removeFromCart(index) {
         cart.splice(index, 1);
         updateCounter();
         updateCartUI();
     }
 
-    // 切換外送地址顯示
     function toggleDeliveryAddress(show) {
         document.getElementById('address-container').style.display = show ? 'block' : 'none';
         updateCartUI();
     }
 
-    // 顯示確認訂單 Modal
+    // ===== 訂單確認 =====
     function showConfirmModal() {
         if (cart.length === 0) return alert("購物車是空的喔！請先點餐。");
         let phone = document.getElementById('customer-phone').value.trim();
@@ -829,7 +890,6 @@
         document.getElementById('confirm-modal').style.display = 'flex';
     }
 
-    // 渲染確認訂單內容
     function renderConfirmModal(data) {
         const listContainer = document.getElementById('confirm-order-list');
         listContainer.innerHTML = '';
@@ -855,14 +915,13 @@
         document.getElementById('confirm-total-amount').innerText = `$${data.finalTotal}`;
     }
 
-    // 關閉確認訂單
     function closeConfirmModal() {
         document.getElementById('confirm-modal').style.display = 'none';
         document.getElementById('cart-modal').style.display = 'flex';
         updateCartUI();
     }
 
-    // 送出訂單至 LINE
+    // ===== 送出訂單至 LINE =====
     async function sendToLine() {
         if (!liff.isInClient()) return alert("請在 LINE 聊天室內開啟此頁面，否則無法送出訂單。");
         if (!liff.isLoggedIn()) {
@@ -997,6 +1056,10 @@
             alert("傳送失敗：" + (err.message || JSON.stringify(err)));
         }
     }
+
+    // 初始渲染
+    renderMenu();
+    checkStoreStatus();
 </script>
 </body>
 </html>
