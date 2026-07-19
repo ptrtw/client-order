@@ -32,6 +32,7 @@
             user-select: none;
         }
 
+        /* ===== 標題列 ===== */
         .app-header {
             background: var(--brand-color);
             color: white;
@@ -85,6 +86,7 @@
             background: rgba(255,255,255,0.35);
         }
 
+        /* ===== 購物車按鈕（右上角） ===== */
         #cart-header-btn {
             background: rgba(255,255,255,0.2);
             border: none;
@@ -123,6 +125,7 @@
             display: none;
         }
 
+        /* ===== 三大分類 Tab ===== */
         .tab-bar {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -156,6 +159,7 @@
             transform: scale(0.95);
         }
 
+        /* ===== 6x11 商品網格 ===== */
         .pos-grid {
             flex: 1;
             display: grid;
@@ -215,6 +219,7 @@
             display: none !important;
         }
 
+        /* ===== 購物車面板 ===== */
         #cart-panel {
             position: fixed;
             bottom: 84px;
@@ -322,6 +327,7 @@
             flex-shrink: 0;
         }
 
+        /* ===== 訂單欄位 ===== */
         .order-fields {
             display: flex;
             flex-direction: column;
@@ -416,6 +422,7 @@
             background: #ffffff;
         }
 
+        /* ===== 外送地址（預設隱藏） ===== */
         #address-container {
             display: none;
         }
@@ -488,6 +495,7 @@
             display: flex;
         }
 
+        /* ===== 點餐彈窗 ===== */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -691,6 +699,7 @@
             transform: translate(-50%, -50%) scale(1);
         }
 
+        /* ===== 後台管理彈窗 ===== */
         .admin-modal {
             position: fixed;
             top: 0;
@@ -912,6 +921,7 @@
             font-size: 0.7rem;
         }
 
+        /* ===== 編輯品項彈窗（專屬加料管理） ===== */
         #editItemModal {
             z-index: 600 !important;
         }
@@ -1042,6 +1052,7 @@
             transform: scale(0.97);
         }
 
+        /* ===== 自適應 ===== */
         @media (max-width: 380px) {
             .pos-item {
                 font-size: 11px;
@@ -1134,6 +1145,7 @@
 </head>
 <body>
 
+    <!-- ===== 標題列 ===== -->
     <header class="app-header">
         <h1>🧋 快速點餐</h1>
         <div class="header-right">
@@ -1147,14 +1159,17 @@
         </div>
     </header>
 
+    <!-- ===== 三大分類 Tab ===== -->
     <div class="tab-bar" id="tabBar">
         <button class="tab-btn active" data-tab="0">📋 常用類</button>
         <button class="tab-btn" data-tab="1">🍹 特調·果醋</button>
         <button class="tab-btn" data-tab="2">🥛 鮮奶·加料</button>
     </div>
 
+    <!-- ===== 6x11 商品網格 ===== -->
     <div class="pos-grid" id="posGrid"></div>
 
+    <!-- ===== 購物車面板 ===== -->
     <div id="cart-panel">
         <div class="panel-header">
             <span>🛒 購物車</span>
@@ -1174,6 +1189,7 @@
             <div class="empty-cart">購物車是空的</div>
         </div>
 
+        <!-- ===== 訂單資訊欄位 ===== -->
         <div class="order-fields">
             <div class="field-row">
                 <span class="field-label">📞 電話</span>
@@ -1221,6 +1237,7 @@
         </div>
     </div>
 
+    <!-- ===== 點餐彈窗 ===== -->
     <div class="modal-overlay" id="orderModal" onclick="if(event.target===this) closeModal()">
         <div class="modal-content">
             <div class="modal-header">
@@ -1264,6 +1281,7 @@
         </div>
     </div>
 
+    <!-- ===== 後台管理彈窗 ===== -->
     <div class="admin-modal" id="adminModal">
         <div class="admin-box">
             <div class="admin-header">
@@ -1276,6 +1294,7 @@
                 <button data-tab="adminGlobal">🌐 全域設定</button>
             </div>
 
+            <!-- 品項管理 -->
             <div class="admin-section active" id="adminItems">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                     <span style="font-size:0.85rem; font-weight:700;">品項列表</span>
@@ -1293,6 +1312,7 @@
                 </div>
             </div>
 
+            <!-- 頁面配置 -->
             <div class="admin-section" id="adminLayout">
                 <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:6px;">點擊格子選擇品項（6×11）</div>
                 <div class="page-tabs" id="adminLayoutPages">
@@ -1311,6 +1331,7 @@
                 </div>
             </div>
 
+            <!-- 全域設定 -->
             <div class="admin-section" id="adminGlobal">
                 <div style="font-size:0.75rem; font-weight:600; color:#64748b; margin-bottom:4px;">🧊 冰塊選項</div>
                 <div class="tag-group" id="adminIceTags" style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px;"></div>
@@ -1341,9 +1362,13 @@
         </div>
     </div>
 
+    <!-- ===== Toast ===== -->
     <div class="toast" id="toast"></div>
+
+    <!-- ===== 隱藏的上傳 input ===== -->
     <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="adminHandleImport(event)">
 
+    <!-- ===== 編輯品項彈窗（專屬加料管理） ===== -->
     <div class="modal-overlay" id="editItemModal" onclick="if(event.target===this) closeEditItemModal()">
         <div class="modal-content">
             <div class="modal-header">
@@ -1351,6 +1376,7 @@
                 <button class="close-btn" onclick="closeEditItemModal()">✕</button>
             </div>
 
+            <!-- 基本資料 -->
             <div class="form-group">
                 <label>品項名稱</label>
                 <input type="text" id="editItemName" placeholder="請輸入品項名稱">
@@ -1369,18 +1395,22 @@
 
             <hr style="border:0; border-top:2px solid #f1f5f9; margin:12px 0;">
 
+            <!-- 加料管理 -->
             <div style="font-size:0.85rem; font-weight:700; color:#1e293b; margin-bottom:8px;">🧋 加料管理</div>
 
+            <!-- 從全域加料勾選 -->
             <div style="margin-bottom:10px;">
                 <div style="font-size:0.7rem; font-weight:600; color:#64748b; margin-bottom:4px;">從全域加料列表中選擇</div>
                 <div class="edit-global-toppings" id="editItemGlobalToppings"></div>
             </div>
 
+            <!-- 專屬加料清單 -->
             <div style="margin-bottom:10px;">
                 <div style="font-size:0.7rem; font-weight:600; color:#64748b; margin-bottom:4px;">專屬加料清單</div>
                 <div class="edit-topping-list" id="editItemToppingList"></div>
             </div>
 
+            <!-- 新增專屬加料 -->
             <div class="add-topping-area">
                 <div style="font-size:0.7rem; font-weight:600; color:#64748b; margin-bottom:4px;">➕ 新增專屬加料</div>
                 <div class="add-row">
@@ -1398,11 +1428,18 @@
     </div>
 
     <script>
+        // =============================================
+        // LIFF ID
+        // =============================================
         const LIFF_ID = "2010718024-5LLzGr1V";
+
+        // =============================================
+        // GAS 雲端網址（沿用原本的）
+        // =============================================
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
 
         // =============================================
-        // 加料價格（取自客戶端，與原預設相同）
+        // 加料價格
         // =============================================
         const DEFAULT_TOPPINGS = {
             M: { '珍珠': 5, '椰果': 5, '布丁': 15, '仙草凍': 5, 'QQ': 5, '咖啡凍': 15, '蘆薈': 20, '茉綠茶凍': 10 },
@@ -1410,39 +1447,135 @@
         };
 
         // =============================================
-        // 完整品項資料庫（已轉換自客戶端 menuData）
-        // 分類映射：page 0 = 茗品+冬瓜, page 1 = 奶茶+特調, page 2 = 鮮奶/拿鐵
+        // 完整品項資料庫
         // =============================================
         const DEFAULT_ITEMS = [
-            // page 0: 茗品 + 冬瓜
             { id: 'item_001', name: '特級綠茶', M: 25, L: 30, page: 0 },
-            { id: 'item_002', name: '烏龍綠茶', M: 25, L: 30, page: 0 },
-            { id: 'item_003', name: '錫蘭紅茶', M: 25, L: 30, page: 0 },
-            { id: 'item_004', name: '極品菁茶', M: 25, L: 30, page: 0 },
-            { id: 'item_005', name: '原鄉四季', M: 25, L: 30, page: 0 },
-            { id: 'item_006', name: '特選普洱', M: 25, L: 30, page: 0 },
-            { id: 'item_007', name: '高山烏龍', M: 25, L: 30, page: 0 },
-            { id: 'item_008', name: '冬瓜茶', M: 25, L: 30, page: 0 },
-            { id: 'item_009', name: '冬瓜檸檬', M: 40, L: 50, page: 0 },
-            { id: 'item_010', name: '冬瓜鮮奶', M: 45, L: 55, page: 0 },
-            // page 1: 奶茶 + 特調
-            { id: 'item_011', name: '奶茶', M: 40, L: 50, page: 1 },
-            { id: 'item_012', name: '奶綠', M: 40, L: 50, page: 1 },
-            { id: 'item_013', name: '烏龍奶茶', M: 40, L: 50, page: 1 },
-            { id: 'item_014', name: '珍珠奶茶', M: 45, L: 55, page: 1 },
-            { id: 'item_015', name: '布丁奶茶', M: 50, L: 60, page: 1 },
-            { id: 'item_016', name: '仙草凍奶茶', M: 50, L: 60, page: 1 },
-            { id: 'item_017', name: '暗黑水晶奶茶', M: 50, L: 60, page: 1 },
-            { id: 'item_018', name: '優多綠茶', M: 40, L: 50, page: 1 },
-            { id: 'item_019', name: '檸檬綠茶', M: 45, L: 55, page: 1 },
-            { id: 'item_020', name: '蜂蜜綠茶', M: 45, L: 55, page: 1 },
-            { id: 'item_021', name: '梅子綠茶', M: 40, L: 50, page: 1 },
-            { id: 'item_022', name: '蘋果醋', M: 45, L: 55, page: 1 },
-            // page 2: 鮮奶/拿鐵
-            { id: 'item_023', name: '紅茶拿鐵', M: 55, L: 65, page: 2 },
-            { id: 'item_024', name: '綠茶拿鐵', M: 55, L: 65, page: 2 },
-            { id: 'item_025', name: '珍珠紅茶拿鐵', M: 60, L: 70, page: 2 },
-            { id: 'item_026', name: '珍珠絲滑鮮奶茶', M: 65, L: 75, page: 2 },
+            { id: 'item_002', name: '特級奶綠', M: 40, L: 50, page: 0 },
+            { id: 'item_003', name: '珍珠奶茶', M: 45, L: 55, page: 0 },
+            { id: 'item_004', name: '布丁奶茶', M: 50, L: 60, page: 0 },
+            { id: 'item_005', name: '蜜茶', M: 30, L: 40, page: 0 },
+            { id: 'item_006', name: '隱藏版', M: 50, L: 65, page: 0 },
+            { id: 'item_007', name: '@綠+紅', M: 40, L: 50, page: 0 },
+            { id: 'item_008', name: '粉圓奶茶', M: 50, L: 60, page: 0 },
+            { id: 'item_009', name: '茶凍奶綠', M: 50, L: 60, page: 0 },
+            { id: 'item_010', name: '蜂蜜綠茶', M: 45, L: 55, page: 0 },
+            { id: 'item_011', name: '鮮奶茶', M: 55, L: 65, page: 0 },
+            { id: 'item_012', name: '紅茶拿鐵', M: 55, L: 65, page: 0 },
+            { id: 'item_013', name: '極品菁茶', M: 25, L: 30, page: 0 },
+            { id: 'item_014', name: '極品奶菁', M: 40, L: 50, page: 0 },
+            { id: 'item_015', name: '椰果奶茶', M: 50, L: 60, page: 0 },
+            { id: 'item_016', name: '琥珀黑糖奶茶', M: 55, L: 70, page: 0 },
+            { id: 'item_017', name: '蜂蜜烏龍鮮奶茶', M: 60, L: 70, page: 0 },
+            { id: 'item_018', name: '鳳嶺高山', M: 25, L: 30, page: 0 },
+            { id: 'item_019', name: '鳳嶺奶高', M: 40, L: 50, page: 0 },
+            { id: 'item_020', name: '仙草凍奶茶', M: 50, L: 60, page: 0 },
+            { id: 'item_021', name: '相思紅豆奶茶', M: 55, L: 65, page: 0 },
+            { id: 'item_022', name: '梅子綠茶', M: 40, L: 50, page: 0 },
+            { id: 'item_023', name: '原鄉四季', M: 25, L: 30, page: 0 },
+            { id: 'item_024', name: '四季奶茶', M: 40, L: 50, page: 0 },
+            { id: 'item_025', name: '咖啡凍奶茶', M: 55, L: 65, page: 0 },
+            { id: 'item_026', name: '醇蜜普洱茶', M: 50, L: 60, page: 0 },
+            { id: 'item_027', name: '情人茶', M: 40, L: 50, page: 0 },
+            { id: 'item_028', name: '茉綠茶凍拿鐵', M: 60, L: 70, page: 0 },
+            { id: 'item_029', name: '烏龍綠茶', M: 25, L: 30, page: 0 },
+            { id: 'item_030', name: '烏龍奶茶', M: 40, L: 50, page: 0 },
+            { id: 'item_031', name: '蜂蜜奶茶', M: 45, L: 55, page: 0 },
+            { id: 'item_032', name: '咖啡奶茶', M: 45, L: 55, page: 0 },
+            { id: 'item_033', name: '檸檬汁', M: 35, L: 45, page: 0 },
+            { id: 'item_034', name: '雙凍拿鐵', M: 65, L: 75, page: 0 },
+            { id: 'item_035', name: '錫蘭紅茶', M: 25, L: 30, page: 0 },
+            { id: 'item_036', name: '錫蘭奶紅', M: 40, L: 50, page: 0 },
+            { id: 'item_037', name: '芝麻奶茶', M: 55, L: 65, page: 0 },
+            { id: 'item_038', name: '檸檬綠茶', M: 45, L: 55, page: 0 },
+            { id: 'item_039', name: '珍珠琥珀黑糖鮮奶', M: 65, L: 75, page: 0 },
+            { id: 'item_040', name: '特選普洱', M: 25, L: 30, page: 0 },
+            { id: 'item_041', name: '普洱奶茶', M: 40, L: 50, page: 0 },
+            { id: 'item_042', name: '冬瓜茶', M: 25, L: 30, page: 0 },
+            { id: 'item_043', name: '荔枝紅茶', M: 40, L: 50, page: 0 },
+            { id: 'item_044', name: '蜂蜜檸檬', M: 45, L: 55, page: 0 },
+            { id: 'item_045', name: '烏龍菁茶', M: 25, L: 30, page: 0 },
+            { id: 'item_046', name: '冬瓜菁茶', M: 25, L: 30, page: 0 },
+            { id: 'item_047', name: '頂級可可', M: 55, L: 65, page: 0 },
+            { id: 'item_048', name: '金桔檸檬', M: 45, L: 55, page: 0 },
+            { id: 'item_049', name: '蜜桃凍紅茶', M: 50, L: 60, page: 0 },
+            { id: 'item_050', name: '優多綠茶', M: 40, L: 50, page: 0 },
+            { id: 'item_051', name: '冬瓜檸檬', M: 40, L: 50, page: 0 },
+            { id: 'item_052', name: '濃情巧克力', M: 60, L: 70, page: 0 },
+            { id: 'item_053', name: '柳橙綠', M: 45, L: 55, page: 0 },
+            { id: 'item_055', name: '冰淇淋紅茶', M: 45, L: 55, page: 1 },
+            { id: 'item_056', name: '果醋紅茶', M: 45, L: 55, page: 1 },
+            { id: 'item_057', name: '藍莓果醋', M: 50, L: 60, page: 1 },
+            { id: 'item_058', name: '桔茶', M: 45, L: 55, page: 1 },
+            { id: 'item_059', name: '百香果綠茶', M: 45, L: 55, page: 1 },
+            { id: 'item_060', name: '優多檸檬', M: 45, L: 55, page: 1 },
+            { id: 'item_061', name: '冰淇淋奶茶', M: 50, L: 65, page: 1 },
+            { id: 'item_062', name: '果醋蜂蜜', M: 50, L: 60, page: 1 },
+            { id: 'item_063', name: '藍莓果醋柳橙汁', M: 55, L: 65, page: 1 },
+            { id: 'item_064', name: '百香果紅茶', M: 45, L: 55, page: 1 },
+            { id: 'item_065', name: '紅柚茶凍', M: 55, L: 65, page: 1 },
+            { id: 'item_066', name: '優多二兄弟紅茶', M: 50, L: 60, page: 1 },
+            { id: 'item_067', name: '藍莓醋紅茶', M: 50, L: 60, page: 1 },
+            { id: 'item_068', name: '紅心芭樂檸檬', M: 50, L: 60, page: 1 },
+            { id: 'item_069', name: '甘藍金桔', M: 45, L: 55, page: 1 },
+            { id: 'item_070', name: '藍莓醋優多', M: 55, L: 65, page: 1 },
+            { id: 'item_071', name: '藍莓醋優多綠茶', M: 55, L: 65, page: 1 },
+            { id: 'item_072', name: '藍莓甘藍四季', M: 50, L: 60, page: 1 },
+            { id: 'item_073', name: 'Red Bull 能量優多', M: 60, L: 70, page: 1 },
+            { id: 'item_074', name: '巨峰葡萄紅茶', M: 50, L: 60, page: 1 },
+            { id: 'item_075', name: '蜂蜜妃唱美荔', M: 55, L: 65, page: 1 },
+            { id: 'item_076', name: '皇梨紅茶', M: 50, L: 60, page: 1 },
+            { id: 'item_077', name: '甘藍菁茶', M: 45, L: 55, page: 1 },
+            { id: 'item_078', name: 'Red Bull 百香果綠茶', M: 60, L: 70, page: 1 },
+            { id: 'item_079', name: '能量果醋', M: 55, L: 65, page: 1 },
+            { id: 'item_080', name: '巨峰葡萄紅茶(2)', M: 50, L: 60, page: 1 },
+            { id: 'item_081', name: '藍莓醋檸檬汁', M: 55, L: 65, page: 1 },
+            { id: 'item_082', name: '紅柚綠茶', M: 50, L: 60, page: 1 },
+            { id: 'item_083', name: '紅心芭樂優多', M: 55, L: 65, page: 1 },
+            { id: 'item_084', name: 'Red Bull 紅牛能量紅茶', M: 60, L: 70, page: 1 },
+            { id: 'item_085', name: '荔枝果', M: 45, L: 55, page: 1 },
+            { id: 'item_086', name: '檸檬綠茶(2)', M: 45, L: 55, page: 1 },
+            { id: 'item_087', name: '紅柚優多莓莓', M: 60, L: 70, page: 1 },
+            { id: 'item_088', name: '紅牛能量藍莓蜜', M: 60, L: 70, page: 1 },
+            { id: 'item_089', name: '能量美荔', M: 60, L: 70, page: 1 },
+            { id: 'item_090', name: '巨峰葡萄 Red Bull', M: 65, L: 75, page: 1 },
+            { id: 'item_091', name: '100%鮮奶', M: 40, L: 50, page: 2 },
+            { id: 'item_092', name: '珍珠（單）', M: 10, L: 15, page: 2 },
+            { id: 'item_093', name: '芝麻粉（單）', M: 15, L: 20, page: 2 },
+            { id: 'item_094', name: '桂圓茶', M: 35, L: 45, page: 2 },
+            { id: 'item_095', name: '芝麻拿鐵', M: 60, L: 70, page: 2 },
+            { id: 'item_096', name: '隱藏版(936ml)', M: 65, L: 80, page: 2 },
+            { id: 'item_097', name: '粉圓（單）', M: 10, L: 15, page: 2 },
+            { id: 'item_098', name: '優多（單）', M: 15, L: 20, page: 2 },
+            { id: 'item_099', name: '桂圓可可拿鐵', M: 65, L: 75, page: 2 },
+            { id: 'item_100', name: '椰果（單）', M: 10, L: 15, page: 2 },
+            { id: 'item_101', name: '紅牛能量（單）', M: 20, L: 25, page: 2 },
+            { id: 'item_102', name: '藍藍好茶', M: 50, L: 60, page: 2 },
+            { id: 'item_103', name: '激情拿鐵', M: 60, L: 70, page: 2 },
+            { id: 'item_104', name: '鮮奶茶(2)', M: 55, L: 65, page: 2 },
+            { id: 'item_105', name: '仙草（單）', M: 10, L: 15, page: 2 },
+            { id: 'item_106', name: '巨峰葡萄能量（單）', M: 20, L: 25, page: 2 },
+            { id: 'item_107', name: '藍藍奶茶', M: 55, L: 65, page: 2 },
+            { id: 'item_108', name: '厚芋頭鮮奶', M: 60, L: 70, page: 2 },
+            { id: 'item_109', name: '粉圓相思紅豆（單）', M: 15, L: 20, page: 2 },
+            { id: 'item_110', name: '杏仁奶白', M: 50, L: 60, page: 2 },
+            { id: 'item_111', name: '粉蔥莓莓', M: 55, L: 65, page: 2 },
+            { id: 'item_112', name: '茉綠茶凍拿鐵(2)', M: 60, L: 70, page: 2 },
+            { id: 'item_113', name: '茶凍（單）', M: 10, L: 15, page: 2 },
+            { id: 'item_114', name: '窈窕的杏仁鮮奶白', M: 60, L: 70, page: 2 },
+            { id: 'item_115', name: '相思紅豆鮮奶茶', M: 60, L: 70, page: 2 },
+            { id: 'item_116', name: '藍菁（單）', M: 10, L: 15, page: 2 },
+            { id: 'item_117', name: '白銀杏仁', M: 55, L: 65, page: 2 },
+            { id: 'item_118', name: '頂級可可(2)', M: 55, L: 65, page: 2 },
+            { id: 'item_119', name: '鮮奶冬瓜', M: 45, L: 55, page: 2 },
+            { id: 'item_120', name: '布丁（單）', M: 15, L: 20, page: 2 },
+            { id: 'item_121', name: '冰瑰', M: 50, L: 60, page: 2 },
+            { id: 'item_122', name: '甘蔗鮮奶', M: 50, L: 60, page: 2 },
+            { id: 'item_123', name: '冰淇淋（單）', M: 10, L: null, page: 2 },
+            { id: 'item_124', name: '茶葉蛋', M: 10, L: null, page: 2 },
+            { id: 'item_125', name: '雙倍蜜桃鮮奶茶', M: 65, L: 75, page: 2 },
+            { id: 'item_126', name: '水晶（單）', M: 15, L: 20, page: 2 },
+            { id: 'item_127', name: '荔枝白珍珠白', M: 55, L: 65, page: 2 },
         ];
 
         // =============================================
@@ -1484,14 +1617,19 @@
                 if (!liff.isLoggedIn()) {
                     liff.login();
                 } else {
+                    // 從雲端載入最新資料
                     loadCloudConfig();
                 }
             })
             .catch(err => {
                 console.error('LIFF 初始化失敗', err);
+                // 無法初始化時仍嘗試載入
                 loadCloudConfig();
             });
 
+        // =============================================
+        // 從 GAS 雲端載入資料
+        // =============================================
         function loadCloudConfig() {
             fetch(GAS_API_URL)
                 .then(r => r.json())
@@ -1505,6 +1643,7 @@
                         if (data.globalToppings) globalToppings = data.globalToppings;
                         if (data.toppingPrices) toppingPrices = data.toppingPrices;
 
+                        // 確保 pageLayout 每頁有 66 格
                         for (let p = 0; p < 3; p++) {
                             if (!pageLayout[p] || pageLayout[p].length < 66) {
                                 const current = pageLayout[p] || [];
@@ -1516,6 +1655,7 @@
                             }
                         }
 
+                        // 若頁面完全空白，自動填入
                         for (let p = 0; p < 3; p++) {
                             const hasItem = pageLayout[p].slice(0, 60).some(id => id !== null);
                             if (!hasItem) {
@@ -1533,6 +1673,7 @@
                         renderAdminGlobal();
                         console.log('✅ 已從雲端載入資料');
                     } else {
+                        // 雲端無資料，使用本地或預設
                         initPageLayout();
                     }
                 })
@@ -1542,6 +1683,9 @@
                 });
         }
 
+        // =============================================
+        // 初始化頁面配置（從 localStorage 或預設）
+        // =============================================
         function initPageLayout() {
             try {
                 const saved = localStorage.getItem('pos_employee_data');
@@ -1585,6 +1729,9 @@
             renderAdminGlobal();
         }
 
+        // =============================================
+        // 渲染商品網格
+        // =============================================
         function renderGrid(tabIndex) {
             const grid = document.getElementById('posGrid');
             grid.innerHTML = '';
@@ -1620,6 +1767,9 @@
             }
         }
 
+        // =============================================
+        // Tab 切換
+        // =============================================
         function switchTab(index) {
             currentTab = index;
             document.querySelectorAll('.tab-btn').forEach((btn, i) => {
@@ -1628,6 +1778,9 @@
             renderGrid(index);
         }
 
+        // =============================================
+        // 時間顯示
+        // =============================================
         function updateTime() {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
@@ -1637,6 +1790,9 @@
         setInterval(updateTime, 10000);
         updateTime();
 
+        // =============================================
+        // Tab 事件
+        // =============================================
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const idx = parseInt(this.dataset.tab);
@@ -1644,6 +1800,9 @@
             });
         });
 
+        // =============================================
+        // 外送地址展開/收合 + 更新購物車
+        // =============================================
         function toggleAddress(show) {
             const container = document.getElementById('address-container');
             if (show) {
@@ -1654,6 +1813,9 @@
             updateCartUI();
         }
 
+        // =============================================
+        // 取得當前品項在指定尺寸下可用的加料（支援專屬加料覆蓋）
+        // =============================================
         function getAvailableToppings(item, size) {
             if (item.customToppings) {
                 return item.customToppings[size] || {};
@@ -1669,6 +1831,9 @@
             }
         }
 
+        // =============================================
+        // 點餐彈窗
+        // =============================================
         function openModal(item) {
             currentItem = item;
             qty = 1;
@@ -1806,6 +1971,9 @@
             document.getElementById('orderModal').classList.remove('open');
         }
 
+        // =============================================
+        // 加入購物車
+        // =============================================
         function addToCart() {
             if (!selectedIce) { alert('請選擇冰塊'); return; }
             if (!selectedSugar) { alert('請選擇甜度'); return; }
@@ -1920,6 +2088,9 @@
             }
         }
 
+        // =============================================
+        // 發票選擇
+        // =============================================
         function selectInvoice(type, el) {
             document.querySelectorAll('#invoiceGroup label').forEach(label => label.classList.remove('active'));
             if (el) el.classList.add('active');
@@ -1937,6 +2108,9 @@
             }
         }
 
+        // =============================================
+        // 結帳
+        // =============================================
         function checkout() {
             if (cart.length === 0) {
                 showToast('⚠️ 購物車是空的');
@@ -2094,6 +2268,9 @@
             });
         }
 
+        // =============================================
+        // Toast
+        // =============================================
         let toastTimer = null;
 
         function showToast(msg) {
@@ -2106,6 +2283,9 @@
             }, 2000);
         }
 
+        // =============================================
+        // 後台管理
+        // =============================================
         function openAdmin() {
             document.getElementById('adminModal').classList.add('open');
             renderAdminItems();
@@ -2170,6 +2350,9 @@
                 `).join('');
         }
 
+        // =============================================
+        // 開啟編輯品項彈窗（含專屬加料管理）
+        // =============================================
         function openEditItemModal(itemId) {
             const item = items.find(i => i.id === itemId);
             if (!item) return;
@@ -2180,11 +2363,15 @@
             document.getElementById('editItemMPrice').value = item.M ?? '';
             document.getElementById('editItemLPrice').value = item.L ?? '';
 
+            // 載入該品項的專屬加料
             renderEditItemToppings(itemId);
 
             document.getElementById('editItemModal').classList.add('open');
         }
 
+        // =============================================
+        // 渲染編輯品項中的專屬加料
+        // =============================================
         function renderEditItemToppings(itemId) {
             const container = document.getElementById('editItemToppingList');
             container.innerHTML = '';
@@ -2194,9 +2381,11 @@
 
             const customTops = item.customToppings || {};
 
+            // 顯示專屬加料清單
             if (Object.keys(customTops).length === 0) {
                 container.innerHTML = '<div style="color:#94a3b8; font-size:0.75rem; padding:8px 0;">此品項尚無專屬加料</div>';
             } else {
+                // 合併 M 和 L 的加料名稱
                 const allNames = new Set();
                 if (customTops.M) Object.keys(customTops.M).forEach(n => allNames.add(n));
                 if (customTops.L) Object.keys(customTops.L).forEach(n => allNames.add(n));
@@ -2216,9 +2405,13 @@
                 });
             }
 
+            // 更新全域加料的勾選狀態
             renderEditItemGlobalToppings(itemId);
         }
 
+        // =============================================
+        // 渲染全域加料勾選（編輯品項彈窗用）
+        // =============================================
         function renderEditItemGlobalToppings(itemId) {
             const container = document.getElementById('editItemGlobalToppings');
             container.innerHTML = '';
@@ -2228,10 +2421,12 @@
 
             const customTops = item.customToppings || {};
 
+            // 取得該品項已存在的專屬加料名稱
             const existingNames = new Set();
             if (customTops.M) Object.keys(customTops.M).forEach(n => existingNames.add(n));
             if (customTops.L) Object.keys(customTops.L).forEach(n => existingNames.add(n));
 
+            // 顯示全域加料，並標示已選中
             globalToppings.forEach(name => {
                 const isChecked = existingNames.has(name);
 
@@ -2251,36 +2446,47 @@
             });
         }
 
+        // =============================================
+        // 切換品項的全域加料
+        // =============================================
         function toggleEditItemGlobalTopping(itemId, name, checked) {
             const item = items.find(i => i.id === itemId);
             if (!item) return;
 
             if (!item.customToppings) item.customToppings = {};
 
+            // 從 M 和 L 中新增或刪除
             ['M', 'L'].forEach(size => {
                 if (!item.customToppings[size]) item.customToppings[size] = {};
 
                 if (checked) {
+                    // 從全域加料價格取得價格
                     const price = toppingPrices[size] && toppingPrices[size][name];
                     if (price !== undefined) {
                         item.customToppings[size][name] = price;
                     }
                 } else {
                     delete item.customToppings[size][name];
+                    // 如果該 size 沒有加料了，刪除整個 size 物件
                     if (Object.keys(item.customToppings[size]).length === 0) {
                         delete item.customToppings[size];
                     }
                 }
             });
 
+            // 如果沒有任何加料，刪除 customToppings
             if (Object.keys(item.customToppings).length === 0) {
                 delete item.customToppings;
             }
 
+            // 更新顯示
             renderEditItemToppings(itemId);
             renderEditItemGlobalToppings(itemId);
         }
 
+        // =============================================
+        // 新增專屬加料（編輯品項彈窗）
+        // =============================================
         function addEditItemTopping() {
             const itemId = editingItemId;
             if (!itemId) return;
@@ -2310,6 +2516,7 @@
 
             if (!item.customToppings) item.customToppings = {};
 
+            // 檢查是否已存在同名加料
             const existingNames = new Set();
             if (item.customToppings.M) Object.keys(item.customToppings.M).forEach(n => existingNames.add(n));
             if (item.customToppings.L) Object.keys(item.customToppings.L).forEach(n => existingNames.add(n));
@@ -2328,6 +2535,7 @@
                 item.customToppings.L[name] = parseInt(lPrice);
             }
 
+            // 清空輸入框
             nameInput.value = '';
             mInput.value = '';
             lInput.value = '';
@@ -2335,9 +2543,13 @@
             showToast(`✅ 已新增專屬加料「${name}」`);
             renderEditItemToppings(itemId);
             renderEditItemGlobalToppings(itemId);
+            // 自動儲存
             saveToLocal();
         }
 
+        // =============================================
+        // 刪除專屬加料（編輯品項彈窗）
+        // =============================================
         function removeEditItemTopping(itemId, name) {
             if (!confirm(`確定要刪除加料「${name}」嗎？`)) return;
 
@@ -2348,6 +2560,7 @@
                 if (item.customToppings.M) delete item.customToppings.M[name];
                 if (item.customToppings.L) delete item.customToppings.L[name];
 
+                // 清空空的 size
                 if (item.customToppings.M && Object.keys(item.customToppings.M).length === 0) {
                     delete item.customToppings.M;
                 }
@@ -2365,6 +2578,9 @@
             saveToLocal();
         }
 
+        // =============================================
+        // 儲存編輯品項
+        // =============================================
         function saveEditItem() {
             const itemId = editingItemId;
             if (!itemId) return;
@@ -2392,11 +2608,17 @@
             showToast(`✅ 已更新「${name}」`);
         }
 
+        // =============================================
+        // 關閉編輯彈窗
+        // =============================================
         function closeEditItemModal() {
             document.getElementById('editItemModal').classList.remove('open');
             editingItemId = null;
         }
 
+        // =============================================
+        // 新增品項
+        // =============================================
         function adminAddItem() {
             const name = prompt('請輸入品項名稱：');
             if (!name) return;
@@ -2469,6 +2691,9 @@
             showToast('✅ 已重置品項');
         }
 
+        // =============================================
+        // 頁面配置：渲染 & 選擇品項（含「清空此格」功能）
+        // =============================================
         function renderAdminLayout() {
             const grid = document.getElementById('adminLayoutGrid');
             grid.innerHTML = '';
@@ -2513,6 +2738,7 @@
                 </div>
                 <input type="text" id="adminSelectSearch" placeholder="搜尋品項..." style="width:100%; padding:4px 8px; border:1px solid #e2e8f0; border-radius:4px; font-size:0.75rem; margin-bottom:6px;" oninput="adminFilterSelectItems(this.value)">
                 <div id="adminSelectList" style="max-height:200px; overflow-y:auto;">
+                    <!-- 新增「清空此格」選項 -->
                     <div style="padding:4px 8px; border-bottom:1px solid #f1f5f9; cursor:pointer; font-size:0.8rem; color:#ef4444; font-weight:600;" onclick="adminClearCell()">
                         🗑️ 清空此格（設為空）
                     </div>
@@ -2550,6 +2776,7 @@
             `;
         }
 
+        // 新增：清空指定的格子
         function adminClearCell() {
             if (adminSelectedCell === null || adminSelectedCell >= 60) return;
             pageLayout[adminLayoutPage][adminSelectedCell] = null;
@@ -2721,6 +2948,9 @@
             event.target.value = '';
         }
 
+        // =============================================
+        // 儲存到本機（localStorage）
+        // =============================================
         function saveToLocal() {
             const data = {
                 items: items,
@@ -2734,9 +2964,14 @@
             localStorage.setItem('pos_employee_data', JSON.stringify(data));
         }
 
+        // =============================================
+        // 儲存全部（本機 + 雲端 GAS）
+        // =============================================
         function adminSaveAll() {
+            // 先存本機
             saveToLocal();
 
+            // 再上傳雲端
             const bundle = {
                 items: items,
                 overrides: overrides,
@@ -2763,6 +2998,9 @@
                 });
         }
 
+        // =============================================
+        // 初始化
+        // =============================================
         initPageLayout();
 
         document.getElementById('adminModal').addEventListener('click', function(e) {
