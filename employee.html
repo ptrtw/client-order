@@ -1058,6 +1058,35 @@
             transform: scale(0.97);
         }
 
+        /* JSON 輸入輸出區塊 */
+        .json-area {
+            margin-top: 10px;
+            border-top: 2px solid #f1f5f9;
+            padding-top: 10px;
+        }
+        .json-area textarea {
+            width: 100%;
+            height: 120px;
+            padding: 6px 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-family: monospace;
+            resize: vertical;
+            background: #fafafa;
+            outline: none;
+        }
+        .json-area textarea:focus {
+            border-color: var(--brand-color);
+            background: #ffffff;
+        }
+        .json-area .json-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+
         /* ===== 自適應 ===== */
         @media (max-width: 380px) {
             .pos-item {
@@ -1298,6 +1327,7 @@
                 <button class="active" data-tab="adminItems">📋 品項管理</button>
                 <button data-tab="adminLayout">📐 頁面配置</button>
                 <button data-tab="adminGlobal">🌐 全域設定</button>
+                <button data-tab="adminJson">📦 JSON 導入/匯出</button>
             </div>
 
             <!-- 品項管理 -->
@@ -1360,19 +1390,31 @@
                 <button class="admin-btn primary" onclick="adminSaveGlobal()">💾 儲存全域設定</button>
             </div>
 
+            <!-- JSON 導入/匯出 -->
+            <div class="admin-section" id="adminJson">
+                <div class="json-area">
+                    <div style="font-weight:600; font-size:0.8rem; margin-bottom:4px;">📋 設定 JSON 內容</div>
+                    <textarea id="jsonTextArea" placeholder="貼上 JSON 設定內容，或點擊「匯出 JSON」取得目前設定..."></textarea>
+                    <div class="json-actions">
+                        <button class="admin-btn primary" onclick="exportJsonToText()">📤 匯出 JSON 到文字框</button>
+                        <button class="admin-btn primary" onclick="importJsonFromText()">📥 從文字框匯入 JSON</button>
+                        <button class="admin-btn" onclick="clearJsonText()">🗑️ 清空文字框</button>
+                    </div>
+                    <div style="font-size:0.65rem; color:#94a3b8; margin-top:4px;">
+                        💡 複製文字框內容可跨裝置分享設定，貼上後點「從文字框匯入 JSON」即可套用。
+                    </div>
+                </div>
+            </div>
+
             <div style="margin-top:12px; padding-top:10px; border-top:2px solid #f1f5f9; display:flex; gap:8px; flex-wrap:wrap;">
                 <button class="admin-btn primary" onclick="adminSaveAll()" style="flex:1;">💾 儲存全部</button>
-                <button class="admin-btn" onclick="adminExportJson()">📋 匯出 JSON</button>
-                <button class="admin-btn danger" onclick="adminImportJson()">📥 匯入 JSON</button>
+                <button class="admin-btn danger" onclick="adminResetItems()">🔄 重置所有設定</button>
             </div>
         </div>
     </div>
 
     <!-- ===== Toast ===== -->
     <div class="toast" id="toast"></div>
-
-    <!-- ===== 隱藏的上傳 input ===== -->
-    <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="adminHandleImport(event)">
 
     <!-- ===== 編輯品項彈窗（專屬加料管理） ===== -->
     <div class="modal-overlay" id="editItemModal" onclick="if(event.target===this) closeEditItemModal()">
@@ -2313,8 +2355,89 @@
                 if (tab === 'adminItems') renderAdminItems();
                 if (tab === 'adminLayout') renderAdminLayout();
                 if (tab === 'adminGlobal') renderAdminGlobal();
+                if (tab === 'adminJson') {
+                    // 初始化 JSON 文字框（如果為空則顯示目前的設定）
+                    const textarea = document.getElementById('jsonTextArea');
+                    if (!textarea.value) {
+                        const data = getCurrentConfig();
+                        textarea.value = JSON.stringify(data, null, 2);
+                    }
+                }
             });
         });
+
+        // 取得目前設定的 JSON 物件
+        function getCurrentConfig() {
+            return {
+                items: items,
+                overrides: overrides,
+                pageLayout: pageLayout,
+                globalIce: globalIce,
+                globalSugar: globalSugar,
+                globalToppings: globalToppings,
+                toppingPrices: toppingPrices
+            };
+        }
+
+        // 匯出 JSON 到文字框
+        function exportJsonToText() {
+            const data = getCurrentConfig();
+            const textarea = document.getElementById('jsonTextArea');
+            textarea.value = JSON.stringify(data, null, 2);
+            showToast('✅ 已匯出 JSON 到文字框');
+        }
+
+        // 從文字框匯入 JSON
+        function importJsonFromText() {
+            const textarea = document.getElementById('jsonTextArea');
+            const jsonStr = textarea.value.trim();
+            if (!jsonStr) {
+                showToast('⚠️ 文字框為空，請貼上 JSON 內容');
+                return;
+            }
+            try {
+                const data = JSON.parse(jsonStr);
+                // 驗證必要欄位
+                if (!data.items || !data.pageLayout) {
+                    showToast('⚠️ 無效的 JSON 格式（缺少 items 或 pageLayout）');
+                    return;
+                }
+                items = data.items;
+                if (data.overrides) overrides = data.overrides;
+                if (data.pageLayout) pageLayout = data.pageLayout;
+                if (data.globalIce) globalIce = data.globalIce;
+                if (data.globalSugar) globalSugar = data.globalSugar;
+                if (data.globalToppings) globalToppings = data.globalToppings;
+                if (data.toppingPrices) toppingPrices = data.toppingPrices;
+
+                // 確保 pageLayout 長度正確
+                for (let p = 0; p < 3; p++) {
+                    if (!pageLayout[p] || pageLayout[p].length < 66) {
+                        const current = pageLayout[p] || [];
+                        const newLayout = [];
+                        for (let i = 0; i < 66; i++) {
+                            newLayout[i] = i < current.length ? current[i] : null;
+                        }
+                        pageLayout[p] = newLayout;
+                    }
+                }
+
+                saveToLocal();
+                renderGrid(currentTab);
+                renderAdminItems();
+                renderAdminLayout();
+                renderAdminGlobal();
+                showToast('✅ 已從文字框匯入並套用設定');
+            } catch (e) {
+                showToast('⚠️ JSON 解析失敗：' + e.message);
+            }
+        }
+
+        // 清空文字框
+        function clearJsonText() {
+            document.getElementById('jsonTextArea').value = '';
+            showToast('🗑️ 已清空文字框');
+        }
 
         document.querySelectorAll('#adminItemPages button').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -2892,67 +3015,6 @@
 
         function adminSaveGlobal() { saveToLocal();
             showToast('✅ 全域設定已儲存'); }
-
-        function adminExportJson() {
-            const data = {
-                items: items,
-                overrides: overrides,
-                pageLayout: pageLayout,
-                globalIce: globalIce,
-                globalSugar: globalSugar,
-                globalToppings: globalToppings,
-                toppingPrices: toppingPrices
-            };
-            const json = JSON.stringify(data, null, 2);
-            const blob = new Blob([json], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'pos_config.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('✅ 已匯出 JSON');
-        }
-
-        function adminImportJson() {
-            document.getElementById('importFileInput').click();
-        }
-
-        function adminHandleImport(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (data.items) items = data.items;
-                    if (data.overrides) overrides = data.overrides;
-                    if (data.pageLayout) pageLayout = data.pageLayout;
-                    if (data.globalIce) globalIce = data.globalIce;
-                    if (data.globalSugar) globalSugar = data.globalSugar;
-                    if (data.globalToppings) globalToppings = data.globalToppings;
-                    if (data.toppingPrices) toppingPrices = data.toppingPrices;
-                    for (let p = 0; p < 3; p++) {
-                        if (pageLayout[p].length < 66) {
-                            const len = pageLayout[p].length;
-                            for (let i = len; i < 66; i++) {
-                                pageLayout[p][i] = null;
-                            }
-                        }
-                    }
-                    saveToLocal();
-                    renderGrid(currentTab);
-                    renderAdminItems();
-                    renderAdminLayout();
-                    renderAdminGlobal();
-                    showToast('✅ 匯入成功！');
-                } catch (err) {
-                    showToast('⚠️ 匯入失敗：' + err.message);
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
-        }
 
         // =============================================
         // 儲存到本機（localStorage）
