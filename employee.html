@@ -1832,7 +1832,7 @@
         }
 
         // =============================================
-        // 點餐彈窗 (已同步前台冰塊、甜度、加料與防呆邏輯)
+        // 點餐彈窗
         // =============================================
         function openModal(item) {
             currentItem = item;
@@ -1845,7 +1845,6 @@
             document.getElementById('modalTitle').textContent = item.name;
             document.getElementById('qtyNum').textContent = qty;
 
-            // === 大小邏輯 ===
             const sizeContainer = document.getElementById('sizeBtns');
             sizeContainer.innerHTML = '';
             const sizes = [];
@@ -1865,18 +1864,9 @@
                 sizeContainer.appendChild(btn);
             });
 
-            // === 冰塊邏輯 (同步前台判斷) ===
             const iceContainer = document.getElementById('iceBtns');
             iceContainer.innerHTML = '';
-            // 如果有專屬冰塊設定則使用專屬，否則使用全域冰塊
-            let currentIceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : globalIce;
-            
-            // 防呆：優多與冰淇淋系列預設不提供「溫飲」
-            if (!item.customIce && (item.name.includes("優多") || item.name.includes("冰淇淋"))) {
-                currentIceOptions = currentIceOptions.filter(opt => opt !== "溫飲");
-            }
-            
-            currentIceOptions.forEach(opt => {
+            globalIce.forEach(opt => {
                 const btn = document.createElement('button');
                 btn.className = 'opt-btn';
                 btn.textContent = opt;
@@ -1888,62 +1878,44 @@
                 iceContainer.appendChild(btn);
             });
 
-            // === 甜度邏輯 (同步前台判斷) ===
             const sugarContainer = document.getElementById('sugarBtns');
             sugarContainer.innerHTML = '';
-            let isFixedSugar = false;
-            let currentSugarOptions = [...globalSugar];
+            const sugarOptions = globalSugar.filter(opt => opt !== '其他');
+            sugarOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'opt-btn';
+                btn.textContent = opt;
+                btn.onclick = () => {
+                    sugarContainer.querySelectorAll('.opt-btn, .opt-btn-sugar-other').forEach(el => {
+                        if (el.classList) el.classList.remove('active');
+                        if (el.tagName === 'SELECT') el.classList.remove('active');
+                    });
+                    btn.classList.add('active');
+                    selectedSugar = opt;
+                };
+                sugarContainer.appendChild(btn);
+            });
 
-            // 檢查是否有專屬甜度
-            if (item.customSugar && item.customSugar.length > 0) {
-                if (item.customSugar[0] === "固定甜度") isFixedSugar = true; 
-                else currentSugarOptions = item.customSugar;
-            } else {
-                // 預設防呆：黑糖固定甜度、蜜類無無糖
-                if (item.name.includes("黑糖")) isFixedSugar = true; 
-                else if (item.name.includes("蜜")) currentSugarOptions = currentSugarOptions.filter(opt => opt !== "無糖");
+            const otherSelect = document.createElement('select');
+            otherSelect.className = 'opt-btn-sugar-other';
+            otherSelect.innerHTML = `
+                    <option value="" disabled selected>其他</option>
+                    <option value="1分糖">1分糖</option>
+                    <option value="3分糖">3分糖</option>
+                    <option value="4分糖">4分糖</option>
+                    <option value="6分糖">6分糖</option>
+                    <option value="7分糖">7分糖</option>
+                `;
+            otherSelect.onchange = function() {
+                sugarContainer.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
+                sugarContainer.querySelectorAll('.opt-btn-sugar-other').forEach(el => el.classList.add('active'));
+                selectedSugar = this.value;
+            };
+            if (selectedSugar && ['1分糖', '3分糖', '4分糖', '6分糖', '7分糖'].includes(selectedSugar)) {
+                otherSelect.value = selectedSugar;
+                otherSelect.classList.add('active');
             }
-
-            if (isFixedSugar) {
-                sugarContainer.innerHTML = '<span style="font-size:0.8rem; color:#ef4444; font-weight:bold; padding:4px 0;">固定甜度</span>';
-                selectedSugar = "固定甜度";
-            } else {
-                const standardSugars = currentSugarOptions.filter(opt => opt !== '其他');
-                standardSugars.forEach(opt => {
-                    const btn = document.createElement('button');
-                    btn.className = 'opt-btn';
-                    btn.textContent = opt;
-                    btn.onclick = () => {
-                        sugarContainer.querySelectorAll('.opt-btn, .opt-btn-sugar-other').forEach(el => {
-                            if (el.classList) el.classList.remove('active');
-                            if (el.tagName === 'SELECT') el.classList.remove('active');
-                        });
-                        btn.classList.add('active');
-                        selectedSugar = opt;
-                    };
-                    sugarContainer.appendChild(btn);
-                });
-
-                // 處理「其他」甜度下拉選單
-                if (currentSugarOptions.includes('其他') || globalSugar.includes('其他')) {
-                    const otherSelect = document.createElement('select');
-                    otherSelect.className = 'opt-btn-sugar-other';
-                    otherSelect.innerHTML = `
-                        <option value="" disabled selected>其他</option>
-                        <option value="1分糖">1分糖</option>
-                        <option value="3分糖">3分糖</option>
-                        <option value="4分糖">4分糖</option>
-                        <option value="6分糖">6分糖</option>
-                        <option value="7分糖">7分糖</option>
-                    `;
-                    otherSelect.onchange = function() {
-                        sugarContainer.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
-                        sugarContainer.querySelectorAll('.opt-btn-sugar-other').forEach(el => el.classList.add('active'));
-                        selectedSugar = this.value;
-                    };
-                    sugarContainer.appendChild(otherSelect);
-                }
-            }
+            sugarContainer.appendChild(otherSelect);
 
             renderToppings();
             updateModalPrice();
@@ -2285,8 +2257,7 @@
                 contents: { type: "carousel", contents: bubbles }
             }]).then(() => {
                 let msg = "✅ 訂單已成功送出！";
-                if (discount > 0) msg += `
-🎉 買五送一折扣 -$${discount}`;
+                if (discount > 0) msg += `\n🎉 買五送一折扣 -$${discount}`;
                 alert(msg);
                 cart = [];
                 updateCartUI();
