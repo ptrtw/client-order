@@ -14,7 +14,7 @@
             --text-muted: #64748b;
         }
         * { box-sizing: border-box; }
-        html { scroll-behavior: smooth; scroll-padding-top: 40px; } 
+        html { scroll-behavior: smooth; scroll-padding-top: 38px; } 
         body { 
             font-family: 'Helvetica Neue', Helvetica, Arial, '微軟正黑體', sans-serif; 
             background-color: var(--bg-color); 
@@ -55,9 +55,9 @@
             border-bottom-color: var(--brand-color);
         }
 
-        /* 分類小標 */
+        /* 分類小標 – 極簡 */
         .category-header {
-            padding: 8px 10px 4px;
+            padding: 6px 10px 4px;
             font-size: 0.8rem;
             font-weight: 600;
             color: #666;
@@ -73,17 +73,17 @@
             border-radius: 2px;
         }
 
-        /* 緊湊三欄網格 */
+        /* 三欄緊湊網格 */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-            padding: 0 6px 10px;
+            gap: 5px;
+            padding: 0 5px 10px;
         }
         .pos-item {
             background: #ffffff;
             border-radius: 10px;
-            padding: 10px 4px;
+            padding: 8px 2px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             cursor: pointer;
             transition: transform 0.1s;
@@ -93,22 +93,22 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 56px;
+            min-height: 50px;
         }
         .pos-item:active {
             transform: scale(0.94);
         }
         .item-name {
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             font-weight: 600;
             color: #0f172a;
             line-height: 1.2;
             word-break: break-word;
         }
         .item-price {
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             color: #999;
-            margin-top: 2px;
+            margin-top: 1px;
             font-weight: 500;
         }
 
@@ -122,12 +122,12 @@
             max-width: 500px;
             background: var(--brand-color);
             color: white;
-            padding: 12px 16px;
+            padding: 10px 16px;
             box-sizing: border-box;
             z-index: 1001;
             cursor: pointer;
             border: none;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: bold;
             border-radius: 30px;
             box-shadow: 0 4px 15px rgba(6, 199, 85, 0.3);
@@ -135,90 +135,90 @@
             justify-content: space-between;
             align-items: center;
         }
-        .cart-badge { background: #fff; color: var(--brand-color); width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.8rem; }
+        .cart-badge { background: #fff; color: var(--brand-color); width: 22px; height: 22px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.75rem; }
 
-        /* 以下為 Modal、購物車、後台等完整功能樣式（完全保留） */
+        /* Modal 等樣式（精簡但功能完整） */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 2000; animation: fadeIn 0.2s ease-out; }
-        .modal-content { background: #ffffff; width: 100%; max-width: 600px; padding: 15px 15px; border-radius: 20px 20px 0 0; max-height: 90vh; overflow-y: auto; box-sizing: border-box; animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); position: relative; }
+        .modal-content { background: #ffffff; width: 100%; max-width: 600px; padding: 12px 12px; border-radius: 20px 20px 0 0; max-height: 90vh; overflow-y: auto; box-sizing: border-box; animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .modal-header h3 { margin: 0; font-size: 1.1rem; }
-        .close-btn { background: #f0f0f0; border: none; width: 26px; height: 26px; border-radius: 50%; font-size: 1rem; color: #666; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-        .opt-group { margin-bottom: 10px; }
-        .opt-title { font-size: 0.8rem; font-weight: bold; margin-bottom: 4px; }
-        .opt-btns { display: flex; flex-wrap: wrap; gap: 4px; } 
-        .opt-btn { background: #f5f6f8; color: var(--text-main); border: 1px solid transparent; padding: 5px 8px; border-radius: 14px; font-size: 0.75rem; cursor: pointer; text-align: center; transition: all 0.2s; white-space: nowrap; flex: 1; } 
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        .modal-header h3 { margin: 0; font-size: 1rem; }
+        .close-btn { background: #f0f0f0; border: none; width: 24px; height: 24px; border-radius: 50%; font-size: 0.9rem; color: #666; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        .opt-group { margin-bottom: 8px; }
+        .opt-title { font-size: 0.75rem; font-weight: bold; margin-bottom: 4px; }
+        .opt-btns { display: flex; flex-wrap: wrap; gap: 3px; } 
+        .opt-btn { background: #f5f6f8; color: var(--text-main); border: 1px solid transparent; padding: 4px 6px; border-radius: 12px; font-size: 0.7rem; cursor: pointer; text-align: center; transition: all 0.2s; white-space: nowrap; flex: 1; } 
         .opt-btn.active { background: var(--brand-light); color: var(--brand-color); border: 1px solid var(--brand-color); font-weight: bold; }
-        select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padding-right: 20px; background-image: url('data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position-x: 100%; background-position-y: center; background-size: 16px; }
+        select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padding-right: 16px; background-image: url('data:image/svg+xml;utf8,<svg fill="black" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position-x: 100%; background-position-y: center; background-size: 14px; }
         #size-btns .opt-btn { flex-grow: 1; }
-        .top-ctrl-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 6px; }
-        .top-ctrl-left { display: flex; align-items: center; gap: 8px; }
-        .qty-ctrl { display: flex; align-items: center; background: #f5f6f8; border-radius: 12px; padding: 2px; }
-        .qty-btn { width: 26px; height: 26px; border-radius: 50%; border: none; background: #fff; font-size: 0.9rem; cursor: pointer; }
-        .qty-num { padding: 0 10px; font-weight: bold; font-size: 0.85rem; }
-        .tea-swap-select { padding: 4px 10px; border-radius: 12px; border: 1px solid #ddd; background: #f5f6f8; font-size: 0.8rem; }
-        .option-price-display { font-size: 1.1rem; font-weight: 800; color: var(--brand-color); background: var(--brand-light); padding: 4px 12px; border-radius: 16px; }
-        .option-price-display .price-unit { font-size: 0.6rem; font-weight: 600; color: var(--text-muted); }
-        .submit-btn { width: 100%; padding: 12px; background: var(--brand-color); color: white; border: none; border-radius: 14px; font-weight: bold; margin-top: 5px; cursor: pointer; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
-        .cart-item-info { flex-grow: 1; padding-right: 12px; }
-        .cart-item-title { font-weight: bold; font-size: 0.95rem; }
-        .cart-item-desc { font-size: 0.8rem; color: var(--text-muted); }
-        .cart-del-btn { background: #ff4d4d; color: white; border: none; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; }
-        #customer-phone, #customer-address, #invoice-number { width: 100%; font-family: inherit; margin: 4px 0 12px; padding: 10px; box-sizing: border-box; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 0.95rem; background: #f9f9f9; outline: none; }
+        .top-ctrl-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 4px; }
+        .top-ctrl-left { display: flex; align-items: center; gap: 6px; }
+        .qty-ctrl { display: flex; align-items: center; background: #f5f6f8; border-radius: 10px; padding: 2px; }
+        .qty-btn { width: 22px; height: 22px; border-radius: 50%; border: none; background: #fff; font-size: 0.8rem; cursor: pointer; }
+        .qty-num { padding: 0 8px; font-weight: bold; font-size: 0.8rem; }
+        .tea-swap-select { padding: 4px 8px; border-radius: 10px; border: 1px solid #ddd; background: #f5f6f8; font-size: 0.7rem; }
+        .option-price-display { font-size: 1rem; font-weight: 800; color: var(--brand-color); background: var(--brand-light); padding: 4px 10px; border-radius: 14px; }
+        .option-price-display .price-unit { font-size: 0.55rem; font-weight: 600; color: var(--text-muted); }
+        .submit-btn { width: 100%; padding: 10px; background: var(--brand-color); color: white; border: none; border-radius: 12px; font-weight: bold; margin-top: 4px; cursor: pointer; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+        .cart-item-info { flex-grow: 1; padding-right: 10px; }
+        .cart-item-title { font-weight: bold; font-size: 0.9rem; }
+        .cart-item-desc { font-size: 0.75rem; color: var(--text-muted); }
+        .cart-del-btn { background: #ff4d4d; color: white; border: none; padding: 4px 8px; border-radius: 10px; font-size: 0.75rem; }
+        #customer-phone, #customer-address, #invoice-number { width: 100%; font-family: inherit; margin: 4px 0 10px; padding: 8px; box-sizing: border-box; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 0.85rem; background: #f9f9f9; outline: none; }
         #customer-phone:focus, #customer-address:focus, #invoice-number:focus { border-color: var(--brand-color); background: #ffffff; }
-        .invoice-option-group { margin: 12px 0 8px; }
-        .invoice-option-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
-        .invoice-option-btns label { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 0.8rem; cursor: pointer; padding: 8px 4px; border-radius: 10px; border: 2px solid #e0e0e0; transition: all 0.2s; text-align: center; }
-        .invoice-option-btns label .sub-text { font-size: 0.6rem; color: var(--text-muted); font-weight: normal; }
+        .invoice-option-group { margin: 10px 0 6px; }
+        .invoice-option-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 6px; }
+        .invoice-option-btns label { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 0.75rem; cursor: pointer; padding: 6px 4px; border-radius: 8px; border: 2px solid #e0e0e0; transition: all 0.2s; text-align: center; }
+        .invoice-option-btns label .sub-text { font-size: 0.55rem; color: var(--text-muted); }
         .invoice-option-btns label.active { border-color: var(--brand-color); background: var(--brand-light); }
-        .invoice-option-btns input[type="radio"] { accent-color: var(--brand-color); transform: scale(1); margin: 0; }
+        .invoice-option-btns input[type="radio"] { accent-color: var(--brand-color); transform: scale(0.9); margin: 0; }
         #invoice-number-container { display: none; }
-        .paper-invoice-hint { display: none; font-size: 0.7rem; color: var(--text-muted); text-align: center; margin: 4px 0 10px; padding: 4px; background: #f5f5f5; border-radius: 6px; }
+        .paper-invoice-hint { display: none; font-size: 0.65rem; color: var(--text-muted); text-align: center; margin: 2px 0 8px; padding: 4px; background: #f5f5f5; border-radius: 6px; }
         .paper-invoice-hint.show { display: block; }
-        #carrier-hint { display: none; font-size: 0.7rem; color: var(--text-muted); text-align: center; margin: 4px 0 10px; padding: 4px; background: #f5f5f5; border-radius: 6px; }
+        #carrier-hint { display: none; font-size: 0.65rem; color: var(--text-muted); text-align: center; margin: 2px 0 8px; padding: 4px; background: #f5f5f5; border-radius: 6px; }
         #carrier-hint.show { display: block; }
         #confirm-modal .modal-content { max-height: 92vh; }
-        .confirm-order-summary { background: #f8fafc; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; max-height: 35vh; overflow-y: auto; }
-        .confirm-order-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #eef2f6; font-size: 0.85rem; }
+        .confirm-order-summary { background: #f8fafc; border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; max-height: 30vh; overflow-y: auto; }
+        .confirm-order-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #eef2f6; font-size: 0.8rem; }
         .confirm-order-item:last-child { border-bottom: none; }
-        .confirm-order-item .item-left { flex: 1; padding-right: 8px; }
+        .confirm-order-item .item-left { flex: 1; padding-right: 6px; }
         .confirm-order-item .item-name { font-weight: 600; }
-        .confirm-order-item .item-detail { font-size: 0.7rem; color: var(--text-muted); }
+        .confirm-order-item .item-detail { font-size: 0.65rem; color: var(--text-muted); }
         .confirm-order-item .item-price { font-weight: 700; color: var(--brand-color); white-space: nowrap; }
-        .confirm-order-total { display: flex; justify-content: space-between; padding: 10px 0 6px; font-size: 1.05rem; font-weight: 700; border-top: 2px solid var(--brand-color); }
-        .confirm-order-total .total-amount { color: var(--brand-color); font-size: 1.2rem; }
-        .confirm-order-info { font-size: 0.75rem; color: var(--text-muted); padding: 6px 0 2px; line-height: 1.5; }
+        .confirm-order-total { display: flex; justify-content: space-between; padding: 8px 0 4px; font-size: 1rem; font-weight: 700; border-top: 2px solid var(--brand-color); }
+        .confirm-order-total .total-amount { color: var(--brand-color); font-size: 1.1rem; }
+        .confirm-order-info { font-size: 0.7rem; color: var(--text-muted); padding: 4px 0 2px; line-height: 1.4; }
         .confirm-order-info strong { color: var(--text-main); }
-        .confirm-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .confirm-btn-group .btn-confirm { padding: 12px; background: var(--brand-color); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 0.95rem; cursor: pointer; }
-        .confirm-btn-group .btn-back { padding: 12px; background: #e2e8f0; color: var(--text-main); border: none; border-radius: 12px; font-weight: 700; font-size: 0.95rem; cursor: pointer; }
-        .admin-section { margin-bottom: 12px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; }
-        .admin-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.85em; }
-        .admin-input { padding: 4px; border: 1px solid #ccc; border-radius: 4px; }
-        .admin-title { font-weight: bold; background: #e0e0e0; padding: 6px; margin: 12px -12px 8px -12px; }
-        .unified-topping-row { display: flex; align-items: center; gap: 4px; padding: 6px 0; border-bottom: 1px dashed #ccc; }
-        .unified-topping-name { flex: 1; font-weight: bold; font-size: 0.85rem; }
-        .unified-topping-inputs { display: flex; align-items: center; gap: 3px; }
-        .size-label { font-size: 0.7rem; color: #666; }
-        .topping-price-input { width: 34px; padding: 4px 2px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.85rem; text-align: center; }
-        .btn-delete-small { background: #ff4d4d; color: white; border: none; width: 24px; height: 24px; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 0.8rem; cursor: pointer; }
-        .add-topping-box { background: #e8f5e9; padding: 10px; border: 1px dashed #81c784; border-radius: 6px; margin-top: 10px; }
-        .add-grid { display: grid; grid-template-columns: 1fr auto auto; gap: 4px; align-items: center; margin-bottom: 6px; }
-        .add-grid input { padding: 6px 4px; border: 1px solid #a5d6a7; border-radius: 4px; font-size: 0.85rem; }
-        .btn-add-full { width: 100%; background: #06C755; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; }
-        .chip-container { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
-        .topping-chip { background: #ffffff; border: 1px solid #64b5f6; padding: 2px 8px; border-radius: 14px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px; }
-        .topping-chip-del { background: #ff4d4d; color: white; border-radius: 50%; width: 14px; height: 14px; display: inline-flex; justify-content: center; align-items: center; font-size: 0.6rem; cursor: pointer; }
-        .compact-add-row { display: flex; gap: 3px; align-items: center; background: #f5f5f5; padding: 4px; border-radius: 4px; }
-        .compact-add-row input { padding: 3px 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.8rem; }
-        .compact-add-btn { background: #1976d2; color: white; border: none; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-weight: bold; font-size: 0.75rem; }
+        .confirm-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+        .confirm-btn-group .btn-confirm { padding: 10px; background: var(--brand-color); color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; }
+        .confirm-btn-group .btn-back { padding: 10px; background: #e2e8f0; color: var(--text-main); border: none; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; }
+        .admin-section { margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background: #f9f9f9; }
+        .admin-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 0.8rem; }
+        .admin-input { padding: 3px; border: 1px solid #ccc; border-radius: 4px; }
+        .admin-title { font-weight: bold; background: #e0e0e0; padding: 4px; margin: 10px -10px 6px -10px; }
+        .unified-topping-row { display: flex; align-items: center; gap: 4px; padding: 4px 0; border-bottom: 1px dashed #ccc; }
+        .unified-topping-name { flex: 1; font-weight: bold; font-size: 0.8rem; }
+        .unified-topping-inputs { display: flex; align-items: center; gap: 2px; }
+        .size-label { font-size: 0.65rem; color: #666; }
+        .topping-price-input { width: 30px; padding: 3px 2px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.8rem; text-align: center; }
+        .btn-delete-small { background: #ff4d4d; color: white; border: none; width: 20px; height: 20px; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 0.7rem; cursor: pointer; }
+        .add-topping-box { background: #e8f5e9; padding: 8px; border: 1px dashed #81c784; border-radius: 6px; margin-top: 8px; }
+        .add-grid { display: grid; grid-template-columns: 1fr auto auto; gap: 4px; align-items: center; margin-bottom: 4px; }
+        .add-grid input { padding: 4px 3px; border: 1px solid #a5d6a7; border-radius: 4px; font-size: 0.8rem; }
+        .btn-add-full { width: 100%; background: #06C755; color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
+        .chip-container { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 4px; }
+        .topping-chip { background: #ffffff; border: 1px solid #64b5f6; padding: 2px 6px; border-radius: 12px; font-size: 0.7rem; display: flex; align-items: center; gap: 3px; }
+        .topping-chip-del { background: #ff4d4d; color: white; border-radius: 50%; width: 12px; height: 12px; display: inline-flex; justify-content: center; align-items: center; font-size: 0.5rem; cursor: pointer; }
+        .compact-add-row { display: flex; gap: 3px; align-items: center; background: #f5f5f5; padding: 3px; border-radius: 4px; }
+        .compact-add-row input { padding: 2px 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.75rem; }
+        .compact-add-btn { background: #1976d2; color: white; border: none; border-radius: 4px; padding: 3px 8px; cursor: pointer; font-weight: bold; font-size: 0.7rem; }
         .closed-view { filter: grayscale(100%) opacity(0.4); }
-        .closed-banner-ui { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1500; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; color: white; font-size: 1.8rem; font-weight: bold; pointer-events: none; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); flex-direction: column; }
-        .closed-cart-warning { display: none; background: #ffebee; color: #c62828; padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 0.8rem; text-align: center; border: 1px solid #ef9a9a; font-weight: bold; }
-        #cart-original-total-row { display: none; justify-content: space-between; align-items: center; margin: 10px 0 4px; font-size: 0.9rem; color: #888; }
-        #discount-row { display: none; justify-content: space-between; align-items: center; margin: 4px 0; font-size: 0.9rem; color: #ff4d4d; font-weight: bold; }
+        .closed-banner-ui { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1500; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; color: white; font-size: 1.6rem; font-weight: bold; pointer-events: none; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); flex-direction: column; }
+        .closed-cart-warning { display: none; background: #ffebee; color: #c62828; padding: 8px; border-radius: 6px; margin-bottom: 10px; font-size: 0.75rem; text-align: center; border: 1px solid #ef9a9a; font-weight: bold; }
+        #cart-original-total-row { display: none; justify-content: space-between; align-items: center; margin: 8px 0 4px; font-size: 0.85rem; color: #888; }
+        #discount-row { display: none; justify-content: space-between; align-items: center; margin: 4px 0; font-size: 0.85rem; color: #ff4d4d; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -236,7 +236,7 @@
 
 <!-- 購物車按鈕 -->
 <button id="cart-bar-btn" onclick="showCart()">
-    <span style="display: flex; align-items: center; gap: 8px;">
+    <span style="display: flex; align-items: center; gap: 6px;">
         🛒 <span id="cart-counter" class="cart-badge">0</span>
     </span>
     <span id="cart-total-preview">$0</span>
@@ -300,22 +300,22 @@
             <button class="close-btn" onclick="document.getElementById('cart-modal').style.display='none'">✕</button>
         </div>
         <div id="cart-closed-warning" class="closed-cart-warning">⚠️ 非營業時間，僅供查看</div>
-        <div id="cart-list" style="max-height: 35vh; overflow-y: auto;"></div>
+        <div id="cart-list" style="max-height: 30vh; overflow-y: auto;"></div>
         <div id="cart-original-total-row"><span>商品總計</span><span>$<span id="cart-original-total">0</span></span></div>
         <div id="discount-row"><span>🎉 自取買五送一</span><span>-$<span id="cart-discount">0</span></span></div>
-        <div style="display:flex; justify-content:space-between; margin:12px 0 16px; font-size:1.1rem; font-weight:bold;">
+        <div style="display:flex; justify-content:space-between; margin:10px 0 14px; font-size:1rem; font-weight:bold;">
             <span>結帳總額</span>
-            <span style="color:var(--brand-color); font-size:1.3rem;">$<span id="cart-total">0</span></span>
+            <span style="color:var(--brand-color); font-size:1.2rem;">$<span id="cart-total">0</span></span>
         </div>
         <hr>
         <div class="opt-title">📞 電話 <span style="color:red;">*</span></div>
         <input type="tel" id="customer-phone" placeholder="請輸入電話">
         <div class="opt-title">取餐方式</div>
-        <div style="display:flex; gap:16px; margin:4px 0 12px;">
-            <label style="display:flex; align-items:center; gap:6px; font-size:0.9rem; cursor:pointer;">
+        <div style="display:flex; gap:14px; margin:4px 0 10px;">
+            <label style="display:flex; align-items:center; gap:4px; font-size:0.85rem; cursor:pointer;">
                 <input type="radio" name="delivery-method" value="自取" onclick="toggleDeliveryAddress(false)" style="accent-color:var(--brand-color);"> 自取
             </label>
-            <label style="display:flex; align-items:center; gap:6px; font-size:0.9rem; cursor:pointer;">
+            <label style="display:flex; align-items:center; gap:4px; font-size:0.85rem; cursor:pointer;">
                 <input type="radio" name="delivery-method" value="外送" onclick="toggleDeliveryAddress(true)" style="accent-color:var(--brand-color);"> 外送
             </label>
         </div>
@@ -341,7 +341,7 @@
             <div id="carrier-hint">📌 送出後請在聊天室上傳載具 QR Code</div>
         </div>
         <button class="submit-btn" onclick="showConfirmModal()">📋 確認訂單</button>
-        <div style="color:#888; font-size:0.7rem; text-align:center; margin-top:10px;">其他需求請於聊天室告知</div>
+        <div style="color:#888; font-size:0.65rem; text-align:center; margin-top:8px;">其他需求請於聊天室告知</div>
     </div>
 </div>
 
@@ -370,18 +370,20 @@
     <div class="modal-content" style="height:95vh; display:flex; flex-direction:column;">
         <div class="modal-header"><h2 style="color:#d32f2f;">⚙️ 後台</h2></div>
         <div id="admin-content" style="flex:1; overflow-y:auto;"></div>
-        <button onclick="saveAdminData()" style="width:100%; padding:14px; background:#d32f2f; color:white; border:none; border-radius:12px; font-weight:bold;">💾 儲存同步</button>
-        <button onclick="closeAdminModal()" style="width:100%; padding:10px; background:none; border:none; color:#666;">取消</button>
+        <button onclick="saveAdminData()" style="width:100%; padding:12px; background:#d32f2f; color:white; border:none; border-radius:10px; font-weight:bold;">💾 儲存同步</button>
+        <button onclick="closeAdminModal()" style="width:100%; padding:8px; background:none; border:none; color:#666;">取消</button>
     </div>
 </div>
 
 <script>
-    // ========== LIFF ID 已更新 ==========
+    // ========== LIFF ID ==========
     const LIFF_ID = "2010718024-5LLzGr1V"; 
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
 
+    // ========== 加料預設 ==========
     const DEFAULT_TOPPING_PRICES = { M: { "珍珠": 5, "椰果": 5, "布丁": 15, "仙草凍": 5, "QQ": 5, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 }, L: { "珍珠": 10, "椰果": 10, "布丁": 15, "仙草凍": 10, "QQ": 10, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 } };
     
+    // ========== 硬編碼三大分類（不會被雲端覆蓋） ==========
     const DEFAULT_MENU_DATA = [
         { category: "常用類", items: [ 
             { name: "特級綠茶", prices: { M: 25, L: 30 } },
@@ -419,8 +421,9 @@
     
     const DEFAULT_HOURS = { 1: { open: "09:00", close: "21:00", isClosed: false }, 2: { open: "09:00", close: "21:00", isClosed: false }, 3: { open: "09:00", close: "21:00", isClosed: false }, 4: { open: "09:00", close: "21:00", isClosed: false }, 5: { open: "09:00", close: "21:00", isClosed: false }, 6: { open: "09:00", close: "21:00", isClosed: false }, 0: { open: "09:00", close: "21:00", isClosed: false } };
 
+    // ----- 全域變數 -----
     let toppingPrices = JSON.parse(JSON.stringify(DEFAULT_TOPPING_PRICES));
-    let menuData = JSON.parse(JSON.stringify(DEFAULT_MENU_DATA));
+    let menuData = JSON.parse(JSON.stringify(DEFAULT_MENU_DATA));  // 永遠使用三大類
     let storeHours = JSON.parse(JSON.stringify(DEFAULT_HOURS));
     let isStoreCurrentlyClosed = false;
     let invoiceOption = 'paper';
@@ -430,10 +433,21 @@
     let secretCount = 0; let secretTimer = null;
     let confirmData = null;
 
+    // ----- 載入本機設定 -----
     function loadSavedConfig() {
         try {
             const savedMenu = localStorage.getItem('pos_menu_custom');
-            if (savedMenu) menuData = JSON.parse(savedMenu);
+            if (savedMenu) {
+                // 如果本地存有菜單，但可能包含多分類，我們只取前三個分類（強制限制）
+                const parsed = JSON.parse(savedMenu);
+                if (Array.isArray(parsed) && parsed.length >= 3) {
+                    menuData = parsed.slice(0, 3); // 只取前三個分類
+                    // 但為了確保分類名稱正確，我們重新賦予標準名稱
+                    menuData[0].category = "常用類";
+                    menuData[1].category = "特調·果醋";
+                    menuData[2].category = "鮮奶·加料";
+                }
+            }
             const savedToppings = localStorage.getItem('pos_toppings_custom');
             if (savedToppings) toppingPrices = JSON.parse(savedToppings);
             const savedHours = localStorage.getItem('pos_store_hours');
@@ -442,33 +456,40 @@
     }
     loadSavedConfig();
 
+    // ----- 雲端同步（只更新加料與時間，不覆蓋菜單分類） -----
     function loadCloudConfig() {
         fetch(GAS_API_URL).then(r => r.json()).then(data => {
-            if (data && data.menu && data.menu.length > 0) {
-                menuData = data.menu;
-                if(data.toppings) toppingPrices = data.toppings;
-                if(data.storeHours) storeHours = data.storeHours; 
-                saveAllToLocal(); renderMenu(); checkStoreStatus(); 
+            if (data) {
+                // 只更新加料與營業時間
+                if (data.toppings) toppingPrices = data.toppings;
+                if (data.storeHours) storeHours = data.storeHours;
+                // 菜單分類保持本地三大類，不從雲端覆蓋
+                saveAllToLocal();
+                renderMenu();
+                checkStoreStatus();
             }
         }).catch(() => {});
     }
 
+    // ----- LIFF 初始化 -----
     liff.init({ liffId: LIFF_ID }).then(() => {
         if (!liff.isLoggedIn()) liff.login(); else loadCloudConfig();
     }).catch(() => { loadCloudConfig(); });
 
+    // ----- 載入購物車 -----
     try { const d = localStorage.getItem('pos_cart_data'); if (d) cart = JSON.parse(d); } catch(e) {}
 
+    // ----- 儲存全部設定 -----
     function saveAllToLocal() {
         localStorage.setItem('pos_menu_custom', JSON.stringify(menuData));
         localStorage.setItem('pos_store_hours', JSON.stringify(storeHours));
         localStorage.setItem('pos_toppings_custom', JSON.stringify(toppingPrices));
     }
 
-    function filterMenu() {
-        // 無搜尋功能，直接顯示全部
-    }
+    // ----- 過濾（已移除搜尋，此函數保留但無效） -----
+    function filterMenu() {}
 
+    // ----- 檢查營業時間 -----
     function checkStoreStatus() {
         const now = new Date();
         const twTimeStr = now.toLocaleString("en-US", { timeZone: "Asia/Taipei", hour12: false });
@@ -503,6 +524,7 @@
     }
     setInterval(checkStoreStatus, 60000);
 
+    // ----- 更新購物車計數 -----
     function updateCounter() {
         document.getElementById('cart-counter').innerText = cart.length;
         let total = cart.reduce((sum, i) => sum + i.price, 0);
@@ -511,6 +533,7 @@
         try { localStorage.setItem('pos_cart_data', JSON.stringify(cart)); } catch(e) {}
     }
 
+    // ----- 渲染菜單（三大類） -----
     function renderMenu() {
         const container = document.getElementById('menu-content');
         const nav = document.getElementById('nav-bar');
@@ -569,18 +592,18 @@
         });
     }
 
-    // ================= 後台（完整保留，精簡呈現） =================
+    // ================= 後台管理（精簡版） =================
     function openAdminModal() { document.getElementById('admin-modal').style.display = 'flex'; renderAdminContent(); }
     function renderAdminContent() {
         let html = `<div class="admin-section" style="background:#e0f7fa;"><h3>🕒 營業時間</h3><div id="admin-hours-list"></div></div>
             <div id="unified-global-toppings-container"></div>
             <div class="admin-section" style="background:#f3e5f5;"><h3>📂 分類與新品</h3><div id="admin-category-list"></div>
-            <div style="display:flex; gap:4px; margin-top:8px;"><input type="text" id="new_category_name" placeholder="新分類" style="flex:1; padding:4px;"><button onclick="addNewCategory()" style="background:#8e24aa; color:white; border:none; padding:4px 10px;">+</button></div>
-            <hr><div class="admin-row">分類: <select id="new_cat" style="padding:4px;">`;
+            <div style="display:flex; gap:4px; margin-top:6px;"><input type="text" id="new_category_name" placeholder="新分類" style="flex:1; padding:3px;"><button onclick="addNewCategory()" style="background:#8e24aa; color:white; border:none; padding:3px 8px;">+</button></div>
+            <hr><div class="admin-row">分類: <select id="new_cat" style="padding:3px;">`;
         menuData.forEach((cat, idx) => { html += `<option value="${idx}">${cat.category}</option>`; });
-        html += `</select></div><div class="admin-row">名稱: <input type="text" id="new_name" placeholder="品名" style="padding:4px; flex:1;"></div>
-            <div class="admin-row">M: $<input type="number" id="new_m" style="width:40px;"> L: $<input type="number" id="new_l" style="width:40px;"></div>
-            <button onclick="addNewItem()" style="width:100%; padding:6px; background:#4caf50; color:white; border:none;">新增</button></div>
+        html += `</select></div><div class="admin-row">名稱: <input type="text" id="new_name" placeholder="品名" style="padding:3px; flex:1;"></div>
+            <div class="admin-row">M: $<input type="number" id="new_m" style="width:36px;"> L: $<input type="number" id="new_l" style="width:36px;"></div>
+            <button onclick="addNewItem()" style="width:100%; padding:5px; background:#4caf50; color:white; border:none;">新增</button></div>
             <div class="admin-section"><h3>📝 現有品項</h3>`;
         const categoryOptionsHtml = menuData.map((c, idx) => `<option value="${idx}">${c.category}</option>`).join('');
         menuData.forEach((cat, cIdx) => {
@@ -589,10 +612,10 @@
                 let m = item.prices.M !== undefined ? item.prices.M : '';
                 let l = item.prices.L !== undefined ? item.prices.L : '';
                 let currentItemSelectHtml = categoryOptionsHtml.replace(`value="${cIdx}"`, `value="${cIdx}" selected`);
-                html += `<div style="border-bottom:1px dashed #ccc; padding:6px 0;"><div class="admin-row" style="flex-wrap:wrap;">
+                html += `<div style="border-bottom:1px dashed #ccc; padding:4px 0;"><div class="admin-row" style="flex-wrap:wrap;">
                     <div onclick="toggleItemSettings(${cIdx}, ${iIdx})" style="flex:1; font-weight:bold; color:#0288d1; cursor:pointer;">🔗 ${item.name}</div>
-                    <div style="display:flex; gap:3px;"><select onchange="moveItem(${cIdx}, ${iIdx}, this)" style="padding:2px; font-size:0.7rem;">${currentItemSelectHtml}</select> M$<input type="number" id="admin_m_${cIdx}_${iIdx}" value="${m}" style="width:30px;"> L$<input type="number" id="admin_l_${cIdx}_${iIdx}" value="${l}" style="width:30px;"></div></div>
-                    <div id="admin_settings_panel_${cIdx}_${iIdx}" style="display:none; margin-top:6px;"></div></div>`;
+                    <div style="display:flex; gap:3px;"><select onchange="moveItem(${cIdx}, ${iIdx}, this)" style="padding:2px; font-size:0.7rem;">${currentItemSelectHtml}</select> M$<input type="number" id="admin_m_${cIdx}_${iIdx}" value="${m}" style="width:28px;"> L$<input type="number" id="admin_l_${cIdx}_${iIdx}" value="${l}" style="width:28px;"></div></div>
+                    <div id="admin_settings_panel_${cIdx}_${iIdx}" style="display:none; margin-top:4px;"></div></div>`;
             });
         });
         html += `</div>`;
@@ -613,7 +636,7 @@
                 <span class="size-label">L$</span><input type="number" class="topping-price-input" value="${lPrice}" onchange="updateUnifiedGlobalTopping('${tName}','L',this.value)">
                 <button class="btn-delete-small" onclick="deleteUnifiedGlobalTopping('${tName}')">✕</button></div></div>`;
         });
-        html += `<div class="add-topping-box"><div style="font-weight:bold;">➕ 新增</div><div class="add-grid"><input type="text" id="add_global_top_name" placeholder="名稱"><div><span class="size-label">M$</span><input type="number" id="add_global_top_m" style="width:40px;"></div><div><span class="size-label">L$</span><input type="number" id="add_global_top_l" style="width:40px;"></div></div><button class="btn-add-full" onclick="addUnifiedGlobalTopping()">確認</button></div></div>`;
+        html += `<div class="add-topping-box"><div style="font-weight:bold;">➕ 新增</div><div class="add-grid"><input type="text" id="add_global_top_name" placeholder="名稱"><div><span class="size-label">M$</span><input type="number" id="add_global_top_m" style="width:36px;"></div><div><span class="size-label">L$</span><input type="number" id="add_global_top_l" style="width:36px;"></div></div><button class="btn-add-full" onclick="addUnifiedGlobalTopping()">確認</button></div></div>`;
         document.getElementById('unified-global-toppings-container').innerHTML = html;
     }
     function updateUnifiedGlobalTopping(name, size, val) { if (val === '') delete toppingPrices[size][name]; else toppingPrices[size][name] = parseInt(val); }
@@ -634,16 +657,16 @@
         let html = '';
         for(let i=1; i<=7; i++) {
             let dayIdx = i % 7; let conf = storeHours[dayIdx];
-            html += `<div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px dotted #00bcd4; align-items:center; font-size:0.8rem;">
-                <span style="width:30px;">${daysZh[dayIdx]}</span>
+            html += `<div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px dotted #00bcd4; align-items:center; font-size:0.75rem;">
+                <span style="width:28px;">${daysZh[dayIdx]}</span>
                 <label><input type="checkbox" onchange="updateStoreHour(${dayIdx},'isClosed',this.checked)" ${conf.isClosed?'checked':''}> 休</label>
-                <div style="opacity:${conf.isClosed?'0.3':'1'};"><input type="time" value="${conf.open}" onchange="updateStoreHour(${dayIdx},'open',this.value)" ${conf.isClosed?'disabled':''} style="width:70px;"> - <input type="time" value="${conf.close}" onchange="updateStoreHour(${dayIdx},'close',this.value)" ${conf.isClosed?'disabled':''} style="width:70px;"></div>
+                <div style="opacity:${conf.isClosed?'0.3':'1'};"><input type="time" value="${conf.open}" onchange="updateStoreHour(${dayIdx},'open',this.value)" ${conf.isClosed?'disabled':''} style="width:60px;"> - <input type="time" value="${conf.close}" onchange="updateStoreHour(${dayIdx},'close',this.value)" ${conf.isClosed?'disabled':''} style="width:60px;"></div>
             </div>`;
         }
         document.getElementById('admin-hours-list').innerHTML = html;
     }
     function updateStoreHour(day, key, val) { storeHours[day][key] = val; if(key === 'isClosed') renderHoursAdmin(); }
-    function renderCategoryAdmin() { let html = ''; menuData.forEach((cat, idx) => { html += `<div class="admin-row" style="padding:3px 0;"><input type="text" value="${cat.category}" onchange="renameCategory(${idx},this.value)" style="flex:1; padding:2px;"><button onclick="deleteCategory(${idx})" style="background:#ff4d4d; color:white; border:none; padding:2px 8px;">✕</button></div>`; }); document.getElementById('admin-category-list').innerHTML = html; }
+    function renderCategoryAdmin() { let html = ''; menuData.forEach((cat, idx) => { html += `<div class="admin-row" style="padding:2px 0;"><input type="text" value="${cat.category}" onchange="renameCategory(${idx},this.value)" style="flex:1; padding:2px;"><button onclick="deleteCategory(${idx})" style="background:#ff4d4d; color:white; border:none; padding:2px 6px;">✕</button></div>`; }); document.getElementById('admin-category-list').innerHTML = html; }
     function addNewCategory() { let name = document.getElementById('new_category_name').value.trim(); if(!name) return; menuData.push({ category: name, items: [] }); renderAdminContent(); }
     function renameCategory(idx, newName) { menuData[idx].category = newName.trim(); }
     function deleteCategory(idx) { if(menuData[idx].items.length > 0) return alert("內有商品！"); if(confirm("刪除？")) { menuData.splice(idx,1); renderAdminContent(); } }
@@ -654,10 +677,10 @@
         let item = menuData[cIdx].items[iIdx];
         let panel = document.getElementById(`admin_settings_panel_${cIdx}_${iIdx}`);
         if (!panel) return;
-        let html = `<div style="padding:8px; background:#e3f2fd; border-radius:6px; font-size:0.8rem;">
+        let html = `<div style="padding:6px; background:#e3f2fd; border-radius:6px; font-size:0.75rem;">
             <label><input type="checkbox" onchange="updateItemTeaSwap(${cIdx},${iIdx},this.checked)" ${item.enableTeaSwap?'checked':''}> 換茶湯</label>
-            <div>冰塊: <input type="text" value="${item.customIce?item.customIce.join(','):''}" onchange="updateItemIce(${cIdx},${iIdx},this.value)" placeholder="正常冰,少冰" style="width:100px;"></div>
-            <div>甜度: <input type="text" value="${item.customSugar?item.customSugar.join(','):''}" onchange="updateItemSugar(${cIdx},${iIdx},this.value)" placeholder="半糖,微糖" style="width:100px;"></div>
+            <div>冰塊: <input type="text" value="${item.customIce?item.customIce.join(','):''}" onchange="updateItemIce(${cIdx},${iIdx},this.value)" placeholder="正常冰,少冰" style="width:80px;"></div>
+            <div>甜度: <input type="text" value="${item.customSugar?item.customSugar.join(','):''}" onchange="updateItemSugar(${cIdx},${iIdx},this.value)" placeholder="半糖,微糖" style="width:80px;"></div>
             <hr><label><input type="checkbox" onchange="toggleItemCustomToppingActive(${cIdx},${iIdx},this.checked)" ${item.customToppings?'checked':''}> 專屬加料</label>`;
         if (item.customToppings) {
             ['M','L'].forEach(size => {
@@ -666,7 +689,7 @@
                 Object.entries(tops).forEach(([tName, tPrice]) => {
                     html += `<span class="topping-chip">${tName} $${tPrice} <a class="topping-chip-del" onclick="delItemCustomTopping(${cIdx},${iIdx},'${size}','${tName}')">✕</a></span>`;
                 });
-                html += `</div><div class="compact-add-row"><input type="text" id="add_item_top_name_${cIdx}_${iIdx}_${size}" placeholder="名稱" style="width:50px;"><span>$</span><input type="number" id="add_item_top_price_${cIdx}_${iIdx}_${size}" placeholder="價格" style="width:40px;"><button class="compact-add-btn" onclick="addItemCustomTopping(${cIdx},${iIdx},'${size}')">+</button></div></div>`;
+                html += `</div><div class="compact-add-row"><input type="text" id="add_item_top_name_${cIdx}_${iIdx}_${size}" placeholder="名稱" style="width:40px;"><span>$</span><input type="number" id="add_item_top_price_${cIdx}_${iIdx}_${size}" placeholder="價格" style="width:34px;"><button class="compact-add-btn" onclick="addItemCustomTopping(${cIdx},${iIdx},'${size}')">+</button></div></div>`;
             });
         }
         html += `</div>`;
@@ -785,7 +808,7 @@
                 let toppingsStr = item.toppings.length ? ` / 加:${item.toppings.join(',')}` : '';
                 list.innerHTML += `<div class="cart-item"><div class="cart-item-info"><div class="cart-item-title">${item.item.name} (${item.size}) x${item.qty}</div><div class="cart-item-desc">${item.ice} / ${item.sugar}${teaStr}${toppingsStr}</div><div style="font-weight:bold; color:var(--brand-color);">$${item.price}</div></div><button class="cart-del-btn" onclick="removeFromCart(${index})">移除</button></div>`;
             });
-        } else { list.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">購物車是空的</div>'; }
+        } else { list.innerHTML = '<div style="text-align:center; padding:16px; color:#999;">購物車是空的</div>'; }
         let methodEl = document.querySelector('input[name="delivery-method"]:checked');
         let method = methodEl ? methodEl.value : ""; 
         let discount = 0;
