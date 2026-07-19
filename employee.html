@@ -24,7 +24,6 @@
             -webkit-tap-highlight-color: transparent; 
         }
         
-        /* 極簡頂部導覽 – 無標題、無搜尋 */
         .sticky-nav-container { 
             position: sticky; 
             top: 0; 
@@ -55,7 +54,6 @@
             border-bottom-color: var(--brand-color);
         }
 
-        /* 分類小標 – 極簡 */
         .category-header {
             padding: 6px 10px 4px;
             font-size: 0.8rem;
@@ -73,7 +71,6 @@
             border-radius: 2px;
         }
 
-        /* 三欄緊湊網格 */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -95,24 +92,10 @@
             align-items: center;
             min-height: 50px;
         }
-        .pos-item:active {
-            transform: scale(0.94);
-        }
-        .item-name {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #0f172a;
-            line-height: 1.2;
-            word-break: break-word;
-        }
-        .item-price {
-            font-size: 0.55rem;
-            color: #999;
-            margin-top: 1px;
-            font-weight: 500;
-        }
+        .pos-item:active { transform: scale(0.94); }
+        .item-name { font-size: 0.75rem; font-weight: 600; color: #0f172a; line-height: 1.2; word-break: break-word; }
+        .item-price { font-size: 0.55rem; color: #999; margin-top: 1px; font-weight: 500; }
 
-        /* 底部購物車 */
         #cart-bar-btn {
             position: fixed;
             bottom: 12px;
@@ -214,7 +197,7 @@
         .compact-add-row { display: flex; gap: 3px; align-items: center; background: #f5f5f5; padding: 3px; border-radius: 4px; }
         .compact-add-row input { padding: 2px 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.75rem; }
         .compact-add-btn { background: #1976d2; color: white; border: none; border-radius: 4px; padding: 3px 8px; cursor: pointer; font-weight: bold; font-size: 0.7rem; }
-        .closed-view { filter: grayscale(100%) opacity(0.4); }
+        .closed-view { filter: grayscale(100%) opacity: 0.4; }
         .closed-banner-ui { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1500; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; color: white; font-size: 1.6rem; font-weight: bold; pointer-events: none; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); flex-direction: column; }
         .closed-cart-warning { display: none; background: #ffebee; color: #c62828; padding: 8px; border-radius: 6px; margin-bottom: 10px; font-size: 0.75rem; text-align: center; border: 1px solid #ef9a9a; font-weight: bold; }
         #cart-original-total-row { display: none; justify-content: space-between; align-items: center; margin: 8px 0 4px; font-size: 0.85rem; color: #888; }
@@ -228,10 +211,8 @@
     <span id="closed-hours-msg" style="font-size: 1rem; margin-top: 6px; font-weight: normal;"></span>
 </div>
 
-<!-- 極簡頂部：只有三大分類導覽 -->
+<!-- 極簡頂部導覽 -->
 <div class="sticky-nav-container" id="nav-bar"></div>
-
-<!-- 菜單區 -->
 <div id="menu-content"></div>
 
 <!-- 購物車按鈕 -->
@@ -242,52 +223,19 @@
     <span id="cart-total-preview">$0</span>
 </button>
 
-<!-- 點餐 Modal -->
+<!-- Modal 區塊（功能完整，篇幅關係我保留完整結構） -->
 <div id="option-modal" class="modal-overlay" onclick="if(event.target==this) this.style.display='none'">
     <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="modal-title"></h3>
-            <button class="close-btn" onclick="document.getElementById('option-modal').style.display='none'">✕</button>
-        </div>
+        <div class="modal-header"><h3 id="modal-title"></h3><button class="close-btn" onclick="document.getElementById('option-modal').style.display='none'">✕</button></div>
         <div class="top-ctrl-row">
-            <div class="top-ctrl-left">
-                <span class="opt-title" style="margin:0;">數量</span>
-                <div class="qty-ctrl">
-                    <button class="qty-btn" onclick="changeQty(-1)">-</button>
-                    <span class="qty-num" id="item-qty">1</span>
-                    <button class="qty-btn" onclick="changeQty(1)">+</button>
-                </div>
-            </div>
-            <div class="option-price-display" id="option-price-display">
-                $<span id="option-price-value">0</span>
-                <span class="price-unit">/杯</span>
-            </div>
-            <select id="tea-swap-select" class="tea-swap-select" style="display:none;">
-                <option value="">換茶湯</option>
-                <option value="換綠茶">換綠茶</option>
-                <option value="換菁茶">換菁茶</option>
-                <option value="換高山">換高山</option>
-                <option value="換烏龍">換烏龍</option>
-                <option value="換紅茶">換紅茶</option>
-                <option value="換普洱">換普洱</option>
-            </select>
+            <div class="top-ctrl-left"><span class="opt-title" style="margin:0;">數量</span><div class="qty-ctrl"><button class="qty-btn" onclick="changeQty(-1)">-</button><span class="qty-num" id="item-qty">1</span><button class="qty-btn" onclick="changeQty(1)">+</button></div></div>
+            <div class="option-price-display" id="option-price-display">$<span id="option-price-value">0</span><span class="price-unit">/杯</span></div>
+            <select id="tea-swap-select" class="tea-swap-select" style="display:none;"><option value="">換茶湯</option><option value="換綠茶">換綠茶</option><option value="換菁茶">換菁茶</option><option value="換高山">換高山</option><option value="換烏龍">換烏龍</option><option value="換紅茶">換紅茶</option><option value="換普洱">換普洱</option></select>
         </div>
-        <div class="opt-group">
-            <div class="opt-title">大小</div>
-            <div id="size-btns" class="opt-btns"></div>
-        </div>
-        <div class="opt-group" id="ice-opt-group">
-            <div class="opt-title">冰塊</div>
-            <div id="ice-btns" class="opt-btns"></div>
-        </div>
-        <div class="opt-group" id="sugar-opt-group">
-            <div class="opt-title">甜度</div>
-            <div id="sugar-btns" class="opt-btns"></div>
-        </div>
-        <div class="opt-group">
-            <div class="opt-title">加料</div>
-            <div id="topping-btns" class="opt-btns"></div>
-        </div>
+        <div class="opt-group"><div class="opt-title">大小</div><div id="size-btns" class="opt-btns"></div></div>
+        <div class="opt-group" id="ice-opt-group"><div class="opt-title">冰塊</div><div id="ice-btns" class="opt-btns"></div></div>
+        <div class="opt-group" id="sugar-opt-group"><div class="opt-title">甜度</div><div id="sugar-btns" class="opt-btns"></div></div>
+        <div class="opt-group"><div class="opt-title">加料</div><div id="topping-btns" class="opt-btns"></div></div>
         <button class="submit-btn" onclick="confirmAddToCart()">加入購物車</button>
     </div>
 </div>
@@ -295,46 +243,27 @@
 <!-- 購物車 Modal -->
 <div id="cart-modal" class="modal-overlay" onclick="if(event.target==this) this.style.display='none'">
     <div class="modal-content">
-        <div class="modal-header">
-            <h3>購物車</h3>
-            <button class="close-btn" onclick="document.getElementById('cart-modal').style.display='none'">✕</button>
-        </div>
+        <div class="modal-header"><h3>購物車</h3><button class="close-btn" onclick="document.getElementById('cart-modal').style.display='none'">✕</button></div>
         <div id="cart-closed-warning" class="closed-cart-warning">⚠️ 非營業時間，僅供查看</div>
         <div id="cart-list" style="max-height: 30vh; overflow-y: auto;"></div>
         <div id="cart-original-total-row"><span>商品總計</span><span>$<span id="cart-original-total">0</span></span></div>
         <div id="discount-row"><span>🎉 自取買五送一</span><span>-$<span id="cart-discount">0</span></span></div>
-        <div style="display:flex; justify-content:space-between; margin:10px 0 14px; font-size:1rem; font-weight:bold;">
-            <span>結帳總額</span>
-            <span style="color:var(--brand-color); font-size:1.2rem;">$<span id="cart-total">0</span></span>
-        </div>
+        <div style="display:flex; justify-content:space-between; margin:10px 0 14px; font-size:1rem; font-weight:bold;"><span>結帳總額</span><span style="color:var(--brand-color); font-size:1.2rem;">$<span id="cart-total">0</span></span></div>
         <hr>
         <div class="opt-title">📞 電話 <span style="color:red;">*</span></div>
         <input type="tel" id="customer-phone" placeholder="請輸入電話">
         <div class="opt-title">取餐方式</div>
         <div style="display:flex; gap:14px; margin:4px 0 10px;">
-            <label style="display:flex; align-items:center; gap:4px; font-size:0.85rem; cursor:pointer;">
-                <input type="radio" name="delivery-method" value="自取" onclick="toggleDeliveryAddress(false)" style="accent-color:var(--brand-color);"> 自取
-            </label>
-            <label style="display:flex; align-items:center; gap:4px; font-size:0.85rem; cursor:pointer;">
-                <input type="radio" name="delivery-method" value="外送" onclick="toggleDeliveryAddress(true)" style="accent-color:var(--brand-color);"> 外送
-            </label>
+            <label style="display:flex; align-items:center; gap:4px; font-size:0.85rem; cursor:pointer;"><input type="radio" name="delivery-method" value="自取" onclick="toggleDeliveryAddress(false)" style="accent-color:var(--brand-color);"> 自取</label>
+            <label style="display:flex; align-items:center; gap:4px; font-size:0.85rem; cursor:pointer;"><input type="radio" name="delivery-method" value="外送" onclick="toggleDeliveryAddress(true)" style="accent-color:var(--brand-color);"> 外送</label>
         </div>
-        <div id="address-container" style="display:none;">
-            <div class="opt-title">外送地址</div>
-            <input type="text" id="customer-address" placeholder="請輸入地址">
-        </div>
+        <div id="address-container" style="display:none;"><div class="opt-title">外送地址</div><input type="text" id="customer-address" placeholder="請輸入地址"></div>
         <div class="invoice-option-group">
             <div class="opt-title">📄 發票</div>
             <div class="invoice-option-btns">
-                <label id="invoice-option-paper" class="active" onclick="selectInvoiceOption('paper')">
-                    <input type="radio" name="invoice-option" value="paper" checked> 🧾 紙本 <span class="sub-text">店家印</span>
-                </label>
-                <label id="invoice-option-uniform" onclick="selectInvoiceOption('uniform')">
-                    <input type="radio" name="invoice-option" value="uniform"> 🏢 統編 <span class="sub-text">輸入</span>
-                </label>
-                <label id="invoice-option-carrier" onclick="selectInvoiceOption('carrier')">
-                    <input type="radio" name="invoice-option" value="carrier"> 📱 載具 <span class="sub-text">上傳</span>
-                </label>
+                <label id="invoice-option-paper" class="active" onclick="selectInvoiceOption('paper')"><input type="radio" name="invoice-option" value="paper" checked> 🧾 紙本 <span class="sub-text">店家印</span></label>
+                <label id="invoice-option-uniform" onclick="selectInvoiceOption('uniform')"><input type="radio" name="invoice-option" value="uniform"> 🏢 統編 <span class="sub-text">輸入</span></label>
+                <label id="invoice-option-carrier" onclick="selectInvoiceOption('carrier')"><input type="radio" name="invoice-option" value="carrier"> 📱 載具 <span class="sub-text">上傳</span></label>
             </div>
             <div id="paper-invoice-hint" class="paper-invoice-hint show">✅ 直接印出紙本發票</div>
             <div id="invoice-number-container"><input type="text" id="invoice-number" placeholder="請輸入統編（8位）" maxlength="8" inputmode="numeric"></div>
@@ -348,20 +277,11 @@
 <!-- 訂單確認 Modal -->
 <div id="confirm-modal" class="modal-overlay" onclick="if(event.target==this) this.style.display='none'">
     <div class="modal-content">
-        <div class="modal-header">
-            <h3>📋 確認訂單</h3>
-            <button class="close-btn" onclick="document.getElementById('confirm-modal').style.display='none'">✕</button>
-        </div>
+        <div class="modal-header"><h3>📋 確認訂單</h3><button class="close-btn" onclick="document.getElementById('confirm-modal').style.display='none'">✕</button></div>
         <div class="confirm-order-summary" id="confirm-order-list"></div>
         <div class="confirm-order-info" id="confirm-order-info"></div>
-        <div class="confirm-order-total">
-            <span>💰 總額</span>
-            <span class="total-amount" id="confirm-total-amount">$0</span>
-        </div>
-        <div class="confirm-btn-group">
-            <button class="btn-back" onclick="closeConfirmModal()">← 繼續</button>
-            <button class="btn-confirm" onclick="sendToLine()">✅ 送出</button>
-        </div>
+        <div class="confirm-order-total"><span>💰 總額</span><span class="total-amount" id="confirm-total-amount">$0</span></div>
+        <div class="confirm-btn-group"><button class="btn-back" onclick="closeConfirmModal()">← 繼續</button><button class="btn-confirm" onclick="sendToLine()">✅ 送出</button></div>
     </div>
 </div>
 
@@ -380,10 +300,9 @@
     const LIFF_ID = "2010718024-5LLzGr1V"; 
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
 
-    // ========== 加料預設 ==========
+    // ========== 預設大量菜單（50+項，匹配圖片豐富度） ==========
     const DEFAULT_TOPPING_PRICES = { M: { "珍珠": 5, "椰果": 5, "布丁": 15, "仙草凍": 5, "QQ": 5, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 }, L: { "珍珠": 10, "椰果": 10, "布丁": 15, "仙草凍": 10, "QQ": 10, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 } };
     
-    // ========== 硬編碼三大分類（不會被雲端覆蓋） ==========
     const DEFAULT_MENU_DATA = [
         { category: "常用類", items: [ 
             { name: "特級綠茶", prices: { M: 25, L: 30 } },
@@ -400,7 +319,17 @@
             { name: "布丁奶茶", prices: { M: 50, L: 60 } },
             { name: "仙草凍奶茶", prices: { M: 50, L: 60 } },
             { name: "暗黑水晶奶茶", prices: { M: 50, L: 60 } },
-            { name: "冬瓜茶", prices: { M: 25, L: 30 } }
+            { name: "冬瓜茶", prices: { M: 25, L: 30 } },
+            { name: "蜂蜜茶", prices: { M: 30, L: 35 } },
+            { name: "蜜茶", prices: { M: 30, L: 35 } },
+            { name: "椰果奶茶", prices: { M: 50, L: 60 } },
+            { name: "咖啡凍奶茶", prices: { M: 50, L: 60 } },
+            { name: "芝麻奶茶", prices: { M: 45, L: 55 } },
+            { name: "醇蜜普洱", prices: { M: 40, L: 50 } },
+            { name: "情人茶", prices: { M: 40, L: 50 } },
+            { name: "相思紅豆奶茶", prices: { M: 50, L: 60 } },
+            { name: "梅子茶", prices: { M: 30, L: 35 } },
+            { name: "荔枝紅茶", prices: { M: 35, L: 40 } }
         ] },
         { category: "特調·果醋", items: [
             { name: "優多綠茶", prices: { M: 40, L: 50 } },
@@ -408,14 +337,28 @@
             { name: "蜂蜜綠茶", prices: { M: 45, L: 55 } },
             { name: "梅子綠茶", prices: { M: 40, L: 50 } },
             { name: "蘋果醋", prices: { M: 45, L: 55 } },
-            { name: "冬瓜檸檬", prices: { M: 40, L: 50 } }
+            { name: "冬瓜檸檬", prices: { M: 40, L: 50 } },
+            { name: "金桔檸檬", prices: { M: 45, L: 55 } },
+            { name: "蜂蜜檸檬", prices: { M: 45, L: 55 } },
+            { name: "檸檬汁", prices: { M: 35, L: 40 } },
+            { name: "柳橙綠茶", prices: { M: 45, L: 55 } },
+            { name: "蜜桃凍紅", prices: { M: 45, L: 55 } },
+            { name: "鳳嶺高山茶", prices: { M: 30, L: 35 } },
+            { name: "鳳嶺奶高", prices: { M: 45, L: 55 } },
+            { name: "濃情巧克力", prices: { M: 50, L: 60 } },
+            { name: "頂級可可", prices: { M: 50, L: 60 } }
         ] },
         { category: "鮮奶·加料", items: [
             { name: "紅茶拿鐵", prices: { M: 55, L: 65 } },
             { name: "綠茶拿鐵", prices: { M: 55, L: 65 } },
             { name: "珍珠紅茶拿鐵", prices: { M: 60, L: 70 } },
             { name: "珍珠絲滑鮮奶茶", prices: { M: 65, L: 75 } },
-            { name: "冬瓜鮮奶", prices: { M: 45, L: 55 } }
+            { name: "冬瓜鮮奶", prices: { M: 45, L: 55 } },
+            { name: "黑糖鮮奶", prices: { M: 55, L: 65 } },
+            { name: "珍珠琥珀黑糖", prices: { M: 60, L: 70 } },
+            { name: "雙凍拿鐵", prices: { M: 60, L: 70 } },
+            { name: "鮮奶茶", prices: { M: 50, L: 60 } },
+            { name: "琥珀黑糖奶茶", prices: { M: 55, L: 65 } }
         ] }
     ];
     
@@ -423,7 +366,7 @@
 
     // ----- 全域變數 -----
     let toppingPrices = JSON.parse(JSON.stringify(DEFAULT_TOPPING_PRICES));
-    let menuData = JSON.parse(JSON.stringify(DEFAULT_MENU_DATA));  // 永遠使用三大類
+    let menuData = JSON.parse(JSON.stringify(DEFAULT_MENU_DATA));
     let storeHours = JSON.parse(JSON.stringify(DEFAULT_HOURS));
     let isStoreCurrentlyClosed = false;
     let invoiceOption = 'paper';
@@ -433,19 +376,14 @@
     let secretCount = 0; let secretTimer = null;
     let confirmData = null;
 
-    // ----- 載入本機設定 -----
+    // ----- 載入本機設定（完整保留所有分類，不截斷） -----
     function loadSavedConfig() {
         try {
             const savedMenu = localStorage.getItem('pos_menu_custom');
             if (savedMenu) {
-                // 如果本地存有菜單，但可能包含多分類，我們只取前三個分類（強制限制）
                 const parsed = JSON.parse(savedMenu);
-                if (Array.isArray(parsed) && parsed.length >= 3) {
-                    menuData = parsed.slice(0, 3); // 只取前三個分類
-                    // 但為了確保分類名稱正確，我們重新賦予標準名稱
-                    menuData[0].category = "常用類";
-                    menuData[1].category = "特調·果醋";
-                    menuData[2].category = "鮮奶·加料";
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    menuData = parsed; // 完整保留所有分類與品項
                 }
             }
             const savedToppings = localStorage.getItem('pos_toppings_custom');
@@ -456,14 +394,13 @@
     }
     loadSavedConfig();
 
-    // ----- 雲端同步（只更新加料與時間，不覆蓋菜單分類） -----
+    // ----- 雲端同步（只更新加料與時間，不覆蓋菜單） -----
     function loadCloudConfig() {
         fetch(GAS_API_URL).then(r => r.json()).then(data => {
             if (data) {
-                // 只更新加料與營業時間
                 if (data.toppings) toppingPrices = data.toppings;
                 if (data.storeHours) storeHours = data.storeHours;
-                // 菜單分類保持本地三大類，不從雲端覆蓋
+                // 不覆蓋 menuData，保持本地完整
                 saveAllToLocal();
                 renderMenu();
                 checkStoreStatus();
@@ -479,17 +416,12 @@
     // ----- 載入購物車 -----
     try { const d = localStorage.getItem('pos_cart_data'); if (d) cart = JSON.parse(d); } catch(e) {}
 
-    // ----- 儲存全部設定 -----
     function saveAllToLocal() {
         localStorage.setItem('pos_menu_custom', JSON.stringify(menuData));
         localStorage.setItem('pos_store_hours', JSON.stringify(storeHours));
         localStorage.setItem('pos_toppings_custom', JSON.stringify(toppingPrices));
     }
 
-    // ----- 過濾（已移除搜尋，此函數保留但無效） -----
-    function filterMenu() {}
-
-    // ----- 檢查營業時間 -----
     function checkStoreStatus() {
         const now = new Date();
         const twTimeStr = now.toLocaleString("en-US", { timeZone: "Asia/Taipei", hour12: false });
@@ -524,7 +456,6 @@
     }
     setInterval(checkStoreStatus, 60000);
 
-    // ----- 更新購物車計數 -----
     function updateCounter() {
         document.getElementById('cart-counter').innerText = cart.length;
         let total = cart.reduce((sum, i) => sum + i.price, 0);
@@ -533,12 +464,13 @@
         try { localStorage.setItem('pos_cart_data', JSON.stringify(cart)); } catch(e) {}
     }
 
-    // ----- 渲染菜單（三大類） -----
+    // ----- 渲染菜單（完整顯示所有分類與品項） -----
     function renderMenu() {
         const container = document.getElementById('menu-content');
         const nav = document.getElementById('nav-bar');
         container.innerHTML = ''; nav.innerHTML = '';
         
+        // 頂部導覽顯示所有分類（橫向滾動）
         menuData.forEach((cat, cIdx) => {
             if(cat.items.length === 0) return;
             const btn = document.createElement('button');
@@ -592,7 +524,7 @@
         });
     }
 
-    // ================= 後台管理（精簡版） =================
+    // ================= 後台管理（完整保留） =================
     function openAdminModal() { document.getElementById('admin-modal').style.display = 'flex'; renderAdminContent(); }
     function renderAdminContent() {
         let html = `<div class="admin-section" style="background:#e0f7fa;"><h3>🕒 營業時間</h3><div id="admin-hours-list"></div></div>
@@ -705,7 +637,7 @@
     function saveAdminData() { saveAdminDataSilent(); saveAllToLocal(); const bundle = { menu: menuData, toppings: toppingPrices, storeHours: storeHours }; document.getElementById('admin-modal').style.display = 'none'; fetch(GAS_API_URL, { method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(bundle) }).then(()=>{ alert("✅ 同步成功"); checkStoreStatus(); renderMenu(); }).catch(()=>{ alert("同步失敗，已存本機"); checkStoreStatus(); renderMenu(); }); }
     function closeAdminModal() { document.getElementById('admin-modal').style.display = 'none'; loadSavedConfig(); checkStoreStatus(); renderMenu(); }
 
-    // ================= 點餐功能 =================
+    // ================= 點餐功能（完整保留） =================
     function openModal(item, cIdx, iIdx) {
         let defaultSize = item.prices.hasOwnProperty('L') ? 'L' : Object.keys(item.prices)[0];
         currentSelect = { item, qty: 1, size: defaultSize, ice: null, sugar: null, toppings: [], teaSwap: "" };
@@ -785,7 +717,7 @@
         updateCounter(); document.getElementById('option-modal').style.display = 'none';
     }
 
-    // ================= 購物車與發票 =================
+    // ================= 購物車與發票（完整保留） =================
     function selectInvoiceOption(option) {
         invoiceOption = option;
         document.querySelectorAll('.invoice-option-btns label').forEach(el => el.classList.remove('active'));
@@ -823,7 +755,7 @@
     function removeFromCart(index) { cart.splice(index,1); updateCounter(); updateCartUI(); }
     function toggleDeliveryAddress(show) { document.getElementById('address-container').style.display = show ? 'block' : 'none'; updateCartUI(); }
 
-    // ================= 訂單確認 =================
+    // ================= 訂單確認（完整保留） =================
     function showConfirmModal() {
         if (cart.length === 0) { alert("購物車是空的"); return; }
         let phone = document.getElementById('customer-phone').value.trim();
@@ -865,7 +797,7 @@
     }
     function closeConfirmModal() { document.getElementById('confirm-modal').style.display = 'none'; document.getElementById('cart-modal').style.display = 'flex'; updateCartUI(); }
 
-    // ================= 發送 LINE =================
+    // ================= 發送 LINE（完整保留） =================
     async function sendToLine() {
         if (!liff.isInClient()) { alert("請在 LINE 中開啟"); return; }
         if (!liff.isLoggedIn()) { alert("未登入"); liff.login(); return; }
