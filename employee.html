@@ -30,7 +30,7 @@
             top: 0; 
             z-index: 999; 
             background: #ffffff; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
         }
         .header-title {
             font-size: 1.2rem;
@@ -74,39 +74,35 @@
             color: #94a3b8;
         }
 
-        /* 分類導覽 – POS 風格橫向滑動 */
+        /* ===== 分類導覽 – 純文字 + 底線 (如圖) ===== */
         .sticky-nav {
             display: flex;
-            gap: 12px;
+            gap: 20px;
             overflow-x: auto;
             white-space: nowrap;
-            padding: 6px 15px 10px;
+            padding: 0 15px;
             background: #ffffff;
             border-bottom: 1px solid #eef2f6;
         }
         .sticky-nav::-webkit-scrollbar { display: none; }
         .nav-btn {
             background: none;
-            color: var(--text-muted);
+            color: #666;
             border: none;
-            padding: 8px 16px 6px;
+            padding: 12px 0 10px;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
             position: relative;
             transition: color 0.2s;
-            letter-spacing: 0.3px;
-            border-radius: 20px;
+            border-bottom: 3px solid transparent;
         }
         .nav-btn.active {
-            color: #ffffff;
-            background: var(--brand-color);
-        }
-        .nav-btn.active::after {
-            display: none;
+            color: var(--brand-color);
+            border-bottom-color: var(--brand-color);
         }
 
-        /* 分類標題 (較淡，因為按鈕已夠明顯) */
+        /* 分類標題 – 左側綠色小豎線 */
         .category-header {
             padding: 18px 15px 8px;
             font-size: 1rem;
@@ -125,7 +121,7 @@
             border-radius: 2px;
         }
 
-        /* 商品卡片 – POS 大按鈕風格 (雙欄) */
+        /* ===== 商品卡片 – 方塊格 + 文字靠左 (完全符合圖片) ===== */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -134,37 +130,36 @@
         }
         .pos-item {
             background: #ffffff;
-            border-radius: 16px;
-            padding: 18px 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-radius: 14px;
+            padding: 16px 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
             cursor: pointer;
             transition: transform 0.1s, box-shadow 0.15s;
-            border: 1px solid #eef2f6;
-            text-align: center;
+            border: 1px solid #f0f2f5;
+            text-align: left; /* 關鍵：文字靠左 */
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: center;
             min-height: 80px;
         }
         .pos-item:active {
-            transform: scale(0.95);
+            transform: scale(0.97);
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         .item-name {
-            font-size: 1.05rem;
-            font-weight: 700;
+            font-size: 1rem;
+            font-weight: 600;
             color: #0f172a;
             line-height: 1.3;
         }
         .item-price {
             font-size: 0.8rem;
-            color: var(--text-muted);
+            color: #999;
             margin-top: 4px;
             font-weight: 500;
         }
 
-        /* 其餘 Modal、購物車、後台等樣式沿用原檔，僅微調 */
+        /* 其餘 Modal、購物車、後台等樣式（完全保留原功能，只微調配色） */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 2000; animation: fadeIn 0.2s ease-out; }
         .modal-content { background: #ffffff; width: 100%; max-width: 600px; padding: 15px 15px; border-radius: 20px 20px 0 0; max-height: 90vh; overflow-y: auto; box-sizing: border-box; animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); position: relative; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -428,13 +423,13 @@
 </div>
 
 <script>
-    // ==================== LIFF ID 更新 ====================
+    // ==================== LIFF ID 已更新 ====================
     const LIFF_ID = "2010718024-5LLzGr1V"; 
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
 
     const DEFAULT_TOPPING_PRICES = { M: { "珍珠": 5, "椰果": 5, "布丁": 15, "仙草凍": 5, "QQ": 5, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 }, L: { "珍珠": 10, "椰果": 10, "布丁": 15, "仙草凍": 10, "QQ": 10, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 } };
     
-    // ========== 三大分類 POS 風格 ==========
+    // ========== 您指定的三大分類（產品已全數塞入） ==========
     const DEFAULT_MENU_DATA = [
         { category: "常用類", items: [ 
             { name: "特級綠茶", prices: { M: 25, L: 30 } },
@@ -480,7 +475,7 @@
         0: { open: "09:00", close: "21:00", isClosed: false }
     };
 
-    // ----- 以下所有 JavaScript 與原檔完全一致（僅分類資料已更新）-----
+    // ----- 以下所有 JavaScript 與原檔完全一致（僅分類資料已更新，LIFF已改）-----
     let toppingPrices = JSON.parse(JSON.stringify(DEFAULT_TOPPING_PRICES));
     let menuData = JSON.parse(JSON.stringify(DEFAULT_MENU_DATA));
     let storeHours = JSON.parse(JSON.stringify(DEFAULT_HOURS));
@@ -644,7 +639,7 @@
                 const el = document.createElement('div'); el.className = 'pos-item';
                 let priceStr = Object.entries(item.prices).map(([s,p]) => `${s} $${p}`).join(' / ');
                 
-                // POS 大按鈕樣式：只顯示名稱，價格小字在下方
+                // 方塊格：只有名稱與價格，文字靠左
                 el.innerHTML = `<div class="item-name">${item.name}</div><div class="item-price">${priceStr}</div>`;
                 el.onclick = () => {
                     if (item.name === "特級綠茶") {
