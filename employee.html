@@ -6,16 +6,16 @@
     <title>員工快速點餐 - 清心福全</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
-        :root { 
-            --brand-color: #00d26a; 
+        :root {
+            --brand-color: #00d26a;
             --brand-light: #e8f5e9;
-            --bg-color: #f0f2f5; 
+            --bg-color: #f0f2f5;
             --text-main: #333333;
             --text-muted: #888888;
         }
-        html { scroll-behavior: smooth; } 
+        html { scroll-behavior: smooth; }
         body { font-family: 'Helvetica Neue', Helvetica, Arial, '微軟正黑體', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding-bottom: 20px; -webkit-tap-highlight-color: transparent; }
-        
+
         /* ===== 員工專用頂部 Header ===== */
         .employee-header {
             background-color: var(--brand-color);
@@ -31,7 +31,20 @@
             top: 0;
             z-index: 1000;
         }
+        .header-right { display: flex; align-items: center; gap: 15px; }
         .cart-btn-top { display: flex; align-items: center; gap: 6px; font-size: 1.2rem; cursor: pointer; }
+        .edit-toggle-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.4);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .edit-toggle-btn:hover { background: rgba(255,255,255,0.3); }
 
         /* ===== 員工專用導覽列 (分頁標籤) ===== */
         .top-nav-tabs {
@@ -45,16 +58,28 @@
         }
 
         /* ===== 員工專用高密度商品網格 (6欄) ===== */
-        .menu-grid { 
+        .menu-grid {
             display: none; grid-template-columns: repeat(6, 1fr); gap: 8px; padding: 10px; background: var(--bg-color);
         }
         .menu-grid.active { display: grid; }
-        .pos-item { 
-            background: #ffffff; border-radius: 6px; height: 70px; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 0.85rem; font-weight: bold; color: #333; padding: 4px; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); word-break: break-all; line-height: 1.2; transition: transform 0.1s; 
+        .pos-item {
+            background: #ffffff; border-radius: 6px; height: 70px; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 0.85rem; font-weight: bold; color: #333; padding: 4px; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); word-break: break-all; line-height: 1.2; transition: transform 0.1s;
         }
         .pos-item:active { transform: scale(0.95); background: #f8f9fa; }
 
-        /* 底部彈窗與選項樣式 (保留原始正常邏輯) */
+        /* ===== 編輯模式專用樣式 ===== */
+        .edit-mode .menu-grid {
+            display: grid !important;
+            margin-bottom: 20px;
+            border: 2px dashed #00d26a;
+            padding: 15px;
+        }
+        .edit-mode .top-nav-tabs { display: none; }
+        .dragging { opacity: 0.5; border: 2px solid #00d26a; }
+        .pos-item[draggable="true"] { cursor: grab; }
+        .pos-item[draggable="true"]:active { cursor: grabbing; }
+
+        /* ===== 其餘原有樣式（Modal、購物車等） ===== */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 2000; opacity: 1; animation: fadeIn 0.2s ease-out; }
         .modal-content { background: #ffffff; width: 100%; max-width: 600px; padding: 15px 15px; border-radius: 20px 20px 0 0; max-height: 90vh; overflow-y: auto; box-sizing: border-box; animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); position: relative; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -64,8 +89,8 @@
         .close-btn { background: #f0f0f0; border: none; width: 26px; height: 26px; border-radius: 50%; font-size: 1rem; color: #666; cursor: pointer; display: flex; justify-content: center; align-items: center; }
         .opt-group { margin-bottom: 12px; }
         .opt-title { font-size: 0.85rem; font-weight: bold; color: var(--text-main); margin-bottom: 6px; }
-        .opt-btns { display: flex; flex-wrap: wrap; gap: 5px; } 
-        .opt-btn { background: #f5f6f8; color: var(--text-main); border: 1px solid transparent; padding: 6px 8px; border-radius: 15px; font-size: 0.8rem; cursor: pointer; text-align: center; transition: all 0.2s; white-space: nowrap; flex: 1; } 
+        .opt-btns { display: flex; flex-wrap: wrap; gap: 5px; }
+        .opt-btn { background: #f5f6f8; color: var(--text-main); border: 1px solid transparent; padding: 6px 8px; border-radius: 15px; font-size: 0.8rem; cursor: pointer; text-align: center; transition: all 0.2s; white-space: nowrap; flex: 1; }
         .opt-btn.active { background: var(--brand-light); color: var(--brand-color); border: 1px solid var(--brand-color); font-weight: bold; }
         select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padding-right: 20px; text-align: center; background-image: url('data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position-x: 100%; background-position-y: center; background-size: 16px; }
         #size-btns .opt-btn { flex-grow: 1; }
@@ -77,8 +102,6 @@
         .tea-swap-select { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #f5f6f8; font-size: 0.85rem; color: var(--text-main); outline: none; }
         .option-price-display { font-size: 1.3rem; font-weight: 800; color: var(--brand-color); background: var(--brand-light); padding: 6px 16px; border-radius: 20px; white-space: nowrap; box-shadow: inset 0 1px 3px rgba(0,0,0,0.04); }
         .option-price-display .price-unit { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); }
-        
-        /* 購物車與輸入項目 */
         .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f0f0f0; }
         .cart-item-info { flex-grow: 1; padding-right: 15px; }
         .cart-item-title { font-weight: bold; font-size: 1rem; margin-bottom: 4px; }
@@ -87,8 +110,6 @@
         #customer-phone, #customer-address, #invoice-number { width: 100%; font-family: inherit; margin: 5px 0 15px; padding: 12px; box-sizing: border-box; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; background: #f9f9f9; outline: none; transition: border-color 0.2s, background-color 0.2s; }
         #customer-phone:focus, #customer-address:focus, #invoice-number:focus { border-color: var(--brand-color); background: #ffffff; }
         .submit-btn { width: 100%; padding: 12px; background: var(--brand-color); color: white; border: none; border-radius: 14px; font-weight: bold; margin-top: 5px; cursor: pointer; }
-
-        /* 發票與確認訂單 */
         .invoice-option-group { margin: 15px 0 10px 0; }
         .invoice-option-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
         .invoice-option-btns label { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.9rem; cursor: pointer; padding: 10px 6px; border-radius: 12px; border: 2px solid #e0e0e0; transition: all 0.2s; text-align: center; }
@@ -115,8 +136,6 @@
         .confirm-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
         .confirm-btn-group .btn-confirm { padding: 14px; background: var(--brand-color); color: white; border: none; border-radius: 14px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: background 0.15s; }
         .confirm-btn-group .btn-back { padding: 14px; background: #e2e8f0; color: var(--text-main); border: none; border-radius: 14px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: background 0.15s; }
-
-        /* 店休視覺效果 */
         .closed-view { filter: grayscale(100%) opacity(0.5); }
         .closed-banner-ui { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1500; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; color: white; font-size: 2.2rem; font-weight: bold; pointer-events: none; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); flex-direction: column; }
         .closed-cart-warning { display: none; background: #ffebee; color: #c62828; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; text-align: center; border: 1px solid #ef9a9a; font-weight: bold; }
@@ -129,11 +148,14 @@
     <span id="closed-hours-msg" style="font-size: 1.2rem; margin-top: 10px; font-weight: normal;"></span>
 </div>
 
-<!-- 新版員工 POS 標題與導覽 -->
+<!-- 員工 POS 標題與導覽 -->
 <div class="employee-header">
     <div>🧋 員工快速點餐</div>
-    <div class="cart-btn-top" onclick="showCart()">
-        🛒 <span id="cart-counter">0</span>
+    <div class="header-right">
+        <button class="edit-toggle-btn" onclick="toggleEditMode()">✏️ 編輯</button>
+        <div class="cart-btn-top" onclick="showCart()">
+            🛒 <span id="cart-counter">0</span>
+        </div>
     </div>
 </div>
 
@@ -147,7 +169,6 @@
             <h3 id="modal-title"></h3>
             <button class="close-btn" onclick="document.getElementById('option-modal').style.display='none'">✕</button>
         </div>
-        
         <div class="top-ctrl-row">
             <div class="top-ctrl-left">
                 <div class="opt-title" style="margin:0;">數量</div>
@@ -157,12 +178,10 @@
                     <button class="qty-btn" onclick="changeQty(1)">+</button>
                 </div>
             </div>
-            
             <div class="option-price-display" id="option-price-display">
                 $<span id="option-price-value">0</span>
                 <span class="price-unit">/ 杯</span>
             </div>
-            
             <select id="tea-swap-select" class="tea-swap-select" style="display:none;">
                 <option value="">更換茶湯 (無)</option>
                 <option value="換綠茶">換綠茶</option>
@@ -173,7 +192,6 @@
                 <option value="換普洱">換普洱</option>
             </select>
         </div>
-
         <div class="opt-group">
             <div class="opt-title">大小</div>
             <div id="size-btns" class="opt-btns"></div>
@@ -190,7 +208,6 @@
             <div class="opt-title">加料</div>
             <div id="topping-btns" class="opt-btns"></div>
         </div>
-        
         <button class="submit-btn" onclick="confirmAddToCart()">加入購物車</button>
     </div>
 </div>
@@ -204,7 +221,6 @@
         </div>
         <div id="cart-closed-warning" class="closed-cart-warning">⚠️ 目前為非營業時間，購物車僅供查看，無法進行結帳。</div>
         <div id="cart-list" style="max-height: 40vh; overflow-y: auto; padding-right: 5px;"></div>
-        
         <div id="cart-original-total-row" style="display: none; justify-content: space-between; align-items: center; margin: 15px 0 5px; font-size: 1rem; color: #888;">
             <span>商品總計</span><span>$<span id="cart-original-total">0</span></span>
         </div>
@@ -215,7 +231,6 @@
             <span>結帳總額</span><span style="color: var(--brand-color); font-size: 1.5rem;">$<span id="cart-total">0</span></span>
         </div>
         <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
-
         <div class="opt-title">聯絡電話 <span style="color: red;">*</span></div>
         <input type="tel" id="customer-phone" placeholder="請輸入聯絡電話" required>
         <div class="opt-title">取餐方式 (自取享買五送一優惠)</div>
@@ -231,7 +246,6 @@
             <div class="opt-title">外送地址</div>
             <input type="text" id="customer-address" placeholder="首次光臨貴賓請務必輸入外送地址">
         </div>
-
         <div class="invoice-option-group">
             <div class="opt-title">📄 發票選項</div>
             <div class="invoice-option-btns">
@@ -249,7 +263,6 @@
             <div id="invoice-number-container"><input type="text" id="invoice-number" placeholder="請輸入統一編號（8位數字）" maxlength="8" inputmode="numeric"></div>
             <div id="carrier-hint">📌 訂單送出後，請在聊天室上傳載具 QR Code 圖片</div>
         </div>
-        
         <button class="submit-btn" onclick="showConfirmModal()">📋 確認訂單</button>
     </div>
 </div>
@@ -274,14 +287,21 @@
 </div>
 
 <script>
-    const LIFF_ID = "2010718024-rc9ivBx5"; 
+    const LIFF_ID = "2010718024-rc9ivBx5";
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
 
-    // 初始化變數
+    // ===== 全域變數 =====
     let menuData = [];
     let toppingPrices = {};
-    let storeHours = { 1: { open: "09:00", close: "21:00", isClosed: false }, 2: { open: "09:00", close: "21:00", isClosed: false }, 3: { open: "09:00", close: "21:00", isClosed: false }, 4: { open: "09:00", close: "21:00", isClosed: false }, 5: { open: "09:00", close: "21:00", isClosed: false }, 6: { open: "09:00", close: "21:00", isClosed: false }, 0: { open: "09:00", close: "21:00", isClosed: false } };
-    
+    let storeHours = {
+        1: { open: "09:00", close: "21:00", isClosed: false },
+        2: { open: "09:00", close: "21:00", isClosed: false },
+        3: { open: "09:00", close: "21:00", isClosed: false },
+        4: { open: "09:00", close: "21:00", isClosed: false },
+        5: { open: "09:00", close: "21:00", isClosed: false },
+        6: { open: "09:00", close: "21:00", isClosed: false },
+        0: { open: "09:00", close: "21:00", isClosed: false }
+    };
     let isStoreCurrentlyClosed = false;
     let invoiceOption = 'paper';
     let invoiceNumber = '';
@@ -290,42 +310,39 @@
     let currentSelect = {};
     let confirmData = null;
 
+    // ===== 編輯模式相關 =====
+    let isEditMode = false;
+    let dragSrcEl = null;
+
     // ==========================================
-    // 核心修復：從雲端抓取真實資料，並動態分三類
+    // 核心：從雲端抓取資料
     // ==========================================
     function loadCloudConfig() {
         fetch(GAS_API_URL)
         .then(r => r.json())
         .then(data => {
             if (data && data.menu && data.menu.length > 0) {
-                // 1. 將雲端所有真實分類裡的品項「攤平」集中
                 let allRealItems = [];
                 data.menu.forEach(cat => {
                     if(cat.items && cat.items.length > 0) {
                         allRealItems = allRealItems.concat(cat.items);
                     }
                 });
-
-                // 2. 依照要求隨機洗牌
+                // 隨機洗牌
                 for (let i = allRealItems.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [allRealItems[i], allRealItems[j]] = [allRealItems[j], allRealItems[i]];
                 }
-
-                // 3. 將包含「真實價格與專屬加料」的品項均分至三大類
                 let partSize = Math.ceil(allRealItems.length / 3);
                 menuData = [
                     { category: "📋 常用類", items: allRealItems.slice(0, partSize) },
                     { category: "🍹 特調·果醋", items: allRealItems.slice(partSize, partSize * 2) },
                     { category: "🥛 鮮奶·加料", items: allRealItems.slice(partSize * 2) }
                 ];
-
-                // 同步雲端全域加料與營業時間
                 if(data.toppings) toppingPrices = data.toppings;
-                if(data.storeHours) storeHours = data.storeHours; 
-                
-                renderMenu();     
-                checkStoreStatus(); 
+                if(data.storeHours) storeHours = data.storeHours;
+                renderMenu();
+                checkStoreStatus();
             }
         }).catch(err => {
             console.error("無法連線雲端", err);
@@ -333,20 +350,42 @@
         });
     }
 
-    liff.init({ liffId: LIFF_ID }).then(() => { if (!liff.isLoggedIn()) liff.login(); else loadCloudConfig(); }).catch(() => loadCloudConfig());
+    liff.init({ liffId: LIFF_ID }).then(() => {
+        if (!liff.isLoggedIn()) liff.login();
+        else loadCloudConfig();
+    }).catch(() => loadCloudConfig());
 
+    // ===== 營業時間檢查 =====
     function checkStoreStatus() {
-        const now = new Date(); const twTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Taipei", hour12: false }));
-        const day = twTime.getDay(); const hh = String(twTime.getHours()).padStart(2, '0'); const mm = String(twTime.getMinutes()).padStart(2, '0');
-        const currentTime = `${hh}:${mm}`; const todayRules = storeHours[day]; const daysZh = ["日", "一", "二", "三", "四", "五", "六"];
+        const now = new Date();
+        const twTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Taipei", hour12: false }));
+        const day = twTime.getDay();
+        const hh = String(twTime.getHours()).padStart(2, '0');
+        const mm = String(twTime.getMinutes()).padStart(2, '0');
+        const currentTime = `${hh}:${mm}`;
+        const todayRules = storeHours[day];
+        const daysZh = ["日", "一", "二", "三", "四", "五", "六"];
 
-        if (todayRules.isClosed) { isStoreCurrentlyClosed = true; document.getElementById('closed-hours-msg').innerText = `星期${daysZh[day]} 固定店休`; } 
-        else if (currentTime < todayRules.open || currentTime > todayRules.close) { isStoreCurrentlyClosed = true; document.getElementById('closed-hours-msg').innerText = `營業時間 ${todayRules.open} - ${todayRules.close}`; } 
-        else { isStoreCurrentlyClosed = false; }
-        
-        if (isStoreCurrentlyClosed) { document.getElementById('menu-content').classList.add('closed-view'); document.querySelector('.employee-header').classList.add('closed-view'); document.getElementById('closed-banner-ui').style.display = 'flex'; } 
-        else { document.getElementById('menu-content').classList.remove('closed-view'); document.querySelector('.employee-header').classList.remove('closed-view'); document.getElementById('closed-banner-ui').style.display = 'none'; }
-        updateCounter(); 
+        if (todayRules.isClosed) {
+            isStoreCurrentlyClosed = true;
+            document.getElementById('closed-hours-msg').innerText = `星期${daysZh[day]} 固定店休`;
+        } else if (currentTime < todayRules.open || currentTime > todayRules.close) {
+            isStoreCurrentlyClosed = true;
+            document.getElementById('closed-hours-msg').innerText = `營業時間 ${todayRules.open} - ${todayRules.close}`;
+        } else {
+            isStoreCurrentlyClosed = false;
+        }
+
+        if (isStoreCurrentlyClosed) {
+            document.getElementById('menu-content').classList.add('closed-view');
+            document.querySelector('.employee-header').classList.add('closed-view');
+            document.getElementById('closed-banner-ui').style.display = 'flex';
+        } else {
+            document.getElementById('menu-content').classList.remove('closed-view');
+            document.querySelector('.employee-header').classList.remove('closed-view');
+            document.getElementById('closed-banner-ui').style.display = 'none';
+        }
+        updateCounter();
     }
     setInterval(checkStoreStatus, 60000);
 
@@ -355,17 +394,18 @@
         try { localStorage.setItem('pos_cart_data', JSON.stringify(cart)); } catch(e) {}
     }
 
-    // ===== 員工版 UI 渲染邏輯 =====
+    // ===== 渲染選單（含儲存佈局套用） =====
     function renderMenu() {
         const container = document.getElementById('menu-content');
         const nav = document.getElementById('nav-bar');
-        container.innerHTML = ''; nav.innerHTML = '';
-        
+        container.innerHTML = '';
+        nav.innerHTML = '';
+
         menuData.forEach((cat, cIdx) => {
             if(cat.items.length === 0) return;
-            
+
             const btn = document.createElement('button');
-            btn.className = 'nav-btn'; 
+            btn.className = 'nav-btn';
             if(cIdx === 0) btn.classList.add('active');
             btn.innerText = cat.category;
             btn.onclick = (e) => {
@@ -377,216 +417,585 @@
             nav.appendChild(btn);
 
             const grid = document.createElement('div');
-            grid.id = 'cat-'+cIdx; 
+            grid.id = 'cat-'+cIdx;
             grid.className = 'menu-grid';
-            if(cIdx === 0) grid.classList.add('active'); 
-            
-            cat.items.forEach((item, iIdx) => {
-                const el = document.createElement('div'); 
+            if(cIdx === 0) grid.classList.add('active');
+
+            cat.items.forEach((item) => {
+                const el = document.createElement('div');
                 el.className = 'pos-item';
-                el.innerText = item.name; 
+                el.innerText = item.name;
+                el.dataset.category = 'cat-'+cIdx;
                 el.onclick = () => {
                     if(isStoreCurrentlyClosed) { alert("目前非營業時間，暫不開放點餐！"); return; }
-                    openModal(item, cIdx, iIdx);
+                    openModal(item, cIdx, 0); // 第三參數不再使用，僅傳遞物品
                 };
                 grid.appendChild(el);
             });
             container.appendChild(grid);
         });
+
+        // 套用儲存的佈局順序
+        applyStoredLayout();
+
+        // 若目前是編輯模式，重新設定 draggable
+        if (isEditMode) {
+            document.querySelectorAll('.pos-item').forEach(el => el.setAttribute('draggable', 'true'));
+        }
     }
 
-    // ============ 點餐功能邏輯 (完全保留原始正常邏輯，確保專屬加料正常運作) ============
+    // ===== 儲存與套用佈局 =====
+    function saveLayout() {
+        document.querySelectorAll('.menu-grid').forEach(grid => {
+            const items = Array.from(grid.querySelectorAll('.pos-item')).map(el => el.innerText);
+            localStorage.setItem('employee_layout_' + grid.id, JSON.stringify(items));
+        });
+    }
+
+    function applyStoredLayout() {
+        document.querySelectorAll('.menu-grid').forEach(grid => {
+            const key = 'employee_layout_' + grid.id;
+            const stored = localStorage.getItem(key);
+            if (!stored) return;
+            try {
+                const order = JSON.parse(stored);
+                if (!Array.isArray(order) || order.length === 0) return;
+                const items = grid.querySelectorAll('.pos-item');
+                const itemMap = new Map();
+                items.forEach(el => itemMap.set(el.innerText, el));
+                order.forEach(name => {
+                    const el = itemMap.get(name);
+                    if (el) grid.appendChild(el);
+                });
+            } catch(e) { /* ignore */ }
+        });
+    }
+
+    // ===== 編輯模式切換 =====
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        document.body.classList.toggle('edit-mode', isEditMode);
+        const allItems = document.querySelectorAll('.pos-item');
+        allItems.forEach(el => {
+            el.setAttribute('draggable', isEditMode);
+        });
+        const btn = document.querySelector('.edit-toggle-btn');
+        btn.innerText = isEditMode ? '🔒 鎖定' : '✏️ 編輯';
+        alert(isEditMode ? "進入編輯模式：請拖曳飲料方塊調整順序（限同一分類內）" : "已鎖定排版");
+    }
+
+    // ===== 拖曳事件（事件委派） =====
+    document.getElementById('menu-content').addEventListener('dragstart', function(e) {
+        const target = e.target.closest('.pos-item');
+        if (!target) return;
+        dragSrcEl = target;
+        e.dataTransfer.effectAllowed = 'move';
+    });
+
+    document.getElementById('menu-content').addEventListener('dragover', function(e) {
+        e.preventDefault();
+    });
+
+    document.getElementById('menu-content').addEventListener('drop', function(e) {
+        e.preventDefault();
+        const target = e.target.closest('.pos-item');
+        if (!target || !dragSrcEl) return;
+        if (dragSrcEl.parentNode !== target.parentNode) {
+            alert('只能在同一分類內拖曳交換喔！');
+            return;
+        }
+        if (dragSrcEl !== target) {
+            if (dragSrcEl.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING) {
+                target.parentNode.insertBefore(dragSrcEl, target.nextSibling);
+            } else {
+                target.parentNode.insertBefore(dragSrcEl, target);
+            }
+            saveLayout();
+        }
+        dragSrcEl = null;
+    });
+
+    // ==========================================
+    // 以下為原有點餐功能（完整保留）
+    // ==========================================
+
+    // 開啟點餐彈窗
     function openModal(item, cIdx, iIdx) {
         let defaultSize = item.prices.hasOwnProperty('L') ? 'L' : Object.keys(item.prices)[0];
-        currentSelect = { item, qty: 1, size: defaultSize, ice: null, sugar: null, toppings: [], teaSwap: "" };
-        
+        currentSelect = {
+            item: item,
+            qty: 1,
+            size: defaultSize,
+            ice: null,
+            sugar: null,
+            toppings: [],
+            teaSwap: ""
+        };
+
         document.getElementById('modal-title').innerText = item.name;
         document.getElementById('item-qty').innerText = 1;
-        
+
         const teaSwapSelect = document.getElementById('tea-swap-select');
-        if (item.enableTeaSwap) { teaSwapSelect.style.display = 'block'; teaSwapSelect.value = ""; teaSwapSelect.onchange = (e) => { currentSelect.teaSwap = e.target.value; }; } 
-        else { teaSwapSelect.style.display = 'none'; }
-
-        document.getElementById('option-modal').style.display = 'flex';
-        
-        renderBtns('size-btns', Object.keys(item.prices), (val) => { 
-            currentSelect.size = val; currentSelect.toppings = []; renderToppings(item, val); updateOptionPrice(); 
-        }, defaultSize);
-        
-        let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : ["正常冰", "少冰", "微冰", "去冰", "常溫", "溫飲"];
-        if (!item.customIce && (item.name.includes("優多") || item.name.includes("冰淇淋"))) iceOptions = iceOptions.filter(opt => opt !== "溫飲");
-        renderBtns('ice-btns', iceOptions, (val) => currentSelect.ice = val, null);
-        
-        let sugarOptGroup = document.getElementById('sugar-opt-group');
-        let isFixedSugar = false; let sugarOptions = ["八分糖", "半糖", "微糖", "無糖", "其他"];
-
-        if (item.customSugar && item.customSugar.length > 0) {
-            if (item.customSugar[0] === "固定甜度") isFixedSugar = true; else sugarOptions = item.customSugar;
+        if (item.enableTeaSwap) {
+            teaSwapSelect.style.display = 'block';
+            teaSwapSelect.value = "";
+            teaSwapSelect.onchange = (e) => { currentSelect.teaSwap = e.target.value; };
         } else {
-            if (item.name.includes("黑糖")) isFixedSugar = true; else if (item.name.includes("蜜")) sugarOptions = sugarOptions.filter(opt => opt !== "無糖");
+            teaSwapSelect.style.display = 'none';
         }
 
-        if (isFixedSugar) { sugarOptGroup.style.display = 'none'; currentSelect.sugar = "固定甜度"; } 
-        else { sugarOptGroup.style.display = 'block'; renderBtns('sugar-btns', sugarOptions, (val) => { currentSelect.sugar = val; }, null); }
-        
-        renderToppings(item, defaultSize); updateOptionPrice(); 
+        document.getElementById('option-modal').style.display = 'flex';
+
+        renderBtns('size-btns', Object.keys(item.prices), (val) => {
+            currentSelect.size = val;
+            currentSelect.toppings = [];
+            renderToppings(item, val);
+            updateOptionPrice();
+        }, defaultSize);
+
+        let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : ["正常冰", "少冰", "微冰", "去冰", "常溫", "溫飲"];
+        if (!item.customIce && (item.name.includes("優多") || item.name.includes("冰淇淋"))) {
+            iceOptions = iceOptions.filter(opt => opt !== "溫飲");
+        }
+        renderBtns('ice-btns', iceOptions, (val) => currentSelect.ice = val, null);
+
+        let sugarOptGroup = document.getElementById('sugar-opt-group');
+        let isFixedSugar = false;
+        let sugarOptions = ["八分糖", "半糖", "微糖", "無糖", "其他"];
+
+        if (item.customSugar && item.customSugar.length > 0) {
+            if (item.customSugar[0] === "固定甜度") isFixedSugar = true;
+            else sugarOptions = item.customSugar;
+        } else {
+            if (item.name.includes("黑糖")) isFixedSugar = true;
+            else if (item.name.includes("蜜")) sugarOptions = sugarOptions.filter(opt => opt !== "無糖");
+        }
+
+        if (isFixedSugar) {
+            sugarOptGroup.style.display = 'none';
+            currentSelect.sugar = "固定甜度";
+        } else {
+            sugarOptGroup.style.display = 'block';
+            renderBtns('sugar-btns', sugarOptions, (val) => { currentSelect.sugar = val; }, null);
+        }
+
+        renderToppings(item, defaultSize);
+        updateOptionPrice();
     }
 
+    // 更新價格顯示
     function updateOptionPrice() {
         if (!currentSelect.item || !currentSelect.size) return;
         const basePrice = currentSelect.item.prices[currentSelect.size] || 0;
         let activeToppings = toppingPrices[currentSelect.size] || {};
-        // 確保精準套用品項專屬加料
-        if (currentSelect.item.customToppings && currentSelect.item.customToppings[currentSelect.size]) { activeToppings = currentSelect.item.customToppings[currentSelect.size]; }
+        if (currentSelect.item.customToppings && currentSelect.item.customToppings[currentSelect.size]) {
+            activeToppings = currentSelect.item.customToppings[currentSelect.size];
+        }
         let toppingCost = 0;
-        if (currentSelect.toppings) toppingCost = currentSelect.toppings.reduce((sum, t) => sum + (activeToppings[t] || 0), 0);
+        if (currentSelect.toppings) {
+            toppingCost = currentSelect.toppings.reduce((sum, t) => sum + (activeToppings[t] || 0), 0);
+        }
         document.getElementById('option-price-value').innerText = basePrice + toppingCost;
     }
 
+    // 渲染選項按鈕
     function renderBtns(containerId, options, callback, defaultVal) {
-        const container = document.getElementById(containerId); container.innerHTML = ''; const isSugar = (containerId === 'sugar-btns');
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        const isSugar = (containerId === 'sugar-btns');
         options.forEach(opt => {
             if (isSugar && opt === "其他") {
-                const sel = document.createElement('select'); sel.className = 'opt-btn';
-                sel.innerHTML = `<option value="" disabled selected>其他</option><option value="1分糖">1分糖</option><option value="3分糖">3分糖</option><option value="4分糖">4分糖</option><option value="6分糖">6分糖</option><option value="7分糖">7分糖</option>`;
-                sel.onchange = (e) => { container.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active')); sel.classList.add('active'); callback(e.target.value); };
+                const sel = document.createElement('select');
+                sel.className = 'opt-btn';
+                sel.innerHTML = `<option value="" disabled selected>其他</option>
+                                 <option value="1分糖">1分糖</option>
+                                 <option value="3分糖">3分糖</option>
+                                 <option value="4分糖">4分糖</option>
+                                 <option value="6分糖">6分糖</option>
+                                 <option value="7分糖">7分糖</option>`;
+                sel.onchange = (e) => {
+                    container.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
+                    sel.classList.add('active');
+                    callback(e.target.value);
+                };
                 container.appendChild(sel);
             } else {
-                const btn = document.createElement('button'); btn.className = 'opt-btn' + (opt === defaultVal ? ' active' : ''); btn.innerText = opt;
-                btn.onclick = () => { container.querySelectorAll('.opt-btn').forEach(b => { b.classList.remove('active'); if (b.tagName === 'SELECT') b.selectedIndex = 0; }); btn.classList.add('active'); callback(opt); };
+                const btn = document.createElement('button');
+                btn.className = 'opt-btn' + (opt === defaultVal ? ' active' : '');
+                btn.innerText = opt;
+                btn.onclick = () => {
+                    container.querySelectorAll('.opt-btn').forEach(b => { b.classList.remove('active'); if (b.tagName === 'SELECT') b.selectedIndex = 0; });
+                    btn.classList.add('active');
+                    callback(opt);
+                };
                 container.appendChild(btn);
             }
         });
     }
 
+    // 渲染加料選項
     function renderToppings(item, size) {
-        const container = document.getElementById('topping-btns'); container.innerHTML = '';
-        let activeToppings = toppingPrices[size] || {}; 
-        if (item.customToppings && item.customToppings[size]) { activeToppings = item.customToppings[size]; }
+        const container = document.getElementById('topping-btns');
+        container.innerHTML = '';
+        let activeToppings = toppingPrices[size] || {};
+        if (item.customToppings && item.customToppings[size]) {
+            activeToppings = item.customToppings[size];
+        }
         Object.entries(activeToppings).forEach(([name, price]) => {
-            const btn = document.createElement('button'); btn.className = 'opt-btn' + (currentSelect.toppings.includes(name) ? ' active' : ''); btn.innerText = `${name} +$${price}`;
-            btn.onclick = () => { btn.classList.toggle('active'); if (btn.classList.contains('active')) currentSelect.toppings.push(name); else currentSelect.toppings = currentSelect.toppings.filter(t => t !== name); updateOptionPrice(); };
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn' + (currentSelect.toppings.includes(name) ? ' active' : '');
+            btn.innerText = `${name} +$${price}`;
+            btn.onclick = () => {
+                btn.classList.toggle('active');
+                if (btn.classList.contains('active')) {
+                    currentSelect.toppings.push(name);
+                } else {
+                    currentSelect.toppings = currentSelect.toppings.filter(t => t !== name);
+                }
+                updateOptionPrice();
+            };
             container.appendChild(btn);
         });
     }
 
-    function changeQty(diff) { currentSelect.qty = Math.max(1, currentSelect.qty + diff); document.getElementById('item-qty').innerText = currentSelect.qty; }
-
-    function confirmAddToCart() {
-        if(!currentSelect.size || !currentSelect.ice || !currentSelect.sugar) return alert("請完整選擇所有選項（大小/冰塊/甜度）");
-        let basePrice = currentSelect.item.prices[currentSelect.size];
-        let activeToppings = toppingPrices[currentSelect.size] || {};
-        if (currentSelect.item.customToppings && currentSelect.item.customToppings[currentSelect.size]) { activeToppings = currentSelect.item.customToppings[currentSelect.size]; }
-        let toppingCost = currentSelect.toppings.reduce((sum, t) => sum + (activeToppings[t] || 0), 0);
-        cart.push({ ...currentSelect, price: (basePrice + toppingCost) * currentSelect.qty });
-        updateCounter(); document.getElementById('option-modal').style.display = 'none';
+    // 改變數量
+    function changeQty(diff) {
+        currentSelect.qty = Math.max(1, currentSelect.qty + diff);
+        document.getElementById('item-qty').innerText = currentSelect.qty;
     }
 
+    // 加入購物車
+    function confirmAddToCart() {
+        if(!currentSelect.size || !currentSelect.ice || !currentSelect.sugar) {
+            alert("請完整選擇所有選項（大小/冰塊/甜度）");
+            return;
+        }
+        let basePrice = currentSelect.item.prices[currentSelect.size];
+        let activeToppings = toppingPrices[currentSelect.size] || {};
+        if (currentSelect.item.customToppings && currentSelect.item.customToppings[currentSelect.size]) {
+            activeToppings = currentSelect.item.customToppings[currentSelect.size];
+        }
+        let toppingCost = currentSelect.toppings.reduce((sum, t) => sum + (activeToppings[t] || 0), 0);
+        cart.push({
+            ...currentSelect,
+            price: (basePrice + toppingCost) * currentSelect.qty
+        });
+        updateCounter();
+        document.getElementById('option-modal').style.display = 'none';
+    }
+
+    // 發票選項切換
     function selectInvoiceOption(option) {
-        invoiceOption = option; document.querySelectorAll('.invoice-option-btns label').forEach(el => el.classList.remove('active'));
-        if (option === 'paper') { document.getElementById('invoice-option-paper').classList.add('active'); document.getElementById('paper-invoice-hint').classList.add('show'); document.getElementById('carrier-hint').style.display = 'none'; } 
-        else {
+        invoiceOption = option;
+        document.querySelectorAll('.invoice-option-btns label').forEach(el => el.classList.remove('active'));
+        if (option === 'paper') {
+            document.getElementById('invoice-option-paper').classList.add('active');
+            document.getElementById('paper-invoice-hint').classList.add('show');
+            document.getElementById('carrier-hint').style.display = 'none';
+        } else {
             document.getElementById('paper-invoice-hint').classList.remove('show');
-            if (option === 'uniform') { document.getElementById('invoice-option-uniform').classList.add('active'); document.getElementById('carrier-hint').style.display = 'none'; } 
-            else if (option === 'carrier') { document.getElementById('invoice-option-carrier').classList.add('active'); document.getElementById('carrier-hint').style.display = 'block'; }
+            if (option === 'uniform') {
+                document.getElementById('invoice-option-uniform').classList.add('active');
+                document.getElementById('carrier-hint').style.display = 'none';
+            } else if (option === 'carrier') {
+                document.getElementById('invoice-option-carrier').classList.add('active');
+                document.getElementById('carrier-hint').style.display = 'block';
+            }
         }
         document.getElementById('invoice-number-container').style.display = (option === 'uniform') ? 'block' : 'none';
-        if (option !== 'uniform') { document.getElementById('invoice-number').value = ''; invoiceNumber = ''; }
+        if (option !== 'uniform') {
+            document.getElementById('invoice-number').value = '';
+            invoiceNumber = '';
+        }
         if (option === 'uniform') setTimeout(() => document.getElementById('invoice-number').focus(), 300);
     }
 
-    function showCart() { 
-        document.getElementById('cart-modal').style.display = 'flex'; 
+    // 顯示購物車
+    function showCart() {
+        document.getElementById('cart-modal').style.display = 'flex';
         document.getElementById('cart-closed-warning').style.display = isStoreCurrentlyClosed ? 'block' : 'none';
-        selectInvoiceOption('paper'); document.querySelector('input[name="invoice-option"][value="paper"]').checked = true;
-        updateCartUI(); 
+        selectInvoiceOption('paper');
+        document.querySelector('input[name="invoice-option"][value="paper"]').checked = true;
+        updateCartUI();
     }
 
+    // 更新購物車 UI
     function updateCartUI() {
-        const list = document.getElementById('cart-list'); list.innerHTML = ''; let allCups = []; let originalTotal = 0;
+        const list = document.getElementById('cart-list');
+        list.innerHTML = '';
+        let allCups = [];
+        let originalTotal = 0;
         if(cart.length > 0) {
             cart.forEach((item, index) => {
-                originalTotal += item.price; let unitPrice = item.price / item.qty; for(let i=0; i<item.qty; i++) allCups.push(unitPrice);
-                let teaStr = item.teaSwap ? ` / ${item.teaSwap}` : ''; let toppingsStr = item.toppings.length ? ` / 加:${item.toppings.join(',')}` : '';
-                list.innerHTML += `<div class="cart-item"><div class="cart-item-info"><div class="cart-item-title">${item.item.name} (${item.size}) x ${item.qty}</div><div class="cart-item-desc">${item.ice} / ${item.sugar}${teaStr}${toppingsStr}</div><div style="font-weight:bold; color:var(--brand-color); margin-top:4px;">$${item.price}</div></div><button class="cart-del-btn" onclick="removeFromCart(${index}); event.stopPropagation();">移除</button></div>`;
+                originalTotal += item.price;
+                let unitPrice = item.price / item.qty;
+                for(let i=0; i<item.qty; i++) allCups.push(unitPrice);
+                let teaStr = item.teaSwap ? ` / ${item.teaSwap}` : '';
+                let toppingsStr = item.toppings.length ? ` / 加:${item.toppings.join(',')}` : '';
+                list.innerHTML += `
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <div class="cart-item-title">${item.item.name} (${item.size}) x ${item.qty}</div>
+                            <div class="cart-item-desc">${item.ice} / ${item.sugar}${teaStr}${toppingsStr}</div>
+                            <div style="font-weight:bold; color:var(--brand-color); margin-top:4px;">$${item.price}</div>
+                        </div>
+                        <button class="cart-del-btn" onclick="removeFromCart(${index}); event.stopPropagation();">移除</button>
+                    </div>
+                `;
             });
-        } else { list.innerHTML = '<div style="text-align:center; padding:30px; color:#999;">購物車空空的耶，來點杯飲料吧！</div>'; }
-        
-        let methodEl = document.querySelector('input[name="delivery-method"]:checked'); let method = methodEl ? methodEl.value : ""; let discount = 0;
-        if (method === "自取" && allCups.length >= 6) { allCups.sort((a, b) => b - a); for (let i = 5; i < allCups.length; i += 6) discount += allCups[i]; }
+        } else {
+            list.innerHTML = '<div style="text-align:center; padding:30px; color:#999;">購物車空空的耶，來點杯飲料吧！</div>';
+        }
+
+        let methodEl = document.querySelector('input[name="delivery-method"]:checked');
+        let method = methodEl ? methodEl.value : "";
+        let discount = 0;
+        if (method === "自取" && allCups.length >= 6) {
+            allCups.sort((a, b) => b - a);
+            for (let i = 5; i < allCups.length; i += 6) discount += allCups[i];
+        }
         let finalTotal = originalTotal - discount;
-        document.getElementById('cart-original-total-row').style.display = discount > 0 ? 'flex' : 'none'; document.getElementById('cart-original-total').innerText = originalTotal;
-        document.getElementById('discount-row').style.display = discount > 0 ? 'flex' : 'none'; document.getElementById('cart-discount').innerText = discount;
+        document.getElementById('cart-original-total-row').style.display = discount > 0 ? 'flex' : 'none';
+        document.getElementById('cart-original-total').innerText = originalTotal;
+        document.getElementById('discount-row').style.display = discount > 0 ? 'flex' : 'none';
+        document.getElementById('cart-discount').innerText = discount;
         document.getElementById('cart-total').innerText = finalTotal;
     }
 
-    function removeFromCart(index) { cart.splice(index, 1); updateCounter(); updateCartUI(); }
-    function toggleDeliveryAddress(show) { document.getElementById('address-container').style.display = show ? 'block' : 'none'; updateCartUI(); }
-
-    function showConfirmModal() {
-        if (cart.length === 0) return alert("購物車是空的喔！請先點餐。");
-        let phone = document.getElementById('customer-phone').value.trim(); if (!phone) { alert("請先輸入聯絡電話！"); document.getElementById('customer-phone').focus(); return; }
-        if (invoiceOption === 'uniform') { const num = document.getElementById('invoice-number').value.trim(); if (!num || num.length !== 8) { alert("請輸入正確的 8 位統一編號！"); return; } invoiceNumber = num; }
-
-        let methodEl = document.querySelector('input[name="delivery-method"]:checked'); let method = methodEl ? methodEl.value : "自取";
-        let address = method === "外送" ? document.getElementById('customer-address').value.trim() : "";
-        let allCups = []; let originalTotal = 0; cart.forEach((item) => { originalTotal += item.price; let unitPrice = item.price / item.qty; for (let i = 0; i < item.qty; i++) allCups.push(unitPrice); });
-        let discount = 0; if (method === "自取" && allCups.length >= 6) { allCups.sort((a, b) => b - a); for (let i = 5; i < allCups.length; i += 6) discount += allCups[i]; }
-        let finalTotal = originalTotal - discount;
-
-        let invoiceText = invoiceOption === 'paper' ? '🧾 紙本發票（店家印出）' : invoiceOption === 'uniform' ? `🏢 統編：${invoiceNumber}` : '📱 載具（請於聊天室上傳圖片）';
-        confirmData = { phone, method, address, finalTotal, originalTotal, discount, invoiceText, cartItems: JSON.parse(JSON.stringify(cart)) };
-        renderConfirmModal(confirmData); document.getElementById('cart-modal').style.display = 'none'; document.getElementById('confirm-modal').style.display = 'flex';
+    // 移除購物車項目
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        updateCounter();
+        updateCartUI();
     }
 
+    // 切換外送地址顯示
+    function toggleDeliveryAddress(show) {
+        document.getElementById('address-container').style.display = show ? 'block' : 'none';
+        updateCartUI();
+    }
+
+    // 顯示確認訂單 Modal
+    function showConfirmModal() {
+        if (cart.length === 0) return alert("購物車是空的喔！請先點餐。");
+        let phone = document.getElementById('customer-phone').value.trim();
+        if (!phone) {
+            alert("請先輸入聯絡電話！");
+            document.getElementById('customer-phone').focus();
+            return;
+        }
+        if (invoiceOption === 'uniform') {
+            const num = document.getElementById('invoice-number').value.trim();
+            if (!num || num.length !== 8 || !/^\d{8}$/.test(num)) {
+                alert("請輸入正確的 8 位數字統一編號！");
+                return;
+            }
+            invoiceNumber = num;
+        }
+
+        let methodEl = document.querySelector('input[name="delivery-method"]:checked');
+        let method = methodEl ? methodEl.value : "自取";
+        let address = method === "外送" ? document.getElementById('customer-address').value.trim() : "";
+        let allCups = [];
+        let originalTotal = 0;
+        cart.forEach((item) => {
+            originalTotal += item.price;
+            let unitPrice = item.price / item.qty;
+            for (let i = 0; i < item.qty; i++) allCups.push(unitPrice);
+        });
+        let discount = 0;
+        if (method === "自取" && allCups.length >= 6) {
+            allCups.sort((a, b) => b - a);
+            for (let i = 5; i < allCups.length; i += 6) discount += allCups[i];
+        }
+        let finalTotal = originalTotal - discount;
+
+        let invoiceText = invoiceOption === 'paper' ? '🧾 紙本發票（店家印出）' :
+                          invoiceOption === 'uniform' ? `🏢 統編：${invoiceNumber}` :
+                          '📱 載具（請於聊天室上傳圖片）';
+
+        confirmData = {
+            phone,
+            method,
+            address,
+            finalTotal,
+            originalTotal,
+            discount,
+            invoiceText,
+            cartItems: JSON.parse(JSON.stringify(cart))
+        };
+        renderConfirmModal(confirmData);
+        document.getElementById('cart-modal').style.display = 'none';
+        document.getElementById('confirm-modal').style.display = 'flex';
+    }
+
+    // 渲染確認訂單內容
     function renderConfirmModal(data) {
-        const listContainer = document.getElementById('confirm-order-list'); listContainer.innerHTML = '';
+        const listContainer = document.getElementById('confirm-order-list');
+        listContainer.innerHTML = '';
         data.cartItems.forEach((item) => {
-            let details = `${item.ice} / ${item.sugar}`; if (item.teaSwap) details += ` / ${item.teaSwap}`; if (item.toppings.length) details += ` / 加:${item.toppings.join(',')}`;
-            listContainer.innerHTML += `<div class="confirm-order-item"><div class="item-left"><div class="item-name">${item.item.name} (${item.size}) x ${item.qty}</div><div class="item-detail">${details}</div></div><div class="item-price">$${item.price}</div></div>`;
+            let details = `${item.ice} / ${item.sugar}`;
+            if (item.teaSwap) details += ` / ${item.teaSwap}`;
+            if (item.toppings.length) details += ` / 加:${item.toppings.join(',')}`;
+            listContainer.innerHTML += `
+                <div class="confirm-order-item">
+                    <div class="item-left">
+                        <div class="item-name">${item.item.name} (${item.size}) x ${item.qty}</div>
+                        <div class="item-detail">${details}</div>
+                    </div>
+                    <div class="item-price">$${item.price}</div>
+                </div>
+            `;
         });
         let infoHTML = `<strong>📞 聯絡電話：</strong>${data.phone}<br><strong>🛵 取餐方式：</strong>${data.method}`;
         if (data.method === "外送" && data.address) infoHTML += `<br><strong>📍 外送地址：</strong>${data.address}`;
         infoHTML += `<br><strong>📄 發票：</strong>${data.invoiceText}`;
         if (data.discount > 0) infoHTML += `<br><strong>🎉 自取買五送一折扣：</strong> -$${data.discount}`;
-        document.getElementById('confirm-order-info').innerHTML = infoHTML; document.getElementById('confirm-total-amount').innerText = `$${data.finalTotal}`;
+        document.getElementById('confirm-order-info').innerHTML = infoHTML;
+        document.getElementById('confirm-total-amount').innerText = `$${data.finalTotal}`;
     }
 
-    function closeConfirmModal() { document.getElementById('confirm-modal').style.display = 'none'; document.getElementById('cart-modal').style.display = 'flex'; updateCartUI(); }
+    // 關閉確認訂單
+    function closeConfirmModal() {
+        document.getElementById('confirm-modal').style.display = 'none';
+        document.getElementById('cart-modal').style.display = 'flex';
+        updateCartUI();
+    }
 
+    // 送出訂單至 LINE
     async function sendToLine() {
         if (!liff.isInClient()) return alert("請在 LINE 聊天室內開啟此頁面，否則無法送出訂單。");
-        if (!liff.isLoggedIn()) { alert("尚未登入 LINE，即將跳轉。"); liff.login(); return; }
+        if (!liff.isLoggedIn()) {
+            alert("尚未登入 LINE，即將跳轉。");
+            liff.login();
+            return;
+        }
         if (isStoreCurrentlyClosed) return alert("⚠️ 目前為非營業時間，暫不開放結帳！");
         if (!confirmData || confirmData.cartItems.length === 0) return alert("訂單資料有誤，請重新操作。");
 
         const data = confirmData;
         let allItemBoxes = data.cartItems.map(i => {
-            let details = `👉 ${i.ice} / ${i.sugar}`; if (i.teaSwap) details += ` / ${i.teaSwap}`; if (i.toppings && i.toppings.length > 0) details += ` / 加:${i.toppings.join(',')}`;
-            return { type: "box", layout: "vertical", margin: "sm", contents: [ { type: "box", layout: "baseline", contents: [ { type: "text", text: `${i.item.name}(${i.size}) x${i.qty}`, size: "sm", weight: "bold", flex: 3, wrap: true, color: "#1e293b" }, { type: "text", text: `$${i.price}`, size: "sm", align: "end", flex: 1, weight: "bold", color: "#06C755" } ]}, { type: "box", layout: "baseline", margin: "xs", contents: [ { type: "text", text: details, size: "xs", color: "#64748b", flex: 1, wrap: true } ]} ] };
+            let details = `👉 ${i.ice} / ${i.sugar}`;
+            if (i.teaSwap) details += ` / ${i.teaSwap}`;
+            if (i.toppings && i.toppings.length > 0) details += ` / 加:${i.toppings.join(',')}`;
+            return {
+                type: "box",
+                layout: "vertical",
+                margin: "sm",
+                contents: [
+                    {
+                        type: "box",
+                        layout: "baseline",
+                        contents: [
+                            { type: "text", text: `${i.item.name}(${i.size}) x${i.qty}`, size: "sm", weight: "bold", flex: 3, wrap: true, color: "#1e293b" },
+                            { type: "text", text: `$${i.price}`, size: "sm", align: "end", flex: 1, weight: "bold", color: "#06C755" }
+                        ]
+                    },
+                    {
+                        type: "box",
+                        layout: "baseline",
+                        margin: "xs",
+                        contents: [
+                            { type: "text", text: details, size: "xs", color: "#64748b", flex: 1, wrap: true }
+                        ]
+                    }
+                ]
+            };
         });
 
-        let footerBox = [ { type: "separator", margin: "md", color: "#e2e8f0" }, { type: "box", layout: "vertical", margin: "md", contents: [{ type: "text", text: `📞 ${data.phone}`, size: "sm", weight: "bold", color: "#1e293b" }] }, { type: "box", layout: "vertical", margin: "sm", contents: [{ type: "text", text: `📄 ${data.invoiceText}`, size: "sm", weight: "bold", color: "#2563eb" }] }, { type: "box", layout: "vertical", margin: "sm", contents: [{ type: "text", text: `🛵 ${data.method}`, size: "sm", weight: "bold", color: "#1e293b" }] } ];
-        if (data.method === "外送" && data.address) footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [{ type: "text", text: `📍 ${data.address}`, size: "sm", weight: "bold", color: "#e65100", wrap: true }] });
+        let footerBox = [
+            { type: "separator", margin: "md", color: "#e2e8f0" },
+            { type: "box", layout: "vertical", margin: "md", contents: [{ type: "text", text: `📞 ${data.phone}`, size: "sm", weight: "bold", color: "#1e293b" }] },
+            { type: "box", layout: "vertical", margin: "sm", contents: [{ type: "text", text: `📄 ${data.invoiceText}`, size: "sm", weight: "bold", color: "#2563eb" }] },
+            { type: "box", layout: "vertical", margin: "sm", contents: [{ type: "text", text: `🛵 ${data.method}`, size: "sm", weight: "bold", color: "#1e293b" }] }
+        ];
+        if (data.method === "外送" && data.address) {
+            footerBox.push({
+                type: "box",
+                layout: "vertical",
+                margin: "sm",
+                contents: [{ type: "text", text: `📍 ${data.address}`, size: "sm", weight: "bold", color: "#e65100", wrap: true }]
+            });
+        }
         footerBox.push({ type: "separator", margin: "md", color: "#e2e8f0" });
-        
-        if (data.discount > 0) { footerBox.push({ type: "box", layout: "baseline", margin: "md", contents: [{ type: "text", text: "商品總計", color: "#64748b", size: "sm" }, { type: "text", text: `$${data.originalTotal}`, color: "#64748b", size: "sm", align: "end" }] }); footerBox.push({ type: "box", layout: "baseline", margin: "sm", contents: [{ type: "text", text: "🎉 自取買五送一", color: "#ef4444", size: "sm", weight: "bold" }, { type: "text", text: `-$${data.discount}`, color: "#ef4444", size: "sm", align: "end", weight: "bold" }] }); }
-        footerBox.push({ type: "box", layout: "baseline", margin: "md", contents: [{ type: "text", text: "💰 結帳金額", weight: "bold", size: "md", color: "#1e293b" }, { type: "text", text: `$${data.finalTotal}`, weight: "bold", size: "xl", align: "end", color: "#06C755" }] });
 
-        const ITEMS_PER_BUBBLE = 10; let bubbles = [];
+        if (data.discount > 0) {
+            footerBox.push({
+                type: "box",
+                layout: "baseline",
+                margin: "md",
+                contents: [
+                    { type: "text", text: "商品總計", color: "#64748b", size: "sm" },
+                    { type: "text", text: `$${data.originalTotal}`, color: "#64748b", size: "sm", align: "end" }
+                ]
+            });
+            footerBox.push({
+                type: "box",
+                layout: "baseline",
+                margin: "sm",
+                contents: [
+                    { type: "text", text: "🎉 自取買五送一", color: "#ef4444", size: "sm", weight: "bold" },
+                    { type: "text", text: `-$${data.discount}`, color: "#ef4444", size: "sm", align: "end", weight: "bold" }
+                ]
+            });
+        }
+        footerBox.push({
+            type: "box",
+            layout: "baseline",
+            margin: "md",
+            contents: [
+                { type: "text", text: "💰 結帳金額", weight: "bold", size: "md", color: "#1e293b" },
+                { type: "text", text: `$${data.finalTotal}`, weight: "bold", size: "xl", align: "end", color: "#06C755" }
+            ]
+        });
+
+        const ITEMS_PER_BUBBLE = 10;
+        let bubbles = [];
         for (let i = 0; i < allItemBoxes.length; i += ITEMS_PER_BUBBLE) {
-            let chunk = allItemBoxes.slice(i, i + ITEMS_PER_BUBBLE); let isLastBubble = (i + ITEMS_PER_BUBBLE >= allItemBoxes.length); let bodyContents = [{ type: "box", layout: "vertical", spacing: "md", contents: chunk }]; if (isLastBubble) bodyContents.push(...footerBox);
-            bubbles.push({ type: "bubble", size: "mega", header: { type: "box", layout: "vertical", backgroundColor: "#1e293b", paddingAll: "md", contents: [{ type: "text", text: `🌟 新進顧客訂單 (${Math.floor(i/ITEMS_PER_BUBBLE) + 1})`, weight: "bold", size: "xl", color: "#ffffff" }] }, body: { type: "box", layout: "vertical", contents: bodyContents } });
+            let chunk = allItemBoxes.slice(i, i + ITEMS_PER_BUBBLE);
+            let isLastBubble = (i + ITEMS_PER_BUBBLE >= allItemBoxes.length);
+            let bodyContents = [{ type: "box", layout: "vertical", spacing: "md", contents: chunk }];
+            if (isLastBubble) bodyContents.push(...footerBox);
+            bubbles.push({
+                type: "bubble",
+                size: "mega",
+                header: {
+                    type: "box",
+                    layout: "vertical",
+                    backgroundColor: "#1e293b",
+                    paddingAll: "md",
+                    contents: [{ type: "text", text: `🌟 新進顧客訂單 (${Math.floor(i/ITEMS_PER_BUBBLE) + 1})`, weight: "bold", size: "xl", color: "#ffffff" }]
+                },
+                body: { type: "box", layout: "vertical", contents: bodyContents }
+            });
         }
 
         try {
-            await liff.sendMessages([{ type: "flex", altText: `🎉 收到新訂單！總計 $${data.finalTotal}`, contents: { type: "carousel", contents: bubbles } }]);
-            let successMsg = "✅ 訂單已成功送出！" + (invoiceOption === 'carrier' ? "\n\n📌 請在聊天室上傳您的載具 QR Code 圖片，方便店家掃描。" : ""); alert(successMsg);
-            cart = []; updateCounter(); document.getElementById('customer-phone').value = ""; document.getElementById('customer-address').value = "";
-            let sm = document.querySelector('input[name="delivery-method"]:checked'); if (sm) sm.checked = false; toggleDeliveryAddress(false);
-            selectInvoiceOption('paper'); document.querySelector('input[name="invoice-option"][value="paper"]').checked = true; document.getElementById('invoice-number').value = ''; confirmData = null;
-            document.getElementById('confirm-modal').style.display = 'none'; liff.closeWindow();
-        } catch (err) { alert("傳送失敗：" + (err.code === "UNAUTHORIZED" ? "權限不足，請確認已授權 LINE LIFF 應用。" : JSON.stringify(err))); }
+            await liff.sendMessages([
+                {
+                    type: "flex",
+                    altText: `🎉 收到新訂單！總計 $${data.finalTotal}`,
+                    contents: { type: "carousel", contents: bubbles }
+                }
+            ]);
+            let successMsg = "✅ 訂單已成功送出！" + (invoiceOption === 'carrier' ? "\n\n📌 請在聊天室上傳您的載具 QR Code 圖片，方便店家掃描。" : "");
+            alert(successMsg);
+            cart = [];
+            updateCounter();
+            document.getElementById('customer-phone').value = "";
+            document.getElementById('customer-address').value = "";
+            let sm = document.querySelector('input[name="delivery-method"]:checked');
+            if (sm) sm.checked = false;
+            toggleDeliveryAddress(false);
+            selectInvoiceOption('paper');
+            document.querySelector('input[name="invoice-option"][value="paper"]').checked = true;
+            document.getElementById('invoice-number').value = '';
+            confirmData = null;
+            document.getElementById('confirm-modal').style.display = 'none';
+            liff.closeWindow();
+        } catch (err) {
+            alert("傳送失敗：" + (err.message || JSON.stringify(err)));
+        }
     }
 </script>
 </body>
