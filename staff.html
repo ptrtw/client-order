@@ -19,36 +19,37 @@
         html { scroll-behavior: smooth; } 
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding-bottom: 20px; -webkit-tap-highlight-color: transparent; }
         
-        /* 員工專用頂部 Header */
+        /* 員工專用頂部 Header (稍微縮減高度與間距) */
         .employee-header {
-            background-color: var(--brand-color); color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 1.3rem; font-weight: bold; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background-color: var(--brand-color); color: white; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; font-weight: bold; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .header-actions { display: flex; gap: 15px; align-items: center; }
-        .edit-btn { background: #ffffff; color: var(--text-main); border: none; padding: 6px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.2s; }
-        .cart-btn-top { display: flex; align-items: center; gap: 6px; font-size: 1.2rem; cursor: pointer; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; }
+        .header-actions { display: flex; gap: 10px; align-items: center; }
+        .edit-btn { background: #ffffff; color: var(--text-main); border: none; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.2s; }
+        .cart-btn-top { display: flex; align-items: center; gap: 4px; font-size: 1.1rem; cursor: pointer; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; }
 
         /* 導覽列 (分頁標籤) */
-        .top-nav-tabs { display: flex; padding: 10px; gap: 10px; background: var(--bg-color); position: sticky; top: 54px; z-index: 999; }
-        .top-nav-tabs .nav-btn { flex: 1; padding: 12px 2px; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 0.95rem; font-weight: bold; color: #666; cursor: pointer; text-align: center; }
+        .top-nav-tabs { display: flex; padding: 6px 10px; gap: 8px; background: var(--bg-color); position: sticky; top: 44px; z-index: 999; }
+        .top-nav-tabs .nav-btn { flex: 1; padding: 8px 2px; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.85rem; font-weight: bold; color: #666; cursor: pointer; text-align: center; }
         .top-nav-tabs .nav-btn.active { color: var(--brand-color); border-color: var(--brand-color); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-        /* 員工專用 6欄 × 10行 (60格) 網格 */
-        .menu-grid { display: none; grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 10px; background: var(--bg-color); }
+        /* 員工專用 6欄 × 10行 (60格) 網格 - 針對單頁同屏優化微調 */
+        .menu-grid { display: none; grid-template-columns: repeat(6, 1fr); gap: 4px; padding: 6px 10px; background: var(--bg-color); }
         .menu-grid.active { display: grid; }
         
-        .pos-item { background: #ffffff; border-radius: 6px; height: 62px; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 0.78rem; font-weight: bold; color: #333; padding: 2px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.08); word-break: break-all; line-height: 1.15; user-select: none; transition: transform 0.1s; }
+        /* 格子高度減為 46px，字體縮小至 0.71rem，確保 10 行在手機螢幕同屏顯示 */
+        .pos-item { background: #ffffff; border-radius: 4px; height: 46px; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 0.71rem; font-weight: bold; color: #333; padding: 1px; cursor: pointer; box-shadow: 0 1px 1px rgba(0,0,0,0.06); word-break: break-all; line-height: 1.1; user-select: none; transition: transform 0.1s; }
         .pos-item:active { transform: scale(0.95); background: #f8f9fa; }
 
-        /* 🌟 讓空白格在一般模式下也顯示，保持位置固定，但保持乾淨隱形不搶戲 */
-        .pos-item.empty-slot { background: transparent; box-shadow: none; border: 1px dashed rgba(0,0,0,0.05); cursor: default; }
+        /* 空白格常態顯示：保持位置固定，乾淨隱形不佔視覺 */
+        .pos-item.empty-slot { background: transparent; box-shadow: none; border: 1px dashed rgba(0,0,0,0.04); cursor: default; }
 
         /* ===== 編輯模式專屬樣式 ===== */
         body.edit-mode .top-nav-tabs { display: none; } 
-        body.edit-mode .menu-grid { display: grid !important; position: relative; margin: 30px 10px 20px; padding: 18px 10px 10px; border: 2px dashed #00d26a; border-radius: 12px; background: rgba(0,210,106,0.03); }
-        body.edit-mode .menu-grid::before { content: attr(data-cat-name) " (60格固定位置排版)"; position: absolute; top: -14px; left: 15px; background: #e8f5e9; color: #008b46; padding: 2px 12px; border-radius: 15px; font-weight: bold; font-size: 0.85rem; border: 1px solid #00d26a; }
+        body.edit-mode .menu-grid { display: grid !important; position: relative; margin: 25px 8px 15px; padding: 15px 8px 8px; border: 2px dashed #00d26a; border-radius: 10px; background: rgba(0,210,106,0.03); }
+        body.edit-mode .menu-grid::before { content: attr(data-cat-name) " (60格固定位置排版)"; position: absolute; top: -13px; left: 12px; background: #e8f5e9; color: #008b46; padding: 2px 10px; border-radius: 12px; font-weight: bold; font-size: 0.78rem; border: 1px solid #00d26a; }
         
         /* 編輯模式下，空白格明顯顯示為虛線框與空位標示 */
-        body.edit-mode .pos-item.empty-slot { background: rgba(255,255,255,0.6); border: 2px dashed #cbd5e1; color: #94a3b8; font-size: 0.7rem; cursor: pointer; }
+        body.edit-mode .pos-item.empty-slot { background: rgba(255,255,255,0.7); border: 2px dashed #cbd5e1; color: #94a3b8; font-size: 0.65rem; cursor: pointer; }
         body.edit-mode .pos-item.empty-slot::after { content: "空位"; }
 
         .dragging { opacity: 0.3; transform: scale(1.05); }
@@ -284,7 +285,7 @@
     let sortableInstances = [];
 
     // ==========================================
-    // 核心資料讀取與 60格（空白格常態顯示）排版載入
+    // 核心資料讀取與 60格（同屏優化）排版載入
     // ==========================================
     function loadCloudConfig() {
         fetch(GAS_API_URL)
@@ -300,7 +301,7 @@
                 // 2. 準備 3 個大類，每大類固定 60 個格子容量
                 let savedLayout = null;
                 try {
-                    savedLayout = JSON.parse(localStorage.getItem('employee_layout_v60_fixed'));
+                    savedLayout = JSON.parse(localStorage.getItem('employee_layout_v60_compact'));
                 } catch(e) {}
 
                 menuData = [
@@ -373,14 +374,14 @@
             // 初始化 60 格拖曳實例
             document.querySelectorAll('.menu-grid').forEach(grid => {
                 sortableInstances.push(new Sortable(grid, {
-                    group: 'shared60Fixed', // 允許在 60 格之間跨區塊自由拖曳，包含空位
+                    group: 'shared60Compact', // 允許在 60 格之間跨區塊自由拖曳，包含空位
                     animation: 150,
                     delay: 150,
                     delayOnTouchOnly: true,
                     ghostClass: 'dragging'
                 }));
             });
-            alert("進入編輯模式（60格固定位置）！\n\n長按飲料方塊可自由移動到任何位置或空格。\n排版完成後請按右上角「儲存鎖定」。");
+            alert("進入編輯模式（同屏 60 格固定排版）！\n\n長按飲料方塊可自由移動到任何位置或空格。\n排版完成後請按右上角「儲存鎖定」。");
         } else {
             btn.innerHTML = "⚙️ 編輯排版";
             btn.style.color = "var(--text-main)";
@@ -393,7 +394,7 @@
                 });
                 newLayout.push(slotNames);
             });
-            localStorage.setItem('employee_layout_v60_fixed', JSON.stringify(newLayout));
+            localStorage.setItem('employee_layout_v60_compact', JSON.stringify(newLayout));
             
             // 銷毀拖曳實例
             sortableInstances.forEach(s => s.destroy());
@@ -404,7 +405,7 @@
         }
     }
 
-    // ===== 員工版 UI 渲染邏輯 (60格常態顯示，空白格保留位置) =====
+    // ===== 員工版 UI 渲染邏輯 (60格同屏顯示) =====
     function renderMenu() {
         const container = document.getElementById('menu-content');
         const nav = document.getElementById('nav-bar');
