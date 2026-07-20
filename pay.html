@@ -18,19 +18,20 @@
         .card { background: white; width: 100%; max-width: 400px; padding: 25px 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); text-align: center; }
         .icon { font-size: 3rem; margin-bottom: 10px; }
         h2 { margin: 0 0 10px; font-size: 1.3rem; color: var(--text-main); }
-        p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 25px; }
-        .btn-success { width: 100%; padding: 14px; background: var(--brand-color); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,210,106,0.3); }
-        .btn-cancel { width: 100%; padding: 14px; background: #fee2e2; color: #dc2626; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; }
-        .btn-success:active { transform: scale(0.98); }
-        .btn-cancel:active { transform: scale(0.98); }
+        p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
+        .btn-success { width: 100%; padding: 14px; background: var(--brand-color); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,210,106,0.3); }
+        .btn-cancel { width: 100%; padding: 14px; background: #fee2e2; color: #dc2626; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
+        .btn-link { background: none; border: none; color: #2563eb; font-size: 0.9rem; text-decoration: underline; cursor: pointer; margin-top: 5px; }
     </style>
 </head>
 <body>
 
 <div class="card" id="step-redirect">
     <div class="icon">🔄</div>
-    <h2>正在引導至街口支付...</h2>
-    <p>系統正在為您開啟街口 App，請完成付款後回到此畫面回報結帳結果。</p>
+    <h2>正在開啟街口支付...</h2>
+    <p>如果您沒有自動跳轉至街口 App，請點擊下方按鈕手動開啟。</p>
+    <button class="btn-success" onclick="openJkosApp()">🚀 手動開啟街口 App</button>
+    <button class="btn-link" onclick="showConfirmStep()">已完成付款或返回？點此回報</button>
 </div>
 
 <div class="card" id="step-confirm" style="display: none;">
@@ -42,10 +43,7 @@
 </div>
 
 <script>
-    // 新的專屬街口確認 LIFF ID
     const LIFF_ID = "2010718024-p1hooBDD"; 
-    
-    // 街口轉帳/付款連結
     const JKOS_PAY_URL = "https://service.jkopay.com/r/transfer?j=Transfer:901462034";
 
     liff.init({ liffId: LIFF_ID }).then(() => {
@@ -54,23 +52,27 @@
             return;
         }
         
-        // 第一步：自動導向街口支付
-        setTimeout(() => {
-            window.location.href = JKOS_PAY_URL;
-        }, 1000);
+        // 進入頁面時自動嘗試開啟街口
+        openJkosApp();
 
-        // 當使用者從街口切回 LINE 瀏覽器時，顯示防呆確認畫面
+        // 雙重保險：同時監聽畫面重新聚焦事件
         window.addEventListener('focus', () => {
-            document.getElementById('step-redirect').style.display = 'none';
-            document.getElementById('step-confirm').style.display = 'block';
+            showConfirmStep();
         });
 
     }).catch(err => {
         console.error("LIFF 初始化失敗", err);
-        alert("初始化失敗，請透過 LINE 聊天室重新點擊。");
     });
 
-    // 點擊「成功付款」：發送 Flex Message 並關閉視窗
+    function openJkosApp() {
+        window.location.href = JKOS_PAY_URL;
+    }
+
+    function showConfirmStep() {
+        document.getElementById('step-redirect').style.display = 'none';
+        document.getElementById('step-confirm').style.display = 'block';
+    }
+
     async function handlePaymentSuccess() {
         if (!liff.isInClient()) {
             alert("✅ 已確認付款成功！(非 LINE 內嵌環境)");
@@ -125,7 +127,6 @@
         }
     }
 
-    // 點擊「取消付款」：不發送任何成功訊息，安靜關閉
     function handlePaymentCancel() {
         alert("已取消付款流程。");
         if (liff.isInClient()) {
