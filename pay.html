@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>街口支付確認 - 清心福全</title>
+    <!-- 引入 LIFF -->
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        :root { 
+            --brand-color: #00d26a; 
+            --brand-light: #e8f5e9;
+            --bg-color: #f0f2f5; 
+            --text-main: #333333;
+            --text-muted: #888888;
+        }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; height: 100vh; box-sizing: border-box; }
+        .card { background: white; width: 100%; max-width: 400px; padding: 25px 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); text-align: center; }
+        .icon { font-size: 3rem; margin-bottom: 10px; }
+        h2 { margin: 0 0 10px; font-size: 1.3rem; color: var(--text-main); }
+        p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 25px; }
+        .btn-success { width: 100%; padding: 14px; background: var(--brand-color); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,210,106,0.3); }
+        .btn-cancel { width: 100%; padding: 14px; background: #fee2e2; color: #dc2626; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; }
+        .btn-success:active { transform: scale(0.98); }
+        .btn-cancel:active { transform: scale(0.98); }
+    </style>
+</head>
+<body>
+
+<div class="card" id="step-redirect">
+    <div class="icon">🔄</div>
+    <h2>正在引導至街口支付...</h2>
+    <p>系統正在為您開啟街口 App，請完成付款後回到此畫面回報結帳結果。</p>
+</div>
+
+<div class="card" id="step-confirm" style="display: none;">
+    <div class="icon">💳</div>
+    <h2>請問您是否已完成街口付款？</h2>
+    <p>請依您的實際付款狀況點擊下方按鈕，以通知店家或取消流程。</p>
+    <button class="btn-success" onclick="handlePaymentSuccess()">✅ 我已成功付款，通知店家</button>
+    <button class="btn-cancel" onclick="handlePaymentCancel()">❌ 我取消付款 / 尚未付款</button>
+</div>
+
+<script>
+    // 專屬員工版 / 系統 LIFF ID
+    const LIFF_ID = "2010718024-5LLzGr1V"; 
+    
+    // 已帶入你的專屬街口轉帳/付款連結
+    const JKOS_PAY_URL = "https://service.jkopay.com/r/transfer?j=Transfer:901462034";
+
+    liff.init({ liffId: LIFF_ID }).then(() => {
+        if (!liff.isLoggedIn()) {
+            liff.login();
+            return;
+        }
+        
+        // 第一步：自動導向街口支付
+        setTimeout(() => {
+            window.location.href = JKOS_PAY_URL;
+        }, 1000);
+
+        // 當使用者從街口切回 LINE 瀏覽器時，顯示防呆確認畫面
+        window.addEventListener('focus', () => {
+            document.getElementById('step-redirect').style.display = 'none';
+            document.getElementById('step-confirm').style.display = 'block';
+        });
+
+    }).catch(err => {
+        console.error("LIFF 初始化失敗", err);
+        alert("初始化失敗，請透過 LINE 聊天室重新點擊。");
+    });
+
+    // 點擊「成功付款」：發送 Flex Message 並關閉視窗
+    async function handlePaymentSuccess() {
+        if (!liff.isInClient()) {
+            alert("✅ 已確認付款成功！(非 LINE 內嵌環境)");
+            window.close();
+            return;
+        }
+
+        try {
+            const flexMessage = {
+                type: "flex",
+                altText: "🎉 客人已完成街口付款通知",
+                contents: {
+                    type: "bubble",
+                    size: "mega",
+                    header: {
+                        type: "box",
+                        layout: "vertical",
+                        backgroundColor: "#00d26a",
+                        paddingAll: "md",
+                        contents: [
+                            {
+                                type: "text",
+                                text: "🎉 街口付款成功通知",
+                                weight: "bold",
+                                size: "lg",
+                                color: "#ffffff"
+                            }
+                        ]
+                    },
+                    body: {
+                        type: "box",
+                        layout: "vertical",
+                        spacing: "md",
+                        contents: [
+                            {
+                                type: "text",
+                                text: "顧客已透過【街口支付】完成結帳，請店員協助核對並準備餐點！",
+                                wrap: true,
+                                size: "sm",
+                                color: "#333333"
+                            }
+                        ]
+                    }
+                }
+            };
+
+            await liff.sendMessages([flexMessage]);
+            alert("✅ 已成功通知店家！");
+            liff.closeWindow();
+        } catch (err) {
+            alert("發送通知失敗：" + JSON.stringify(err));
+        }
+    }
+
+    // 點擊「取消付款」：不發送任何成功訊息，安靜關閉
+    function handlePaymentCancel() {
+        alert("已取消付款流程。");
+        if (liff.isInClient()) {
+            liff.closeWindow();
+        } else {
+            window.close();
+        }
+    }
+</script>
+
+</body>
+</html>
