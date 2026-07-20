@@ -32,16 +32,25 @@
         .top-nav-tabs .nav-btn { flex: 1; padding: 12px 2px; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 0.95rem; font-weight: bold; color: #666; cursor: pointer; text-align: center; }
         .top-nav-tabs .nav-btn.active { color: var(--brand-color); border-color: var(--brand-color); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-        /* 員工專用高密度商品網格 */
-        .menu-grid { display: none; grid-template-columns: repeat(6, 1fr); gap: 8px; padding: 10px; background: var(--bg-color); }
+        /* 員工專用 6欄 × 10行 (60格) 網格 */
+        .menu-grid { display: none; grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 10px; background: var(--bg-color); }
         .menu-grid.active { display: grid; }
-        .pos-item { background: #ffffff; border-radius: 6px; height: 70px; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 0.85rem; font-weight: bold; color: #333; padding: 4px; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); word-break: break-all; line-height: 1.2; user-select: none; transition: transform 0.1s; }
+        
+        .pos-item { background: #ffffff; border-radius: 6px; height: 62px; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 0.78rem; font-weight: bold; color: #333; padding: 2px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.08); word-break: break-all; line-height: 1.15; user-select: none; transition: transform 0.1s; }
         .pos-item:active { transform: scale(0.95); background: #f8f9fa; }
 
+        /* 🌟 讓空白格在一般模式下也顯示，保持位置固定，但保持乾淨隱形不搶戲 */
+        .pos-item.empty-slot { background: transparent; box-shadow: none; border: 1px dashed rgba(0,0,0,0.05); cursor: default; }
+
         /* ===== 編輯模式專屬樣式 ===== */
-        body.edit-mode .top-nav-tabs { display: none; } /* 隱藏分頁列 */
-        body.edit-mode .menu-grid { display: grid !important; position: relative; margin: 30px 10px 20px; padding: 15px 10px 10px; border: 2px dashed #00d26a; border-radius: 12px; background: rgba(0,210,106,0.03); }
-        body.edit-mode .menu-grid::before { content: attr(data-cat-name); position: absolute; top: -14px; left: 15px; background: #e8f5e9; color: #008b46; padding: 2px 12px; border-radius: 15px; font-weight: bold; font-size: 0.9rem; border: 1px solid #00d26a; }
+        body.edit-mode .top-nav-tabs { display: none; } 
+        body.edit-mode .menu-grid { display: grid !important; position: relative; margin: 30px 10px 20px; padding: 18px 10px 10px; border: 2px dashed #00d26a; border-radius: 12px; background: rgba(0,210,106,0.03); }
+        body.edit-mode .menu-grid::before { content: attr(data-cat-name) " (60格固定位置排版)"; position: absolute; top: -14px; left: 15px; background: #e8f5e9; color: #008b46; padding: 2px 12px; border-radius: 15px; font-weight: bold; font-size: 0.85rem; border: 1px solid #00d26a; }
+        
+        /* 編輯模式下，空白格明顯顯示為虛線框與空位標示 */
+        body.edit-mode .pos-item.empty-slot { background: rgba(255,255,255,0.6); border: 2px dashed #cbd5e1; color: #94a3b8; font-size: 0.7rem; cursor: pointer; }
+        body.edit-mode .pos-item.empty-slot::after { content: "空位"; }
+
         .dragging { opacity: 0.3; transform: scale(1.05); }
 
         /* 底部彈窗 */
@@ -122,7 +131,7 @@
     </div>
 </div>
 
-<!-- 新版員工 POS 標題與導覽 -->
+<!-- 員工 POS 標題與導覽 -->
 <div class="employee-header">
     <div>快速點餐</div>
     <div class="header-actions">
@@ -270,55 +279,69 @@
     let currentSelect = {};
     let confirmData = null;
 
-    // 拖曳套件與編輯狀態
+    // 編輯狀態與拖曳實例
     let isEditMode = false;
     let sortableInstances = [];
 
     // ==========================================
-    // 核心資料讀取與本機排版載入 (移除寫入雲端功能)
+    // 核心資料讀取與 60格（空白格常態顯示）排版載入
     // ==========================================
     function loadCloudConfig() {
         fetch(GAS_API_URL)
         .then(r => r.json())
         .then(data => {
             if (data && data.menu && data.menu.length > 0) {
-                // 1. 攤平所有真實品項
+                // 1. 取得雲端所有真實品項
                 let allRealItems = [];
                 data.menu.forEach(cat => {
                     if(cat.items && cat.items.length > 0) allRealItems = allRealItems.concat(cat.items);
                 });
 
-                // 2. 檢查本機是否已有儲存的排版陣列
+                // 2. 準備 3 個大類，每大類固定 60 個格子容量
                 let savedLayout = null;
                 try {
-                    savedLayout = JSON.parse(localStorage.getItem('employee_layout_v2'));
+                    savedLayout = JSON.parse(localStorage.getItem('employee_layout_v60_fixed'));
                 } catch(e) {}
 
                 menuData = [
-                    { category: "📋 常用類", items: [] },
-                    { category: "🍹 特調·果醋", items: [] },
-                    { category: "🥛 鮮奶·加料", items: [] }
+                    { category: "📋 常用類", items: new Array(60).fill(null) },
+                    { category: "🍹 特調·果醋", items: new Array(60).fill(null) },
+                    { category: "🥛 鮮奶·加料", items: new Array(60).fill(null) }
                 ];
 
                 if (savedLayout && savedLayout.length === 3) {
-                    // 套用本機儲存的分類與排序
-                    savedLayout.forEach((tabNames, idx) => {
-                        tabNames.forEach(name => {
-                            let foundIndex = allRealItems.findIndex(i => i.name === name);
-                            if (foundIndex !== -1) {
-                                menuData[idx].items.push(allRealItems[foundIndex]);
-                                allRealItems.splice(foundIndex, 1); // 移除已匹配的
+                    // 依照本機儲存的 60 格位置（包含品項名稱或 null 空白格）還原
+                    savedLayout.forEach((tabSlotNames, idx) => {
+                        for (let s = 0; s < 60; s++) {
+                            let itemName = tabSlotNames[s];
+                            if (itemName) {
+                                let foundIndex = allRealItems.findIndex(i => i.name === itemName);
+                                if (foundIndex !== -1) {
+                                    menuData[idx].items[s] = allRealItems[foundIndex];
+                                    allRealItems.splice(foundIndex, 1); // 標記為已使用
+                                }
+                            }
+                        }
+                    });
+                    // 如果雲端有新增、尚未被排進 60 格的品項，自動依序塞入各類的空白格中
+                    if (allRealItems.length > 0) {
+                        menuData.forEach(cat => {
+                            for (let s = 0; s < 60 && allRealItems.length > 0; s++) {
+                                if (cat.items[s] === null) {
+                                    cat.items[s] = allRealItems.shift();
+                                }
                             }
                         });
-                    });
-                    // 如果雲端有新增的品項，自動塞進最後一個分類
-                    allRealItems.forEach(item => menuData[2].items.push(item));
+                    }
                 } else {
-                    // 初次載入：將資料平分成三分
-                    let partSize = Math.ceil(allRealItems.length / 3);
-                    menuData[0].items = allRealItems.slice(0, partSize);
-                    menuData[1].items = allRealItems.slice(partSize, partSize * 2);
-                    menuData[2].items = allRealItems.slice(partSize * 2);
+                    // 初次載入：將品項依序填入第一類與第二類的前幾格
+                    let cursor = 0;
+                    let targetCatIdx = 0;
+                    while (allRealItems.length > 0 && targetCatIdx < 3) {
+                        menuData[targetCatIdx].items[cursor] = allRealItems.shift();
+                        cursor++;
+                        if (cursor >= 60) { cursor = 0; targetCatIdx++; }
+                    }
                 }
 
                 if(data.toppings) toppingPrices = data.toppings;
@@ -336,7 +359,7 @@
     liff.init({ liffId: LIFF_ID }).then(() => { if (!liff.isLoggedIn()) liff.login(); else loadCloudConfig(); }).catch(() => loadCloudConfig());
 
     // ==========================================
-    // 編輯模式：全展開拖曳邏輯 (SortableJS)
+    // 編輯模式：60格拖曳與固定空白格管理 (SortableJS)
     // ==========================================
     function toggleEditMode() {
         isEditMode = !isEditMode;
@@ -347,54 +370,54 @@
             btn.innerHTML = "💾 儲存鎖定";
             btn.style.color = "#ff4d4d";
             
-            // 初始化拖曳功能
+            // 初始化 60 格拖曳實例
             document.querySelectorAll('.menu-grid').forEach(grid => {
                 sortableInstances.push(new Sortable(grid, {
-                    group: 'shared', // 允許跨區塊拖曳
+                    group: 'shared60Fixed', // 允許在 60 格之間跨區塊自由拖曳，包含空位
                     animation: 150,
-                    delay: 150, // 長按 150ms 觸發拖曳 (防誤觸)
+                    delay: 150,
                     delayOnTouchOnly: true,
                     ghostClass: 'dragging'
                 }));
             });
-            alert("進入編輯模式！\n\n長按飲料方塊即可自由拖曳，可以跨區塊移動。\n排版完成後請按右上角「儲存鎖定」。");
+            alert("進入編輯模式（60格固定位置）！\n\n長按飲料方塊可自由移動到任何位置或空格。\n排版完成後請按右上角「儲存鎖定」。");
         } else {
             btn.innerHTML = "⚙️ 編輯排版";
             btn.style.color = "var(--text-main)";
             
-            // 儲存新的排版結果至本機 (不會寫入雲端)
+            // 儲存 60 格的完整位置狀態至本機
             let newLayout = [];
             document.querySelectorAll('.menu-grid').forEach(grid => {
-                let items = Array.from(grid.querySelectorAll('.pos-item')).map(el => el.innerText);
-                newLayout.push(items);
+                let slotNames = Array.from(grid.querySelectorAll('.pos-item')).map(el => {
+                    return el.classList.contains('empty-slot') ? null : el.innerText;
+                });
+                newLayout.push(slotNames);
             });
-            localStorage.setItem('employee_layout_v2', JSON.stringify(newLayout));
+            localStorage.setItem('employee_layout_v60_fixed', JSON.stringify(newLayout));
             
             // 銷毀拖曳實例
             sortableInstances.forEach(s => s.destroy());
             sortableInstances = [];
             
             alert("排版已成功儲存並固定！");
-            location.reload(); // 重新載入以乾淨的狀態呈現新排版
+            location.reload(); 
         }
     }
 
-    // ===== 員工版 UI 渲染邏輯 =====
+    // ===== 員工版 UI 渲染邏輯 (60格常態顯示，空白格保留位置) =====
     function renderMenu() {
         const container = document.getElementById('menu-content');
         const nav = document.getElementById('nav-bar');
         container.innerHTML = ''; nav.innerHTML = '';
         
         menuData.forEach((cat, cIdx) => {
-            if(cat.items.length === 0) return;
-            
             // 生成分頁按鈕
             const btn = document.createElement('button');
             btn.className = 'nav-btn'; 
             if(cIdx === 0) btn.classList.add('active');
             btn.innerText = cat.category;
             btn.onclick = (e) => {
-                if(isEditMode) return; // 編輯模式下停用分頁切換
+                if(isEditMode) return;
                 document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
                 document.querySelectorAll('.menu-grid').forEach(g => g.classList.remove('active'));
@@ -402,22 +425,27 @@
             };
             nav.appendChild(btn);
 
-            // 生成區塊
+            // 生成 60 格容器
             const grid = document.createElement('div');
             grid.id = 'cat-'+cIdx; 
             grid.className = 'menu-grid';
             grid.setAttribute('data-cat-name', cat.category);
             if(cIdx === 0) grid.classList.add('active'); 
             
-            cat.items.forEach((item, iIdx) => {
+            // 渲染固定 60 個格子 (包含實體飲料或空白格)
+            cat.items.forEach((item) => {
                 const el = document.createElement('div'); 
-                el.className = 'pos-item';
-                el.innerText = item.name; 
-                el.onclick = () => {
-                    if(isEditMode) return; // 編輯模式下點擊不跳出點餐視窗
-                    if(isStoreCurrentlyClosed) { alert("目前非營業時間，暫不開放點餐！"); return; }
-                    openModal(item, cIdx, iIdx);
-                };
+                if (item && item.name) {
+                    el.className = 'pos-item';
+                    el.innerText = item.name; 
+                    el.onclick = () => {
+                        if(isEditMode) return; 
+                        if(isStoreCurrentlyClosed) { alert("目前非營業時間，暫不開放點餐！"); return; }
+                        openModal(item);
+                    };
+                } else {
+                    el.className = 'pos-item empty-slot';
+                }
                 grid.appendChild(el);
             });
             container.appendChild(grid);
@@ -447,7 +475,7 @@
         try { localStorage.setItem('pos_cart_data', JSON.stringify(cart)); } catch(e) {}
     }
 
-    function openModal(item, cIdx, iIdx) {
+    function openModal(item) {
         let defaultSize = item.prices.hasOwnProperty('L') ? 'L' : Object.keys(item.prices)[0];
         currentSelect = { item, qty: 1, size: defaultSize, ice: null, sugar: null, toppings: [], teaSwap: "" };
         
@@ -603,7 +631,7 @@
             return { type: "box", layout: "vertical", margin: "sm", contents: [ { type: "box", layout: "baseline", contents: [ { type: "text", text: `${i.item.name}(${i.size}) x${i.qty}`, size: "sm", weight: "bold", flex: 3, wrap: true, color: "#1e293b" }, { type: "text", text: `$${i.price}`, size: "sm", align: "end", flex: 1, weight: "bold", color: "#06C755" } ]}, { type: "box", layout: "baseline", margin: "xs", contents: [ { type: "text", text: details, size: "xs", color: "#64748b", flex: 1, wrap: true } ]} ] };
         });
 
-        let footerBox = [ { type: "separator", margin: "md", color: "#e2e8f0" }, { type: "box", layout: "vertical", margin: "md", contents: [{ type: "text", text: `📞 ${data.phone}`, size: "sm", weight: "bold", color: "#1e293b" }] }, { type: "box", layout: "vertical", margin: "sm", contents: [{ type: "text", text: `📄 ${data.invoiceText}`, size: "sm", weight: "bold", color: "#2563eb" }] }, { type: "box", layout: "vertical", margin: "sm", contents: [{ type: "text", text: `🛵 ${data.method}`, size: "sm", weight: "bold", color: "#1e293b" }] } ];
+        let footerBox = [ { type: "separator", margin: "md", color: "#e2e8f0" }, { type: "box", layout: "vertical", margin: "md", contents: [{ type: "text", text: `📞 ${data.phone}`, size: "sm", weight: "bold", color: "#1e293b" }] }, { type: "box", layout: "vertical", margin: "md", contents: [{ type: "text", text: `📄 ${data.invoiceText}`, size: "sm", weight: "bold", color: "#2563eb" }] }, { type: "box", layout: "vertical", margin: "md", contents: [{ type: "text", text: `🛵 ${data.method}`, size: "sm", weight: "bold", color: "#1e293b" }] } ];
         if (data.method === "外送" && data.address) footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [{ type: "text", text: `📍 ${data.address}`, size: "sm", weight: "bold", color: "#e65100", wrap: true }] });
         footerBox.push({ type: "separator", margin: "md", color: "#e2e8f0" });
         
@@ -613,7 +641,7 @@
         const ITEMS_PER_BUBBLE = 10; let bubbles = [];
         for (let i = 0; i < allItemBoxes.length; i += ITEMS_PER_BUBBLE) {
             let chunk = allItemBoxes.slice(i, i + ITEMS_PER_BUBBLE); let isLastBubble = (i + ITEMS_PER_BUBBLE >= allItemBoxes.length); let bodyContents = [{ type: "box", layout: "vertical", spacing: "md", contents: chunk }]; if (isLastBubble) bodyContents.push(...footerBox);
-            bubbles.push({ type: "bubble", size: "mega", header: { type: "box", layout: "vertical", backgroundColor: "#1e293b", paddingAll: "md", contents: [{ type: "text", text: `🌟 新進顧客訂單 (${Math.floor(i/ITEMS_PER_BUBBLE) + 1})`, weight: "bold", size: "xl", color: "#ffffff" }] }, body: { type: "box", layout: "vertical", contents: bodyContents } });
+            bubbles.push({ type: "bubble", size: "mega", header: { type: "box", layout: "vertical", backgroundColor: "#1e293b", paddingAll: "md", contents: [{ type: "text", text: `🌟 新進顧客訂單 (${Math.floor(i/ITEMS_PER_BUBBLE)+1})`, weight: "bold", size: "xl", color: "#ffffff" }] }, body: { type: "box", layout: "vertical", contents: bodyContents } });
         }
 
         try {
