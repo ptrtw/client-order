@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>員工快速點餐 - 清心福全</title>
-    <!-- 引入 LIFF -->
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <!-- 引入支援觸控的拖曳套件 SortableJS -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
         :root { 
@@ -16,28 +14,53 @@
             --text-main: #333333;
             --text-muted: #888888;
         }
-        html { scroll-behavior: smooth; } 
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding-bottom: 20px; -webkit-tap-highlight-color: transparent; }
         
-        /* 員工專用頂部 Header (稍微縮減高度與間距) */
+        /* ✨ 修復點 1：鎖死網頁高度，禁止整體滾動，完美支援手機的動態網址列 (100dvh) */
+        html, body { 
+            height: 100vh; /* 備用 */
+            height: 100dvh; 
+            overflow: hidden; /* 鎖死畫面，拒絕滾動 */
+            display: flex; 
+            flex-direction: column; 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+            background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        
+        /* 頂部 Header (高度固定，不被壓縮) */
         .employee-header {
-            background-color: var(--brand-color); color: white; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; font-weight: bold; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+            background-color: var(--brand-color); color: white; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; font-weight: bold; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .header-actions { display: flex; gap: 10px; align-items: center; }
         .edit-btn { background: #ffffff; color: var(--text-main); border: none; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.2s; }
         .cart-btn-top { display: flex; align-items: center; gap: 4px; font-size: 1.1rem; cursor: pointer; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; }
 
-        /* 導覽列 (分頁標籤) */
-        .top-nav-tabs { display: flex; padding: 6px 10px; gap: 8px; background: var(--bg-color); position: sticky; top: 44px; z-index: 999; }
+        /* 導覽列 (高度固定) */
+        .top-nav-tabs { flex-shrink: 0; display: flex; padding: 6px 10px; gap: 8px; background: var(--bg-color); z-index: 999; }
         .top-nav-tabs .nav-btn { flex: 1; padding: 8px 2px; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.85rem; font-weight: bold; color: #666; cursor: pointer; text-align: center; }
         .top-nav-tabs .nav-btn.active { color: var(--brand-color); border-color: var(--brand-color); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-        /* 員工專用 6欄 × 10行 (60格) 網格 - 針對單頁同屏優化微調 */
-        .menu-grid { display: none; grid-template-columns: repeat(6, 1fr); gap: 4px; padding: 6px 10px; background: var(--bg-color); }
+        /* 中間容器佔滿剩餘空間 */
+        #menu-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 員工專用 6欄 × 10行 (60格) 網格 - ✨ 高度動態均分 1fr */
+        .menu-grid { 
+            flex-grow: 1;
+            display: none; 
+            grid-template-columns: repeat(6, 1fr); 
+            grid-template-rows: repeat(10, 1fr); /* ✨ 強制將剩餘高度平均切成 10 份 */
+            gap: 4px; padding: 4px 8px 12px; background: var(--bg-color); 
+        }
         .menu-grid.active { display: grid; }
         
-        /* ✨ 修復點 1：格子高度從 46px 增高至 65px，字體微微調大，完美填滿下方留白空間 */
-        .pos-item { background: #ffffff; border-radius: 4px; height: 65px; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 0.75rem; font-weight: bold; color: #333; padding: 2px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.08); word-break: break-all; line-height: 1.2; user-select: none; transition: transform 0.1s; }
+        /* 格子高度設為 100% 自動適應，字體微調 */
+        .pos-item { background: #ffffff; border-radius: 4px; height: 100%; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 0.75rem; font-weight: bold; color: #333; padding: 2px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.08); word-break: break-all; line-height: 1.2; user-select: none; transition: transform 0.1s; }
         .pos-item:active { transform: scale(0.95); background: #f8f9fa; }
 
         /* 空白格常態顯示：保持位置固定，乾淨隱形不佔視覺 */
@@ -45,16 +68,12 @@
 
         /* ===== 編輯模式專屬樣式 ===== */
         body.edit-mode .top-nav-tabs { display: none; } 
-        body.edit-mode .menu-grid { display: grid !important; position: relative; margin: 25px 8px 15px; padding: 15px 8px 8px; border: 2px dashed #00d26a; border-radius: 10px; background: rgba(0,210,106,0.03); }
-        body.edit-mode .menu-grid::before { content: attr(data-cat-name) " (60格固定位置排版)"; position: absolute; top: -13px; left: 12px; background: #e8f5e9; color: #008b46; padding: 2px 10px; border-radius: 12px; font-weight: bold; font-size: 0.78rem; border: 1px solid #00d26a; }
-        
-        /* 編輯模式下，空白格明顯顯示為虛線框與空位標示 */
+        body.edit-mode .menu-grid { display: grid !important; position: relative; margin: 20px 8px 8px; padding: 15px 4px 4px; border: 2px dashed #00d26a; border-radius: 10px; background: rgba(0,210,106,0.03); }
+        body.edit-mode .menu-grid::before { content: attr(data-cat-name) " (60格拖曳排版)"; position: absolute; top: -13px; left: 12px; background: #e8f5e9; color: #008b46; padding: 2px 10px; border-radius: 12px; font-weight: bold; font-size: 0.78rem; border: 1px solid #00d26a; }
         body.edit-mode .pos-item.empty-slot { background: rgba(255,255,255,0.7); border: 2px dashed #cbd5e1; color: #94a3b8; font-size: 0.65rem; cursor: pointer; }
         body.edit-mode .pos-item.empty-slot::after { content: "空位"; }
 
         .dragging { opacity: 0.3; transform: scale(1.05); }
-        
-        /* 交換模式高亮提示 */
         .highlight-swap { background: rgba(0, 210, 106, 0.15) !important; border: 2px solid var(--brand-color) !important; border-radius: 4px; }
 
         /* 底部彈窗 */
@@ -120,7 +139,6 @@
         .confirm-btn-group .btn-confirm { padding: 14px; background: var(--brand-color); color: white; border: none; border-radius: 14px; font-weight: 700; font-size: 1rem; cursor: pointer; }
         .confirm-btn-group .btn-back { padding: 14px; background: #e2e8f0; color: var(--text-main); border: none; border-radius: 14px; font-weight: 700; font-size: 1rem; cursor: pointer; }
 
-        /* 店休視覺效果 */
         .closed-view { filter: grayscale(100%) opacity(0.5); }
         .closed-banner-ui { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1500; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; color: white; font-size: 2.2rem; font-weight: bold; pointer-events: none; }
         .closed-cart-warning { display: none; background: #ffebee; color: #c62828; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; text-align: center; border: 1px solid #ef9a9a; font-weight: bold; }
@@ -267,8 +285,6 @@
 <script>
     // 專屬員工版 LIFF ID
     const LIFF_ID = "2010718024-5LLzGr1V"; 
-    
-    // 鎖定唯一真理的 GAS 網址 (純讀取，安全隔離)
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
 
     let menuData = [];
@@ -283,81 +299,97 @@
     let currentSelect = {};
     let confirmData = null;
 
-    // 編輯狀態與拖曳實例
     let isEditMode = false;
     let sortableInstances = [];
 
     // ==========================================
-    // 核心資料讀取與 60格（同屏優化）排版載入
+    // ✨ 修復點 2：實作秒開快取 (Stale-While-Revalidate)
     // ==========================================
     function loadCloudConfig() {
+        // 1. 先嘗試從本地「秒抓」資料並渲染，達成 0 延遲體驗
+        const cachedData = localStorage.getItem('pos_cloud_cache');
+        if (cachedData) {
+            try {
+                const parsedData = JSON.parse(cachedData);
+                processMenuData(parsedData);
+            } catch(e) { console.error("快取解析失敗", e); }
+        }
+
+        // 2. 同時間在背景偷偷向 GAS 請求最新資料
         fetch(GAS_API_URL)
         .then(r => r.json())
         .then(data => {
             if (data && data.menu && data.menu.length > 0) {
-                // 1. 取得雲端所有真實品項
-                let allRealItems = [];
-                data.menu.forEach(cat => {
-                    if(cat.items && cat.items.length > 0) allRealItems = allRealItems.concat(cat.items);
-                });
-
-                // 2. 準備 3 個大類，每大類固定 60 個格子容量
-                let savedLayout = null;
-                try {
-                    savedLayout = JSON.parse(localStorage.getItem('employee_layout_v60_compact'));
-                } catch(e) {}
-
-                menuData = [
-                    { category: "📋 常用類", items: new Array(60).fill(null) },
-                    { category: "🍹 特調·果醋", items: new Array(60).fill(null) },
-                    { category: "🥛 鮮奶·加料", items: new Array(60).fill(null) }
-                ];
-
-                if (savedLayout && savedLayout.length === 3) {
-                    // 依照本機儲存的 60 格位置（包含品項名稱或 null 空白格）還原
-                    savedLayout.forEach((tabSlotNames, idx) => {
-                        for (let s = 0; s < 60; s++) {
-                            let itemName = tabSlotNames[s];
-                            if (itemName) {
-                                let foundIndex = allRealItems.findIndex(i => i.name === itemName);
-                                if (foundIndex !== -1) {
-                                    menuData[idx].items[s] = allRealItems[foundIndex];
-                                    allRealItems.splice(foundIndex, 1); // 標記為已使用
-                                }
-                            }
-                        }
-                    });
-                    // 如果雲端有新增、尚未被排進 60 格的品項，自動依序塞入各類的空白格中
-                    if (allRealItems.length > 0) {
-                        menuData.forEach(cat => {
-                            for (let s = 0; s < 60 && allRealItems.length > 0; s++) {
-                                if (cat.items[s] === null) {
-                                    cat.items[s] = allRealItems.shift();
-                                }
-                            }
-                        });
-                    }
-                } else {
-                    // 初次載入：將品項依序填入第一類與第二類的前幾格
-                    let cursor = 0;
-                    let targetCatIdx = 0;
-                    while (allRealItems.length > 0 && targetCatIdx < 3) {
-                        menuData[targetCatIdx].items[cursor] = allRealItems.shift();
-                        cursor++;
-                        if (cursor >= 60) { cursor = 0; targetCatIdx++; }
-                    }
-                }
-
-                if(data.toppings) toppingPrices = data.toppings;
-                if(data.storeHours) storeHours = data.storeHours; 
+                // 將最新資料存入快取
+                localStorage.setItem('pos_cloud_cache', JSON.stringify(data));
                 
-                renderMenu();     
-                checkStoreStatus(); 
+                // 如果是第一次載入 (沒有快取)，就立刻渲染畫面
+                if (!cachedData) {
+                    processMenuData(data);
+                } else {
+                    // 如果原本有快取，代表畫面已經秒開渲染完了，這次抓的資料就默默存著，下次打開生效。
+                    console.log("✅ 菜單已於背景更新完畢，下次載入時套用。");
+                }
             }
         }).catch(err => {
             console.error("無法連線雲端", err);
-            document.getElementById('menu-content').innerHTML = '<div style="padding:20px; text-align:center; color:red;">連線雲端菜單失敗，請檢查網路連線。</div>';
+            if (!cachedData) {
+                document.getElementById('menu-content').innerHTML = '<div style="padding:20px; text-align:center; color:red;">連線雲端菜單失敗，請檢查網路連線。</div>';
+            }
         });
+    }
+
+    // 將原本龐大的處理邏輯獨立出來，方便快取與線上共用
+    function processMenuData(data) {
+        let allRealItems = [];
+        data.menu.forEach(cat => {
+            if(cat.items && cat.items.length > 0) allRealItems = allRealItems.concat(cat.items);
+        });
+
+        let savedLayout = null;
+        try { savedLayout = JSON.parse(localStorage.getItem('employee_layout_v60_compact')); } catch(e) {}
+
+        menuData = [
+            { category: "📋 常用類", items: new Array(60).fill(null) },
+            { category: "🍹 特調·果醋", items: new Array(60).fill(null) },
+            { category: "🥛 鮮奶·加料", items: new Array(60).fill(null) }
+        ];
+
+        if (savedLayout && savedLayout.length === 3) {
+            savedLayout.forEach((tabSlotNames, idx) => {
+                for (let s = 0; s < 60; s++) {
+                    let itemName = tabSlotNames[s];
+                    if (itemName) {
+                        let foundIndex = allRealItems.findIndex(i => i.name === itemName);
+                        if (foundIndex !== -1) {
+                            menuData[idx].items[s] = allRealItems[foundIndex];
+                            allRealItems.splice(foundIndex, 1); 
+                        }
+                    }
+                }
+            });
+            if (allRealItems.length > 0) {
+                menuData.forEach(cat => {
+                    for (let s = 0; s < 60 && allRealItems.length > 0; s++) {
+                        if (cat.items[s] === null) cat.items[s] = allRealItems.shift();
+                    }
+                });
+            }
+        } else {
+            let cursor = 0;
+            let targetCatIdx = 0;
+            while (allRealItems.length > 0 && targetCatIdx < 3) {
+                menuData[targetCatIdx].items[cursor] = allRealItems.shift();
+                cursor++;
+                if (cursor >= 60) { cursor = 0; targetCatIdx++; }
+            }
+        }
+
+        if(data.toppings) toppingPrices = data.toppings;
+        if(data.storeHours) storeHours = data.storeHours; 
+        
+        renderMenu();     
+        checkStoreStatus(); 
     }
 
     liff.init({ liffId: LIFF_ID }).then(() => { if (!liff.isLoggedIn()) liff.login(); else loadCloudConfig(); }).catch(() => loadCloudConfig());
@@ -374,24 +406,22 @@
             btn.innerHTML = "💾 儲存鎖定";
             btn.style.color = "#ff4d4d";
             
-            // 初始化 60 格拖曳實例
             document.querySelectorAll('.menu-grid').forEach(grid => {
                 sortableInstances.push(new Sortable(grid, {
-                    group: 'shared60Compact', // 允許在 60 格之間跨區塊自由拖曳，包含空位
-                    swap: true, // ✨ 修復點 2：啟動交換模式 (Swap Plugin)。拖曳會直接跟目標交換位置，不會往前擠壓！
-                    swapClass: 'highlight-swap', // 拖曳重疊時的視覺特效
+                    group: 'shared60Compact', 
+                    swap: true, 
+                    swapClass: 'highlight-swap',
                     animation: 150,
                     delay: 150,
                     delayOnTouchOnly: true,
                     ghostClass: 'dragging'
                 }));
             });
-            alert("進入編輯模式（同屏 60 格固定排版）！\n\n長按飲料方塊可自由移動到任何位置或空格。\n排版完成後請按右上角「儲存鎖定」。");
+            alert("進入編輯模式！\n\n長按飲料方塊可互相「交換位置」或移至空格。\n排版完成後請按右上角「儲存鎖定」。");
         } else {
             btn.innerHTML = "⚙️ 編輯排版";
             btn.style.color = "var(--text-main)";
             
-            // 儲存 60 格的完整位置狀態至本機
             let newLayout = [];
             document.querySelectorAll('.menu-grid').forEach(grid => {
                 let slotNames = Array.from(grid.querySelectorAll('.pos-item')).map(el => {
@@ -401,7 +431,6 @@
             });
             localStorage.setItem('employee_layout_v60_compact', JSON.stringify(newLayout));
             
-            // 銷毀拖曳實例
             sortableInstances.forEach(s => s.destroy());
             sortableInstances = [];
             
@@ -410,14 +439,13 @@
         }
     }
 
-    // ===== 員工版 UI 渲染邏輯 (60格同屏顯示) =====
+    // ===== 員工版 UI 渲染邏輯 =====
     function renderMenu() {
         const container = document.getElementById('menu-content');
         const nav = document.getElementById('nav-bar');
         container.innerHTML = ''; nav.innerHTML = '';
         
         menuData.forEach((cat, cIdx) => {
-            // 生成分頁按鈕
             const btn = document.createElement('button');
             btn.className = 'nav-btn'; 
             if(cIdx === 0) btn.classList.add('active');
@@ -431,14 +459,12 @@
             };
             nav.appendChild(btn);
 
-            // 生成 60 格容器
             const grid = document.createElement('div');
             grid.id = 'cat-'+cIdx; 
             grid.className = 'menu-grid';
             grid.setAttribute('data-cat-name', cat.category);
             if(cIdx === 0) grid.classList.add('active'); 
             
-            // 渲染固定 60 個格子 (包含實體飲料或空白格)
             cat.items.forEach((item) => {
                 const el = document.createElement('div'); 
                 if (item && item.name) {
@@ -456,10 +482,11 @@
             });
             container.appendChild(grid);
         });
+        updateCounter();
     }
 
     // ==========================================
-    // 狀態管理與點餐邏輯
+    // 狀態管理與點餐邏輯 (與舊版完全一致)
     // ==========================================
     function checkStoreStatus() {
         const now = new Date(); const twTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Taipei", hour12: false }));
@@ -472,7 +499,6 @@
         
         if (isStoreCurrentlyClosed) { document.getElementById('menu-content').classList.add('closed-view'); document.querySelector('.employee-header').classList.add('closed-view'); document.getElementById('closed-banner-ui').style.display = 'flex'; } 
         else { document.getElementById('menu-content').classList.remove('closed-view'); document.querySelector('.employee-header').classList.remove('closed-view'); document.getElementById('closed-banner-ui').style.display = 'none'; }
-        updateCounter(); 
     }
     setInterval(checkStoreStatus, 60000);
 
