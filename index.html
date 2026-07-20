@@ -1152,7 +1152,7 @@
             updateOptionPrice();  // 更新價格
         }, defaultSize);
         
-        let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : ["正常冰", "少冰", "微冰", "去冰", "常溫", "溫飲"];
+        let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : ["去冰", "微冰", "少冰", "正常冰", "常溫", "溫飲"];
         if (!item.customIce && (item.name.includes("優多") || item.name.includes("冰淇淋"))) iceOptions = iceOptions.filter(opt => opt !== "溫飲");
         renderBtns('ice-btns', iceOptions, (val) => currentSelect.ice = val, null);
         
