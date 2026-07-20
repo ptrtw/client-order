@@ -19,25 +19,24 @@
         .icon { font-size: 3rem; margin-bottom: 10px; }
         h2 { margin: 0 0 10px; font-size: 1.3rem; color: var(--text-main); }
         p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
-        .btn-jkos { display: block; width: 100%; padding: 14px; background: #e11d48; color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; text-decoration: none; box-sizing: border-box; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(225,29,72,0.3); }
         .btn-success { width: 100%; padding: 14px; background: var(--brand-color); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,210,106,0.3); }
-        .btn-cancel { width: 100%; padding: 14px; background: #fee2e2; color: #dc2626; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; }
-        .divider { border: 0; border-top: 1px solid #eee; margin: 20px 0; }
+        .btn-cancel { width: 100%; padding: 14px; background: #fee2e2; color: #dc2626; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
+        .btn-link { background: none; border: none; color: #2563eb; font-size: 0.9rem; text-decoration: underline; cursor: pointer; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-<div class="card">
+<!-- 預設顯示的畫面，防止空白 -->
+<div class="card" id="ui-container">
     <div class="icon">💳</div>
-    <h2>街口支付快速結帳</h2>
-    <p>請點擊下方按鈕前往街口完成付款，付完後請回到此畫面點擊回報按鈕。</p>
+    <h2>正在開啟街口支付...</h2>
+    <p>系統已嘗試喚醒街口 App。<br>若未跳轉，請點擊下方按鈕手動前往付款。</p>
     
-    <!-- 直接用超連結導向街口，安全不被 LINE 封鎖 -->
-    <a href="https://service.jkopay.com/r/transfer?j=Transfer:901462034" target="_blank" class="btn-jkos">🚀 前往街口支付 App 付款</a>
+    <button class="btn-link" style="margin-bottom: 20px;" onclick="forceOpenJkos()">🚀 點此手動開啟街口 App</button>
     
-    <hr class="divider">
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
     
-    <p style="font-size: 0.85rem; color: #555; margin-bottom: 15px;">👇 已經完成付款了嗎？請點擊下方按鈕通知店家：</p>
+    <p style="font-size: 0.85rem; color: #555; margin-bottom: 15px;">👇 付款完成後，請點擊下方按鈕通知店家：</p>
     
     <button class="btn-success" onclick="handlePaymentSuccess()">✅ 我已成功付款，通知店家</button>
     <button class="btn-cancel" onclick="handlePaymentCancel()">❌ 取消或尚未付款</button>
@@ -45,19 +44,37 @@
 
 <script>
     const LIFF_ID = "2010718024-p1hooBDD"; 
+    const JKOS_PAY_URL = "https://service.jkopay.com/r/transfer?j=Transfer:901462034";
 
     liff.init({ liffId: LIFF_ID }).then(() => {
         if (!liff.isLoggedIn()) {
             liff.login();
+            return;
         }
+        
+        // 🔥 Pro 級絕招：呼叫 LIFF API，帶入 external: true
+        // 這會強制跳出 LINE 的綁架，直接用外部系統喚醒街口 App！
+        liff.openWindow({
+            url: JKOS_PAY_URL,
+            external: true
+        });
+
     }).catch(err => {
         console.error("LIFF 初始化失敗", err);
     });
 
-    // 點擊「成功付款」：發送 Flex Message 並關閉視窗
+    // 萬一客人的手機擋下了自動開啟，提供一個手動補救按鈕
+    function forceOpenJkos() {
+        liff.openWindow({
+            url: JKOS_PAY_URL,
+            external: true
+        });
+    }
+
+    // 發送成功結帳通知
     async function handlePaymentSuccess() {
         if (!liff.isInClient()) {
-            alert("✅ 已確認付款成功！(非 LINE 內嵌環境)");
+            alert("✅ 已確認付款成功！");
             window.close();
             return;
         }
@@ -75,13 +92,7 @@
                         backgroundColor: "#00d26a",
                         paddingAll: "md",
                         contents: [
-                            {
-                                type: "text",
-                                text: "🎉 街口付款成功通知",
-                                weight: "bold",
-                                size: "lg",
-                                color: "#ffffff"
-                            }
+                            { type: "text", text: "🎉 街口付款成功通知", weight: "bold", size: "lg", color: "#ffffff" }
                         ]
                     },
                     body: {
@@ -89,13 +100,7 @@
                         layout: "vertical",
                         spacing: "md",
                         contents: [
-                            {
-                                type: "text",
-                                text: "顧客已透過【街口支付】完成結帳，請店員協助核對並準備餐點！",
-                                wrap: true,
-                                size: "sm",
-                                color: "#333333"
-                            }
+                            { type: "text", text: "顧客已透過【街口支付】完成結帳，請店員協助核對並準備餐點！", wrap: true, size: "sm", color: "#333333" }
                         ]
                     }
                 }
@@ -109,9 +114,8 @@
         }
     }
 
-    // 點擊「取消付款」：安全關閉
+    // 取消並關閉
     function handlePaymentCancel() {
-        alert("已取消付款流程。");
         if (liff.isInClient()) {
             liff.closeWindow();
         } else {
