@@ -14,44 +14,35 @@
             --text-main: #333333;
             --text-muted: #888888;
         }
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; height: 100vh; box-sizing: border-box; overflow: hidden; }
-        
-        .card { background: white; width: 100%; max-width: 400px; padding: 30px 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); text-align: center; position: relative; z-index: 10; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; height: 100vh; box-sizing: border-box; }
+        .card { background: white; width: 100%; max-width: 400px; padding: 30px 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); text-align: center; }
         .icon { font-size: 3rem; margin-bottom: 10px; }
         h2 { margin: 0 0 10px; font-size: 1.3rem; color: var(--text-main); }
         p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 25px; }
         
-        /* 步驟一：全螢幕觸控感應區 */
-        #step-1-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999; display: flex; justify-content: center; align-items: center; cursor: pointer; background: var(--bg-color); padding: 20px; box-sizing: border-box; }
-        .pulse-text { color: #e11d48; font-weight: bold; font-size: 1.1rem; margin-top: 15px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
+        .step-label { font-size: 0.85rem; font-weight: bold; color: #555; text-align: left; margin-bottom: 8px; display: block; }
+        .btn-jkos { width: 100%; padding: 16px; background: #e11d48; color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-bottom: 20px; box-shadow: 0 3px 6px rgba(225,29,72,0.3); }
+        .btn-success { width: 100%; padding: 14px; background: var(--brand-color); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,210,106,0.3); }
+        .btn-cancel { width: 100%; padding: 14px; background: #fee2e2; color: #dc2626; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; }
         
-        /* 步驟二：回報按鈕區 */
-        .step-label { font-size: 0.85rem; font-weight: bold; color: #555; text-align: left; margin-bottom: 12px; display: block; }
-        .btn-success { width: 100%; padding: 14px; background: var(--brand-color); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,210,106,0.3); transition: transform 0.1s; }
-        .btn-cancel { width: 100%; padding: 14px; background: #fee2e2; color: #dc2626; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: transform 0.1s; }
-        .btn-success:active, .btn-cancel:active { transform: scale(0.98); }
+        .divider { border: 0; border-top: 2px dashed #e0e0e0; margin: 25px 0; }
     </style>
 </head>
 <body>
 
-<!-- 步驟一：點擊任意處跳轉 (這是一整個滿版透明覆蓋層，點哪裡都會觸發) -->
-<div id="step-1-overlay" onclick="executeJump()">
-    <div class="card" style="pointer-events: none;">
-        <div class="icon">🚀</div>
-        <h2>準備前往街口支付</h2>
-        <p>系統已準備就緒！為了確保連線安全...</p>
-        <div class="pulse-text">👆 請點擊畫面任意處立即跳轉 👆</div>
-    </div>
-</div>
-
-<!-- 步驟二：跳轉後留在原地的回報畫面 (預設隱藏) -->
-<div id="step-2-card" class="card" style="display: none;">
+<div class="card">
     <div class="icon">💳</div>
-    <h2>街口結帳確認</h2>
-    <p>如果您已完成付款，請點擊下方按鈕通知店家製作餐點。</p>
+    <h2>街口支付快速結帳</h2>
+    <p>為了確保連線穩定，請手動點擊下方按鈕前往付款。</p>
     
-    <span class="step-label">👇 結帳完成後請點此回報</span>
+    <!-- 第一步：手動點擊前往街口，使用 LIFF API 確保外部開啟 -->
+    <span class="step-label">1️⃣ 第一步：前往付款</span>
+    <button class="btn-jkos" onclick="openJkosApp()">🚀 點此開啟街口 App</button>
+    
+    <hr class="divider">
+    
+    <!-- 第二步：留在原地的回報按鈕 -->
+    <span class="step-label">2️⃣ 第二步：付款完成後點此回報</span>
     <button class="btn-success" onclick="handlePaymentSuccess()">✅ 我已成功付款，通知店家</button>
     <button class="btn-cancel" onclick="handlePaymentCancel()">⏳ 尚未付款 / 稍後再付</button>
 </div>
@@ -68,53 +59,98 @@
         console.error("LIFF 初始化失敗", err);
     });
 
-    // 結合跳轉與畫面切換的神奇按鈕
-    function executeJump() {
-        // 1. 呼叫外部瀏覽器開啟街口 App
+    // 客人手動點擊時，才呼叫外部瀏覽器開啟街口
+    function openJkosApp() {
         liff.openWindow({
             url: JKOS_PAY_URL,
             external: true
         });
-        
-        // 2. 瞬間把步驟一隱藏，把步驟二（雙按鈕）顯示出來
-        document.getElementById('step-1-overlay').style.display = 'none';
-        document.getElementById('step-2-card').style.display = 'block';
     }
 
-    // 發送成功結帳通知 (綠色卡片)
+    // 發送成功結帳通知
     async function handlePaymentSuccess() {
-        if (!liff.isInClient()) { alert("✅ 已確認付款成功！"); window.close(); return; }
+        if (!liff.isInClient()) {
+            alert("✅ 已確認付款成功！(非 LINE 環境)");
+            window.close();
+            return;
+        }
+
         try {
             const flexMessage = {
-                type: "flex", altText: "🎉 客人已完成街口付款通知",
+                type: "flex",
+                altText: "🎉 客人已完成街口付款通知",
                 contents: {
-                    type: "bubble", size: "mega",
-                    header: { type: "box", layout: "vertical", backgroundColor: "#00d26a", paddingAll: "md", contents: [{ type: "text", text: "🎉 街口付款成功通知", weight: "bold", size: "lg", color: "#ffffff" }] },
-                    body: { type: "box", layout: "vertical", spacing: "md", contents: [{ type: "text", text: "顧客已透過【街口支付】完成結帳，請店員協助核對並準備餐點！", wrap: true, size: "sm", color: "#333333" }] }
+                    type: "bubble",
+                    size: "mega",
+                    header: {
+                        type: "box",
+                        layout: "vertical",
+                        backgroundColor: "#00d26a",
+                        paddingAll: "md",
+                        contents: [
+                            { type: "text", text: "🎉 街口付款成功通知", weight: "bold", size: "lg", color: "#ffffff" }
+                        ]
+                    },
+                    body: {
+                        type: "box",
+                        layout: "vertical",
+                        spacing: "md",
+                        contents: [
+                            { type: "text", text: "顧客已透過【街口支付】完成結帳，請店員協助核對並準備餐點！", wrap: true, size: "sm", color: "#333333" }
+                        ]
+                    }
                 }
             };
+
             await liff.sendMessages([flexMessage]);
             alert("✅ 已成功通知店家！");
             liff.closeWindow();
-        } catch (err) { alert("發送通知失敗：" + JSON.stringify(err)); }
+        } catch (err) {
+            alert("發送通知失敗：" + JSON.stringify(err));
+        }
     }
 
     // 發送等待付款通知 (橘黃色卡片)
     async function handlePaymentCancel() {
-        if (!liff.isInClient()) { alert("已取消付款。"); window.close(); return; }
+        if (!liff.isInClient()) {
+            alert("已取消付款。(非 LINE 環境)");
+            window.close();
+            return;
+        }
+
         try {
             const flexMessage = {
-                type: "flex", altText: "⏳ 顧客尚未完成付款",
+                type: "flex",
+                altText: "⏳ 顧客尚未完成付款",
                 contents: {
-                    type: "bubble", size: "mega",
-                    header: { type: "box", layout: "vertical", backgroundColor: "#f59e0b", paddingAll: "md", contents: [{ type: "text", text: "⏳ 等待付款中...", weight: "bold", size: "lg", color: "#ffffff" }] },
-                    body: { type: "box", layout: "vertical", spacing: "md", contents: [{ type: "text", text: "顧客目前尚未完成街口結帳，或已暫時取消流程。請留意後續收款狀態！", wrap: true, size: "sm", color: "#333333" }] }
+                    type: "bubble",
+                    size: "mega",
+                    header: {
+                        type: "box",
+                        layout: "vertical",
+                        backgroundColor: "#f59e0b", // 橘黃色代表等待中/警告
+                        paddingAll: "md",
+                        contents: [
+                            { type: "text", text: "⏳ 等待付款中...", weight: "bold", size: "lg", color: "#ffffff" }
+                        ]
+                    },
+                    body: {
+                        type: "box",
+                        layout: "vertical",
+                        spacing: "md",
+                        contents: [
+                            { type: "text", text: "顧客目前尚未完成街口結帳，或已暫時取消流程。請留意後續收款狀態！", wrap: true, size: "sm", color: "#333333" }
+                        ]
+                    }
                 }
             };
+
             await liff.sendMessages([flexMessage]);
             alert("已發送狀態給店家！");
             liff.closeWindow();
-        } catch (err) { alert("發送通知失敗：" + JSON.stringify(err)); }
+        } catch (err) {
+            alert("發送通知失敗：" + JSON.stringify(err));
+        }
     }
 </script>
 
