@@ -49,7 +49,7 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .modal-header h3 { margin: 0; font-size: 1.1rem; color: var(--text-main); }
+        .modal-header h3 { margin: 0; font-size: 1.1rem; color: var(--text-main); user-select: none; }
         .close-btn { background: #f0f0f0; border: none; width: 26px; height: 26px; border-radius: 50%; font-size: 1rem; color: #666; cursor: pointer; display: flex; justify-content: center; align-items: center; }
         
         /* 選項按鈕 & 輸入框 */
@@ -80,8 +80,8 @@
         .cart-item-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
         .cart-del-btn { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 15px; font-size: 0.85rem; }
         
-        #customer-phone, #customer-address, #invoice-number { width: 100%; font-family: inherit; margin: 5px 0 15px; padding: 12px; box-sizing: border-box; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; background: #f9f9f9; outline: none; transition: border-color 0.2s, background-color 0.2s; }
-        #customer-phone:focus, #customer-address:focus, #invoice-number:focus { border-color: var(--brand-color); background: #ffffff; }
+        #customer-phone, #customer-address, #invoice-number, #order-note { width: 100%; font-family: inherit; margin: 5px 0 15px; padding: 12px; box-sizing: border-box; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; background: #f9f9f9; outline: none; transition: border-color 0.2s, background-color 0.2s; }
+        #customer-phone:focus, #customer-address:focus, #invoice-number:focus, #order-note:focus { border-color: var(--brand-color); background: #ffffff; }
         .submit-btn { width: 100%; padding: 12px; background: var(--brand-color); color: white; border: none; border-radius: 14px; font-weight: bold; margin-top: 5px; cursor: pointer; }
 
         /* 發票與選項 */
@@ -206,7 +206,8 @@
 <div id="cart-modal" class="modal-overlay" onclick="if(event.target==this) this.style.display='none'">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>購物車明細</h3>
+            <!-- 綁定連點彩蛋事件 -->
+            <h3 id="cart-modal-title" onclick="handleCartTitleClick()" style="cursor: pointer;">購物車明細</h3>
             <button class="close-btn" onclick="document.getElementById('cart-modal').style.display='none'">✕</button>
         </div>
         
@@ -247,6 +248,12 @@
         <div id="address-container" style="display: none;">
             <div class="opt-title">外送地址</div>
             <input type="text" id="customer-address" placeholder="首次光臨貴賓請務必輸入外送地址">
+        </div>
+
+        <!-- 隱藏彩蛋：訂單備註欄位 -->
+        <div id="note-container" style="display: none;">
+            <div class="opt-title">📝 訂單備註</div>
+            <input type="text" id="order-note" placeholder="例如：少冰、塑膠袋、餐具數量等需求">
         </div>
 
         <!-- 付款方式選項 (依賴取餐方式動態顯示) -->
@@ -351,6 +358,28 @@
     let cart = [];
     let currentSelect = {};
     let confirmData = null;
+
+    // 彩蛋連點變數
+    let cartTitleClickCount = 0;
+    let cartTitleTimer = null;
+
+    // 彩蛋邏輯：連點 4 下標題開啟備註欄
+    function handleCartTitleClick() {
+        cartTitleClickCount++;
+        clearTimeout(cartTitleTimer);
+        
+        if (cartTitleClickCount >= 4) {
+            const container = document.getElementById('note-container');
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                alert("✨ 已解鎖「訂單備註」功能！");
+                document.getElementById('order-note').focus();
+            }
+            cartTitleClickCount = 0;
+        } else {
+            cartTitleTimer = setTimeout(() => { cartTitleClickCount = 0; }, 800);
+        }
+    }
 
     // 從快取載入上次取得的資料以加速顯示
     function loadSavedConfig() {
@@ -484,7 +513,6 @@
                 let priceStr = Object.entries(item.prices).map(([s,p]) => `${s} $${p}`).join(' / ');
                 el.innerHTML = `<div><div class="item-name">${item.name}</div><div class="item-price">${priceStr}</div></div><div class="add-btn">+</div>`;
                 el.onclick = () => {
-                    // ★ 客戶端純淨版：移除所有後台密碼呼叫邏輯
                     if(isStoreCurrentlyClosed) { alert("目前非營業時間，暫不開放點餐！"); return; }
                     openModal(item, cIdx, iIdx);
                 };
@@ -640,6 +668,10 @@
         let address = method === "外送" ? document.getElementById('customer-address').value.trim() : "";
         let payMethodEl = document.querySelector('input[name="payment-method"]:checked');
         let payMethod = payMethodEl ? payMethodEl.value : "現金";
+        
+        // 抓取備註內容
+        let noteEl = document.getElementById('order-note');
+        let note = (noteEl && noteEl.value.trim()) ? noteEl.value.trim() : "";
 
         let allCups = []; let originalTotal = 0;
         cart.forEach((item) => { originalTotal += item.price; let unitPrice = item.price / item.qty; for (let i = 0; i < item.qty; i++) { allCups.push(unitPrice); } });
@@ -648,7 +680,7 @@
 
         let invoiceText = invoiceOption === 'paper' ? '🧾 紙本發票（店家印出）' : (invoiceOption === 'uniform' ? `🏢 統編：${invoiceNumber}` : '📱 載具（請於聊天室上傳圖片）');
 
-        confirmData = { phone: phone, method: method, address: address, payMethod: payMethod, finalTotal: finalTotal, originalTotal: originalTotal, discount: discount, invoiceText: invoiceText, cartItems: JSON.parse(JSON.stringify(cart)) };
+        confirmData = { phone: phone, method: method, address: address, payMethod: payMethod, note: note, finalTotal: finalTotal, originalTotal: originalTotal, discount: discount, invoiceText: invoiceText, cartItems: JSON.parse(JSON.stringify(cart)) };
         renderConfirmModal(confirmData); document.getElementById('cart-modal').style.display = 'none'; document.getElementById('confirm-modal').style.display = 'flex';
     }
 
@@ -661,6 +693,7 @@
         const infoContainer = document.getElementById('confirm-order-info');
         let infoHTML = `<strong>📞 聯絡電話：</strong>${data.phone}<br><strong>🛵 取餐方式：</strong>${data.method}`;
         if (data.method === "外送" && data.address) infoHTML += `<br><strong>📍 外送地址：</strong>${data.address}`;
+        if (data.note) infoHTML += `<br><strong>📝 訂單備註：</strong><span style="color:#d32f2f; font-weight:bold;">${data.note}</span>`;
         infoHTML += `<br><strong>📄 發票：</strong>${data.invoiceText}<br><strong>💳 付款方式：</strong><span style="color: ${data.payMethod === '街口支付' ? '#d97706' : '#06C755'}; font-weight: bold;">${data.payMethod}</span>`;
         if (data.discount > 0) infoHTML += `<br><strong>🎉 自取買五送一折扣：</strong> -$${data.discount}`;
         infoContainer.innerHTML = infoHTML; document.getElementById('confirm-total-amount').innerText = `$${data.finalTotal}`;
@@ -674,7 +707,7 @@
         if (isStoreCurrentlyClosed) return alert("⚠️ 目前為非營業時間，暫不開放結帳！\n請於營業時間再送出訂單。");
         if (!confirmData || confirmData.cartItems.length === 0) return alert("訂單資料有誤，請重新操作。");
 
-        const data = confirmData; const phone = data.phone; const method = data.method; const address = data.address; const finalTotal = data.finalTotal; const originalTotal = data.originalTotal; const discount = data.discount; const invoiceText = data.invoiceText;
+        const data = confirmData; const phone = data.phone; const method = data.method; const address = data.address; const finalTotal = data.finalTotal; const originalTotal = data.originalTotal; const discount = data.discount; const invoiceText = data.invoiceText; const note = data.note;
 
         let allItemBoxes = data.cartItems.map(i => {
             let details = `👉 ${i.ice} / ${i.sugar}`; if (i.teaSwap) details += ` / ${i.teaSwap}`; if (i.toppings && i.toppings.length > 0) details += ` / 加:${i.toppings.join(',')}`;
@@ -690,6 +723,7 @@
         footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [ { type: "text", text: `📄 ${invoiceText}`, size: "sm", weight: "bold", color: "#2563eb" } ]});
         footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [ { type: "text", text: `🛵 ${method}`, size: "sm", weight: "bold", color: "#1e293b" } ]});
         if (method === "外送" && address) footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [ { type: "text", text: `📍 ${address}`, size: "sm", weight: "bold", color: "#e65100", wrap: true } ]});
+        if (note) footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [ { type: "text", text: `📝 備註: ${note}`, size: "sm", weight: "bold", color: "#d32f2f", wrap: true } ]});
         footerBox.push({ type: "separator", margin: "md", color: "#e2e8f0" });
         if (discount > 0) { footerBox.push({ type: "box", layout: "baseline", margin: "md", contents: [ { type: "text", text: "商品總計", color: "#64748b", size: "sm" }, { type: "text", text: `$${originalTotal}`, color: "#64748b", size: "sm", align: "end" } ]}); footerBox.push({ type: "box", layout: "baseline", margin: "sm", contents: [ { type: "text", text: "🎉 自取買五送一", color: "#ef4444", size: "sm", weight: "bold" }, { type: "text", text: `-$${discount}`, color: "#ef4444", size: "sm", align: "end", weight: "bold" } ]}); }
         footerBox.push({ type: "box", layout: "baseline", margin: "md", contents: [ { type: "text", text: "💰 結帳金額", weight: "bold", size: "md", color: "#1e293b" }, { type: "text", text: `$${finalTotal}`, weight: "bold", size: "xl", align: "end", color: "#06C755" } ]});
@@ -710,7 +744,7 @@
                 liff.openWindow({ url: JKOPAY_URL, external: true });
             } else {
                 let successMsg = "✅ 訂單已成功送出！"; if (invoiceOption === 'carrier') successMsg += "\n\n📌 請在聊天室上傳您的載具 QR Code 圖片，方便店家掃描。"; alert(successMsg);
-                cart = []; updateCounter(); document.getElementById('customer-phone').value = ""; document.getElementById('customer-address').value = ""; let sm = document.querySelector('input[name="delivery-method"]:checked'); if (sm) sm.checked = false; toggleDeliveryAddress(false); selectInvoiceOption('paper'); document.querySelector('input[name="invoice-option"][value="paper"]').checked = true; document.getElementById('invoice-number').value = ''; confirmData = null; document.getElementById('confirm-modal').style.display = 'none'; liff.closeWindow();
+                cart = []; updateCounter(); document.getElementById('customer-phone').value = ""; document.getElementById('customer-address').value = ""; if (document.getElementById('order-note')) document.getElementById('order-note').value = ""; let sm = document.querySelector('input[name="delivery-method"]:checked'); if (sm) sm.checked = false; toggleDeliveryAddress(false); selectInvoiceOption('paper'); document.querySelector('input[name="invoice-option"][value="paper"]').checked = true; document.getElementById('invoice-number').value = ''; confirmData = null; document.getElementById('confirm-modal').style.display = 'none'; liff.closeWindow();
             }
         } catch (err) {
             let errorMsg = "傳送失敗："; if (err.code === "UNAUTHORIZED") { errorMsg += "權限不足，請確認您已登入 LINE 並已授權此應用。"; } else { errorMsg += JSON.stringify(err); } alert(errorMsg); console.error(err);
@@ -723,7 +757,7 @@
             await liff.sendMessages([{ type: "text", text: `🟢 顧客回報：訂單總額 $${confirmData.finalTotal} 已透過【街口支付】完成付款！\n\n📌 店家請確認收款紀錄。` }]);
             alert("✅ 感謝您的回報！店家已收到您的付款通知，會盡快為您製作餐點。");
             
-            cart = []; updateCounter(); document.getElementById('customer-phone').value = ""; document.getElementById('customer-address').value = "";
+            cart = []; updateCounter(); document.getElementById('customer-phone').value = ""; document.getElementById('customer-address').value = ""; if (document.getElementById('order-note')) document.getElementById('order-note').value = "";
             let sm = document.querySelector('input[name="delivery-method"]:checked'); if (sm) sm.checked = false; toggleDeliveryAddress(false);
             selectInvoiceOption('paper'); document.querySelector('input[name="invoice-option"][value="paper"]').checked = true; document.getElementById('invoice-number').value = ''; confirmData = null; document.getElementById('transit-modal').style.display = 'none'; liff.closeWindow();
         } catch(e) { alert("傳送失敗，請直接在聊天室告知店家您已付款！"); liff.closeWindow(); }
@@ -739,7 +773,7 @@
             
             alert("✅ 已通知店家您欲更改付款方式，請直接在聊天室與店家溝通喔！");
             
-            cart = []; updateCounter(); document.getElementById('customer-phone').value = ""; document.getElementById('customer-address').value = "";
+            cart = []; updateCounter(); document.getElementById('customer-phone').value = ""; document.getElementById('customer-address').value = ""; if (document.getElementById('order-note')) document.getElementById('order-note').value = "";
             let sm = document.querySelector('input[name="delivery-method"]:checked'); if (sm) sm.checked = false; toggleDeliveryAddress(false);
             selectInvoiceOption('paper'); document.querySelector('input[name="invoice-option"][value="paper"]').checked = true; document.getElementById('invoice-number').value = ''; confirmData = null; document.getElementById('transit-modal').style.display = 'none'; liff.closeWindow();
         } catch(e) { 
