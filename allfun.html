@@ -65,7 +65,11 @@
         .top-ctrl-left { display: flex; align-items: center; gap: 10px; }
         .qty-ctrl { display: flex; align-items: center; background: #f5f6f8; border-radius: 15px; padding: 3px; width: fit-content; }
         .qty-btn { width: 28px; height: 28px; border-radius: 50%; border: none; background: #fff; color: var(--text-main); font-size: 1rem; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .qty-num { padding: 0 12px; font-weight: bold; font-size: 0.9rem; }
+        
+        /* 🔥 新增：修改數量輸入框的樣式，隱藏上下箭頭並無縫融入背景 */
+        .qty-num { width: 40px; padding: 0; text-align: center; font-weight: bold; font-size: 1.1rem; color: var(--text-main); background: transparent; border: none; outline: none; -moz-appearance: textfield; }
+        .qty-num::-webkit-outer-spin-button, .qty-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
         .tea-swap-select { padding: 6px 12px; border-radius: 15px; border: 1px solid #ddd; background: #f5f6f8; font-size: 0.85rem; color: var(--text-main); outline: none; }
 
         .option-price-display { font-size: 1.3rem; font-weight: 800; color: var(--brand-color); background: var(--brand-light); padding: 6px 16px; border-radius: 20px; white-space: nowrap; box-shadow: inset 0 1px 3px rgba(0,0,0,0.04); }
@@ -160,7 +164,8 @@
                 <div class="opt-title" style="margin:0;">數量</div>
                 <div class="qty-ctrl">
                     <button class="qty-btn" onclick="changeQty(-1)">-</button>
-                    <span class="qty-num" id="item-qty">1</span>
+                    <!-- 🔥 新增：修改成 input 標籤，並加入 onClick 全選，以及 onchange 手動計算 -->
+                    <input type="number" class="qty-num" id="item-qty" value="1" min="1" onclick="this.select()" onchange="manualChangeQty(this.value)">
                     <button class="qty-btn" onclick="changeQty(1)">+</button>
                 </div>
             </div>
@@ -528,7 +533,9 @@
         let defaultSize = item.prices.hasOwnProperty('L') ? 'L' : Object.keys(item.prices)[0];
         currentSelect = { item, qty: 1, size: defaultSize, ice: null, sugar: null, toppings: [], teaSwap: "" };
         document.getElementById('modal-title').innerText = item.name;
-        document.getElementById('item-qty').innerText = 1;
+        
+        // 🔥 新增：打開視窗時，預設數量為 1
+        document.getElementById('item-qty').value = 1;
         
         const teaSwapSelect = document.getElementById('tea-swap-select');
         if (item.enableTeaSwap) { teaSwapSelect.style.display = 'block'; teaSwapSelect.value = ""; teaSwapSelect.onchange = (e) => { currentSelect.teaSwap = e.target.value; }; } 
@@ -584,7 +591,19 @@
         });
     }
 
-    function changeQty(diff) { currentSelect.qty = Math.max(1, currentSelect.qty + diff); document.getElementById('item-qty').innerText = currentSelect.qty; }
+    // 🔥 新增：修改按鈕加減數量的邏輯（改為賦值到 input）
+    function changeQty(diff) { 
+        currentSelect.qty = Math.max(1, currentSelect.qty + diff); 
+        document.getElementById('item-qty').value = currentSelect.qty; 
+    }
+
+    // 🔥 新增：支援鍵盤手動輸入數量，並防止輸入負數或亂碼
+    function manualChangeQty(val) {
+        let num = parseInt(val);
+        if (isNaN(num) || num < 1) num = 1; // 如果亂打或小於 1，強制變回 1
+        currentSelect.qty = num;
+        document.getElementById('item-qty').value = currentSelect.qty;
+    }
 
     function confirmAddToCart() {
         if(!currentSelect.size || !currentSelect.ice || !currentSelect.sugar) return alert("請完整選擇所有選項（大小/冰塊/甜度）");
