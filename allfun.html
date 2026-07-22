@@ -66,7 +66,6 @@
         .qty-ctrl { display: flex; align-items: center; background: #f5f6f8; border-radius: 15px; padding: 3px; width: fit-content; }
         .qty-btn { width: 28px; height: 28px; border-radius: 50%; border: none; background: #fff; color: var(--text-main); font-size: 1rem; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         
-        /* 🔥 新增：修改數量輸入框的樣式，隱藏上下箭頭並無縫融入背景 */
         .qty-num { width: 40px; padding: 0; text-align: center; font-weight: bold; font-size: 1.1rem; color: var(--text-main); background: transparent; border: none; outline: none; -moz-appearance: textfield; }
         .qty-num::-webkit-outer-spin-button, .qty-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
@@ -268,7 +267,7 @@
                 <input type="radio" name="payment-method" value="現金" checked style="accent-color: var(--brand-color); transform: scale(1.2);"> 現金付款
             </label>
             <label style="display: flex; align-items: center; gap: 8px; font-size: 1rem; cursor: pointer;">
-                <input type="radio" name="payment-method" value="街口支付" style="accent-color: var(--brand-color); transform: scale(1.2);"> 街口支付
+                <input type="radio" name="payment-method" value="全支付" style="accent-color: var(--brand-color); transform: scale(1.2);"> 全支付
             </label>
         </div>
 
@@ -326,11 +325,11 @@
     </div>
 </div>
 
-<!-- ===== 街口支付中繼畫面 ===== -->
+<!-- ===== 全支付中繼畫面 ===== -->
 <div id="transit-modal" class="modal-overlay" style="display:none; z-index: 3000;">
     <div class="modal-content" style="text-align: center; padding: 30px 20px;">
         <h3 style="color: #d97706; margin-top: 0; font-size: 1.4rem;">🔄 等待付款中...</h3>
-        <p style="margin: 15px 0; font-size: 1rem;">訂單已送出！請前往街口支付完成轉帳<br>結帳金額為：<br><strong style="font-size: 1.8rem; color: #d32f2f;">$<span id="transit-amount">0</span></strong></p>
+        <p style="margin: 15px 0; font-size: 1rem;">訂單已送出！請前往全支付完成轉帳<br>結帳金額為：<br><strong style="font-size: 1.8rem; color: #d32f2f;">$<span id="transit-amount">0</span></strong></p>
         <p style="font-size: 0.85rem; color: #888;">⚠️ 轉帳成功後，請務必回來點擊下方按鈕通知店家</p>
         
         <button onclick="reportPaid()" style="width: 100%; padding: 15px; background: var(--brand-color); color: white; border: none; border-radius: 14px; font-weight: bold; margin-top: 20px; font-size: 1.1rem;">✅ 我已完成付款</button>
@@ -340,7 +339,7 @@
 
 <script>
     const LIFF_ID = "2010718024-7lUixuAF"; // 您的 LIFF ID
-    const JKOPAY_URL = "https://service.jkopay.com/r/transfer?j=Transfer:901462034"; // 您的街口收款連結
+    const PXPAY_URL = "https://service.pxpayplus.com/pxplus_redirect/page_redirect/jumj?memberCode=MC17320294&amount=0"; // 您的全支付收款連結
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
 
     // 預設資料 (避免雲端載入失敗時無畫面)
@@ -543,11 +542,11 @@
         document.getElementById('option-modal').style.display = 'flex';
         
         renderBtns('size-btns', Object.keys(item.prices), (val) => { currentSelect.size = val; currentSelect.toppings = []; renderToppings(item, val); updateOptionPrice(); }, defaultSize);
-        let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : ["正常冰", "少冰", "微冰", "去冰", "常溫", "溫飲"];
+        let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : ["去冰", "微冰", "少冰", "正常冰", "多冰", "常溫", "溫飲"];
         if (!item.customIce && (item.name.includes("優多") || item.name.includes("冰淇淋"))) iceOptions = iceOptions.filter(opt => opt !== "溫飲");
         renderBtns('ice-btns', iceOptions, (val) => currentSelect.ice = val, null);
         
-        let sugarOptGroup = document.getElementById('sugar-opt-group'); let isFixedSugar = false; let sugarOptions = ["八分糖", "半糖", "微糖", "無糖", "其他"];
+        let sugarOptGroup = document.getElementById('sugar-opt-group'); let isFixedSugar = false; let sugarOptions = ["無糖", "微糖", "半糖", "八分糖", "其他"];
         if (item.customSugar && item.customSugar.length > 0) { if (item.customSugar[0] === "固定甜度") isFixedSugar = true; else sugarOptions = item.customSugar; } 
         else { if (item.name.includes("黑糖")) isFixedSugar = true; else if (item.name.includes("蜜")) sugarOptions = sugarOptions.filter(opt => opt !== "無糖"); }
         if (isFixedSugar) { sugarOptGroup.style.display = 'none'; currentSelect.sugar = "固定甜度"; } 
@@ -713,7 +712,7 @@
         let infoHTML = `<strong>📞 聯絡電話：</strong>${data.phone}<br><strong>🛵 取餐方式：</strong>${data.method}`;
         if (data.method === "外送" && data.address) infoHTML += `<br><strong>📍 外送地址：</strong>${data.address}`;
         if (data.note) infoHTML += `<br><strong>📝 訂單備註：</strong><span style="color:#d32f2f; font-weight:bold;">${data.note}</span>`;
-        infoHTML += `<br><strong>📄 發票：</strong>${data.invoiceText}<br><strong>💳 付款方式：</strong><span style="color: ${data.payMethod === '街口支付' ? '#d97706' : '#06C755'}; font-weight: bold;">${data.payMethod}</span>`;
+        infoHTML += `<br><strong>📄 發票：</strong>${data.invoiceText}<br><strong>💳 付款方式：</strong><span style="color: ${data.payMethod === '全支付' ? '#d97706' : '#06C755'}; font-weight: bold;">${data.payMethod}</span>`;
         if (data.discount > 0) infoHTML += `<br><strong>🎉 自取買五送一折扣：</strong> -$${data.discount}`;
         infoContainer.innerHTML = infoHTML; document.getElementById('confirm-total-amount').innerText = `$${data.finalTotal}`;
     }
@@ -733,8 +732,8 @@
             return { type: "box", layout: "vertical", margin: "sm", contents: [ { type: "box", layout: "baseline", contents: [ { type: "text", text: `${i.item.name}(${i.size}) x${i.qty}`, size: "sm", weight: "bold", flex: 3, wrap: true, color: "#1e293b" }, { type: "text", text: `$${i.price}`, size: "sm", align: "end", flex: 1, weight: "bold", color: "#06C755" } ]}, { type: "box", layout: "baseline", margin: "xs", contents: [ { type: "text", text: details, size: "xs", color: "#64748b", flex: 1, wrap: true } ]} ] };
         });
 
-        let payStatusText = data.payMethod === "街口支付" ? "🟡 街口支付 (待付款)" : "🟢 現金付款";
-        let payStatusColor = data.payMethod === "街口支付" ? "#d97706" : "#06C755";
+        let payStatusText = data.payMethod === "全支付" ? "🟡 全支付 (待付款)" : "🟢 現金付款";
+        let payStatusColor = data.payMethod === "全支付" ? "#d97706" : "#06C755";
 
         let footerBox = []; footerBox.push({ type: "separator", margin: "md", color: "#e2e8f0" });
         footerBox.push({ type: "box", layout: "vertical", margin: "md", contents: [ { type: "text", text: `📞 ${phone}`, size: "sm", weight: "bold", color: "#1e293b" } ]});
@@ -757,10 +756,10 @@
         try {
             await liff.sendMessages([{ type: "flex", altText: `🎉 收到新訂單！總計 $${finalTotal}`, contents: { type: "carousel", contents: bubbles } }]);
 
-            if (data.payMethod === "街口支付") {
+            if (data.payMethod === "全支付") {
                 document.getElementById('confirm-modal').style.display = 'none'; document.getElementById('transit-modal').style.display = 'flex'; document.getElementById('transit-amount').innerText = data.finalTotal;
-                alert("訂單已送出！\n\n📌 點擊確認後，將為您跳轉至街口支付。\n⚠️ 請記得手動輸入結帳金額：$" + data.finalTotal);
-                liff.openWindow({ url: JKOPAY_URL, external: true });
+                alert("訂單已送出！\n\n📌 點擊確認後，將為您跳轉至全支付。\n⚠️ 請記得手動輸入結帳金額：$" + data.finalTotal);
+                liff.openWindow({ url: PXPAY_URL, external: true });
             } else {
                 let successMsg = "✅ 訂單已成功送出！"; if (invoiceOption === 'carrier') successMsg += "\n\n📌 請在聊天室上傳您的載具 QR Code 圖片，方便店家掃描。"; alert(successMsg);
                 cart = []; updateCounter(); document.getElementById('customer-phone').value = ""; document.getElementById('customer-address').value = ""; if (document.getElementById('order-note')) document.getElementById('order-note').value = ""; let sm = document.querySelector('input[name="delivery-method"]:checked'); if (sm) sm.checked = false; toggleDeliveryAddress(false); selectInvoiceOption('paper'); document.querySelector('input[name="invoice-option"][value="paper"]').checked = true; document.getElementById('invoice-number').value = ''; confirmData = null; document.getElementById('confirm-modal').style.display = 'none'; liff.closeWindow();
@@ -773,7 +772,7 @@
     async function reportPaid() {
         if (!confirmData) return;
         try {
-            await liff.sendMessages([{ type: "text", text: `🟢 顧客回報：訂單總額 $${confirmData.finalTotal} 已透過【街口支付】完成付款！\n\n📌 店家請確認收款紀錄。` }]);
+            await liff.sendMessages([{ type: "text", text: `🟢 顧客回報：訂單總額 $${confirmData.finalTotal} 已透過【全支付】完成付款！\n\n📌 店家請確認收款紀錄。` }]);
             alert("✅ 感謝您的回報！店家已收到您的付款通知，會盡快為您製作餐點。");
             
             cart = []; updateCounter(); document.getElementById('customer-phone').value = ""; document.getElementById('customer-address').value = ""; if (document.getElementById('order-note')) document.getElementById('order-note').value = "";
