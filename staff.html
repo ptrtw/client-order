@@ -15,11 +15,11 @@
             --text-muted: #888888;
         }
         
-        /* ✨ 修復點 1：鎖死網頁高度，禁止整體滾動，完美支援手機的動態網址列 (100dvh) */
+        /* 鎖死網頁高度，禁止整體滾動，完美支援手機的動態網址列 (100dvh) */
         html, body { 
             height: 100vh; /* 備用 */
             height: 100dvh; 
-            overflow: hidden; /* 鎖死畫面，拒絕滾動 */
+            overflow: hidden; /* 鎖死畫面，拒絕整頁滾動 */
             display: flex; 
             flex-direction: column; 
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
@@ -46,15 +46,17 @@
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            overflow-y: auto; /* 允許容器內部上下滾動，解決編輯模式卡死問題 */
+            overflow-x: hidden;
+            scroll-behavior: smooth;
         }
 
-        /* 員工專用 6欄 × 10行 (60格) 網格 - ✨ 高度動態均分 1fr */
+        /* 員工專用 6欄 × 10行 (60格) 網格 - 高度動態均分 1fr */
         .menu-grid { 
             flex-grow: 1;
             display: none; 
             grid-template-columns: repeat(6, 1fr); 
-            grid-template-rows: repeat(10, 1fr); /* ✨ 強制將剩餘高度平均切成 10 份 */
+            grid-template-rows: repeat(10, 1fr); /* 強制將剩餘高度平均切成 10 份 */
             gap: 4px; padding: 4px 8px 12px; background: var(--bg-color); 
         }
         .menu-grid.active { display: grid; }
@@ -67,8 +69,21 @@
         .pos-item.empty-slot { background: transparent; box-shadow: none; border: 1px dashed rgba(0,0,0,0.04); cursor: default; }
 
         /* ===== 編輯模式專屬樣式 ===== */
+        body.edit-mode #menu-content {
+            display: block; /* 讓網格自然往下排，不受 flex 擠壓 */
+            padding-bottom: 80px; /* 底部留一點白，方便拖曳到最下面 */
+        }
         body.edit-mode .top-nav-tabs { display: none; } 
-        body.edit-mode .menu-grid { display: grid !important; position: relative; margin: 20px 8px 8px; padding: 15px 4px 4px; border: 2px dashed #00d26a; border-radius: 10px; background: rgba(0,210,106,0.03); }
+        body.edit-mode .menu-grid { 
+            display: grid !important; 
+            position: relative; 
+            margin: 20px 8px 15px; 
+            padding: 15px 4px 4px; 
+            border: 2px dashed #00d26a; 
+            border-radius: 10px; 
+            background: rgba(0,210,106,0.03); 
+            height: 85vh; /* 強制設定高度，撐開捲軸 */
+        }
         body.edit-mode .menu-grid::before { content: attr(data-cat-name) " (60格拖曳排版)"; position: absolute; top: -13px; left: 12px; background: #e8f5e9; color: #008b46; padding: 2px 10px; border-radius: 12px; font-weight: bold; font-size: 0.78rem; border: 1px solid #00d26a; }
         body.edit-mode .pos-item.empty-slot { background: rgba(255,255,255,0.7); border: 2px dashed #cbd5e1; color: #94a3b8; font-size: 0.65rem; cursor: pointer; }
         body.edit-mode .pos-item.empty-slot::after { content: "空位"; }
@@ -283,7 +298,6 @@
 </div>
 
 <script>
-    // 專屬員工版 LIFF ID
     const LIFF_ID = "2010718024-5LLzGr1V"; 
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
 
@@ -302,11 +316,7 @@
     let isEditMode = false;
     let sortableInstances = [];
 
-    // ==========================================
-    // ✨ 修復點 2：實作秒開快取 (Stale-While-Revalidate)
-    // ==========================================
     function loadCloudConfig() {
-        // 1. 先嘗試從本地「秒抓」資料並渲染，達成 0 延遲體驗
         const cachedData = localStorage.getItem('pos_cloud_cache');
         if (cachedData) {
             try {
@@ -315,19 +325,14 @@
             } catch(e) { console.error("快取解析失敗", e); }
         }
 
-        // 2. 同時間在背景偷偷向 GAS 請求最新資料
         fetch(GAS_API_URL)
         .then(r => r.json())
         .then(data => {
             if (data && data.menu && data.menu.length > 0) {
-                // 將最新資料存入快取
                 localStorage.setItem('pos_cloud_cache', JSON.stringify(data));
-                
-                // 如果是第一次載入 (沒有快取)，就立刻渲染畫面
                 if (!cachedData) {
                     processMenuData(data);
                 } else {
-                    // 如果原本有快取，代表畫面已經秒開渲染完了，這次抓的資料就默默存著，下次打開生效。
                     console.log("✅ 菜單已於背景更新完畢，下次載入時套用。");
                 }
             }
@@ -339,7 +344,6 @@
         });
     }
 
-    // 將原本龐大的處理邏輯獨立出來，方便快取與線上共用
     function processMenuData(data) {
         let allRealItems = [];
         data.menu.forEach(cat => {
@@ -347,7 +351,13 @@
         });
 
         let savedLayout = null;
-        try { savedLayout = JSON.parse(localStorage.getItem('employee_layout_v60_compact')); } catch(e) {}
+        // 🔥 升級：優先抓取雲端排版，沒有雲端版才找本地，都沒有就自動填入
+        if (data && data.layout) {
+            savedLayout = data.layout;
+            localStorage.setItem('employee_layout_v60_compact', JSON.stringify(savedLayout)); 
+        } else {
+            try { savedLayout = JSON.parse(localStorage.getItem('employee_layout_v60_compact')); } catch(e) {}
+        }
 
         menuData = [
             { category: "📋 常用類", items: new Array(60).fill(null) },
@@ -394,9 +404,6 @@
 
     liff.init({ liffId: LIFF_ID }).then(() => { if (!liff.isLoggedIn()) liff.login(); else loadCloudConfig(); }).catch(() => loadCloudConfig());
 
-    // ==========================================
-    // 編輯模式：60格拖曳與固定空白格管理 (SortableJS)
-    // ==========================================
     function toggleEditMode() {
         isEditMode = !isEditMode;
         document.body.classList.toggle('edit-mode', isEditMode);
@@ -419,7 +426,7 @@
             });
             alert("進入編輯模式！\n\n長按飲料方塊可互相「交換位置」或移至空格。\n排版完成後請按右上角「儲存鎖定」。");
         } else {
-            btn.innerHTML = "⚙️ 編輯排版";
+            btn.innerHTML = "⏳ 儲存中...";
             btn.style.color = "var(--text-main)";
             
             let newLayout = [];
@@ -429,17 +436,26 @@
                 });
                 newLayout.push(slotNames);
             });
+            
+            // 🔥 升級：不只存在本地，還要上傳到雲端！
             localStorage.setItem('employee_layout_v60_compact', JSON.stringify(newLayout));
+            
+            fetch(GAS_API_URL + "?action=saveLayout", {
+                method: "POST",
+                body: JSON.stringify(newLayout)
+            }).then(r => r.json()).then(res => {
+                alert("排版已成功同步到雲端！全店手機都會自動更新！");
+                location.reload(); 
+            }).catch(err => {
+                alert("雲端同步失敗，但已為您暫存於本機。");
+                location.reload(); 
+            });
             
             sortableInstances.forEach(s => s.destroy());
             sortableInstances = [];
-            
-            alert("排版已成功儲存並固定！");
-            location.reload(); 
         }
     }
 
-    // ===== 員工版 UI 渲染邏輯 =====
     function renderMenu() {
         const container = document.getElementById('menu-content');
         const nav = document.getElementById('nav-bar');
@@ -485,9 +501,6 @@
         updateCounter();
     }
 
-    // ==========================================
-    // 狀態管理與點餐邏輯 (與舊版完全一致)
-    // ==========================================
     function checkStoreStatus() {
         const now = new Date(); const twTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Taipei", hour12: false }));
         const day = twTime.getDay(); const hh = String(twTime.getHours()).padStart(2, '0'); const mm = String(twTime.getMinutes()).padStart(2, '0');
