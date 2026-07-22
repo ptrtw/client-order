@@ -351,7 +351,7 @@
         });
 
         let savedLayout = null;
-        // 🔥 升級：優先抓取雲端排版，沒有雲端版才找本地，都沒有就自動填入
+        // 優先抓取雲端排版，沒有雲端版才找本地，都沒有就自動填入
         if (data && data.layout) {
             savedLayout = data.layout;
             localStorage.setItem('employee_layout_v60_compact', JSON.stringify(savedLayout)); 
@@ -431,13 +431,14 @@
             
             let newLayout = [];
             document.querySelectorAll('.menu-grid').forEach(grid => {
+                // 🔥 修復關鍵點：將 innerText 改成 textContent.trim()，破解手機隱藏視窗抓不到字的問題
                 let slotNames = Array.from(grid.querySelectorAll('.pos-item')).map(el => {
-                    return el.classList.contains('empty-slot') ? null : el.innerText;
+                    return el.classList.contains('empty-slot') ? null : el.textContent.trim();
                 });
                 newLayout.push(slotNames);
             });
             
-            // 🔥 升級：不只存在本地，還要上傳到雲端！
+            // 存入本地與雲端
             localStorage.setItem('employee_layout_v60_compact', JSON.stringify(newLayout));
             
             fetch(GAS_API_URL + "?action=saveLayout", {
