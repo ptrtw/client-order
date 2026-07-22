@@ -330,7 +330,8 @@
     <div class="modal-content" style="text-align: center; padding: 30px 20px;">
         <h3 style="color: #d97706; margin-top: 0; font-size: 1.4rem;">🔄 等待付款中...</h3>
         <p style="margin: 15px 0; font-size: 1rem;">訂單已送出！請前往全支付完成轉帳<br>結帳金額為：<br><strong style="font-size: 1.8rem; color: #d32f2f;">$<span id="transit-amount">0</span></strong></p>
-        <p style="font-size: 0.85rem; color: #888;">⚠️ 轉帳成功後，請務必回來點擊下方按鈕通知店家</p>
+        <!-- 🔥 修改了這裡的提示，告知客人已經自動帶入金額 -->
+        <p style="font-size: 0.85rem; color: #06C755; font-weight: bold;">✅ 系統已自動帶入付款金額，請直接確認結帳即可</p>
         
         <button onclick="reportPaid()" style="width: 100%; padding: 15px; background: var(--brand-color); color: white; border: none; border-radius: 14px; font-weight: bold; margin-top: 20px; font-size: 1.1rem;">✅ 我已完成付款</button>
         <button onclick="changePaymentMethod()" style="width: 100%; padding: 15px; background: #e2e8f0; color: #666; border: none; border-radius: 14px; font-weight: bold; margin-top: 10px; font-size: 1rem;">🔄 我要更改付款方式</button>
@@ -339,7 +340,6 @@
 
 <script>
     const LIFF_ID = "2010718024-7lUixuAF"; // 您的 LIFF ID
-    const PXPAY_URL = "https://service.pxpayplus.com/pxplus_redirect/page_redirect/jumj?memberCode=MC17320294&amount=0"; // 您的全支付收款連結
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
 
     // 預設資料 (避免雲端載入失敗時無畫面)
@@ -758,8 +758,11 @@
 
             if (data.payMethod === "全支付") {
                 document.getElementById('confirm-modal').style.display = 'none'; document.getElementById('transit-modal').style.display = 'flex'; document.getElementById('transit-amount').innerText = data.finalTotal;
-                alert("訂單已送出！\n\n📌 點擊確認後，將為您跳轉至全支付。\n⚠️ 請記得手動輸入結帳金額：$" + data.finalTotal);
-                liff.openWindow({ url: PXPAY_URL, external: true });
+                alert("訂單已送出！\n\n📌 點擊確認後，將為您跳轉至全支付完成付款。");
+                
+                // 🔥 動態生成全支付連結，自動帶入結帳金額 data.finalTotal
+                const dynamicPxPayUrl = `https://service.pxpayplus.com/pxplus_redirect/page_redirect/jumj?memberCode=MC17320294&amount=${data.finalTotal}`;
+                liff.openWindow({ url: dynamicPxPayUrl, external: true });
             } else {
                 let successMsg = "✅ 訂單已成功送出！"; if (invoiceOption === 'carrier') successMsg += "\n\n📌 請在聊天室上傳您的載具 QR Code 圖片，方便店家掃描。"; alert(successMsg);
                 cart = []; updateCounter(); document.getElementById('customer-phone').value = ""; document.getElementById('customer-address').value = ""; if (document.getElementById('order-note')) document.getElementById('order-note').value = ""; let sm = document.querySelector('input[name="delivery-method"]:checked'); if (sm) sm.checked = false; toggleDeliveryAddress(false); selectInvoiceOption('paper'); document.querySelector('input[name="invoice-option"][value="paper"]').checked = true; document.getElementById('invoice-number').value = ''; confirmData = null; document.getElementById('confirm-modal').style.display = 'none'; liff.closeWindow();
