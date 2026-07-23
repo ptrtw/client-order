@@ -146,7 +146,6 @@
 </div>
 
 <script>
-    // ⚠️ 已替換為您的 GAS 網址
     const KEEP_CUP_API_URL = "https://script.google.com/macros/s/AKfycbwzVGw93CzqKJhqFE0BfcP4AfjCfW3HOr-8INTesvTdbwfZr6g3t5bH7LOF21JC2ySr/exec";
 
     let allCustomers = [];
@@ -157,7 +156,12 @@
         fetch(KEEP_CUP_API_URL)
             .then(res => res.json())
             .then(data => {
-                allCustomers = data;
+                // 🔥 自動依最後異動時間 (lastUpdate) 由新到舊排序
+                allCustomers = data.sort((a, b) => {
+                    if (!a.lastUpdate) return 1;
+                    if (!b.lastUpdate) return -1;
+                    return new Date(b.lastUpdate) - new Date(a.lastUpdate);
+                });
                 renderCustomers(allCustomers);
                 document.getElementById('loadingOverlay').style.display = 'none';
             })
