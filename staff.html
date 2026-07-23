@@ -49,6 +49,7 @@
             overflow-y: auto; /* 允許容器內部上下滾動，解決編輯模式卡死問題 */
             overflow-x: hidden;
             scroll-behavior: smooth;
+            touch-action: pan-y; /* 避免左右滑動與瀏覽器頁面手勢衝突 */
         }
 
         /* 員工專用 6欄 × 10行 (60格) 網格 - 高度動態均分 1fr */
@@ -331,6 +332,9 @@
     let isEditMode = false;
     let sortableInstances = [];
 
+    // 當前大類索引 (0, 1, 2)
+    let currentCategoryIndex = 0;
+
     function loadCloudConfig() {
         const cachedData = localStorage.getItem('pos_cloud_cache');
         if (cachedData) {
@@ -469,6 +473,22 @@
         }
     }
 
+    // 切換大類的統一函式
+    function switchCategory(targetIdx) {
+        if (isEditMode) return;
+        if (targetIdx < 0 || targetIdx >= menuData.length) return;
+        
+        currentCategoryIndex = targetIdx;
+        
+        document.querySelectorAll('.nav-btn').forEach((b, idx) => {
+            b.classList.toggle('active', idx === currentCategoryIndex);
+        });
+        
+        document.querySelectorAll('.menu-grid').forEach((g, idx) => {
+            g.classList.toggle('active', idx === currentCategoryIndex);
+        });
+    }
+
     function renderMenu() {
         const container = document.getElementById('menu-content');
         const nav = document.getElementById('nav-bar');
@@ -479,13 +499,7 @@
             btn.className = 'nav-btn'; 
             if(cIdx === 0) btn.classList.add('active');
             btn.innerText = cat.category;
-            btn.onclick = (e) => {
-                if(isEditMode) return;
-                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                document.querySelectorAll('.menu-grid').forEach(g => g.classList.remove('active'));
-                document.getElementById('cat-'+cIdx).classList.add('active');
-            };
+            btn.onclick = () => switchCategory(cIdx);
             nav.appendChild(btn);
 
             const grid = document.createElement('div');
@@ -511,7 +525,49 @@
             });
             container.appendChild(grid);
         });
+        
+        // 綁定左右滑動手勢
+        initSwipeGesture();
         updateCounter();
+    }
+
+    // 🔥 左右拖曳滑動手勢監聽
+    function initSwipeGesture() {
+        const container = document.getElementById('menu-content');
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+
+        container.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+
+        container.addEventListener('touchend', (e) => {
+            if (isEditMode) return; // 編輯模式下停用頁面滑動切換，避免影響拖曳
+            
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+            
+            // 判定是否為「水平滑動」 (X 軸移動距離大於 50px 且垂直 Y 軸偏移不大於 60px)
+            if (Math.abs(diffX) > 50 && Math.abs(diffY) < 60) {
+                if (diffX < 0) {
+                    // 向左滑動 -> 下一個分類
+                    if (currentCategoryIndex < menuData.length - 1) {
+                        switchCategory(currentCategoryIndex + 1);
+                    }
+                } else {
+                    // 向右滑動 -> 上一個分類
+                    if (currentCategoryIndex > 0) {
+                        switchCategory(currentCategoryIndex - 1);
+                    }
+                }
+            }
+        }, { passive: true });
     }
 
     function checkStoreStatus() {
@@ -533,7 +589,6 @@
         try { localStorage.setItem('pos_cart_data', JSON.stringify(cart)); } catch(e) {}
     }
 
-    // 單杯備註的顯示/隱藏切換
     function toggleItemRemark() {
         const input = document.getElementById('item-remark-input');
         const btn = document.getElementById('item-remark-btn');
@@ -554,7 +609,6 @@
         document.getElementById('modal-title').innerText = item.name;
         document.getElementById('item-qty').innerText = 1;
         
-        // 每次打開彈窗時重置單杯備註狀態
         document.getElementById('item-remark-input').value = "";
         document.getElementById('item-remark-input').style.display = "none";
         document.getElementById('item-remark-btn').classList.remove('active');
@@ -567,13 +621,11 @@
         
         renderBtns('size-btns', Object.keys(item.prices), (val) => { currentSelect.size = val; currentSelect.toppings = []; renderToppings(item, val); updateOptionPrice(); }, defaultSize);
         
-        // 🔥 冰塊順序調整：去冰 -> 微冰 -> 少冰 -> 正常冰 -> 常溫 -> 溫飲
         let defaultIceOptions = ["去冰", "微冰", "少冰", "正常冰", "常溫", "溫飲"];
         let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : defaultIceOptions;
         if (!item.customIce && (item.name.includes("優多") || item.name.includes("冰淇淋"))) iceOptions = iceOptions.filter(opt => opt !== "溫飲");
         renderBtns('ice-btns', iceOptions, (val) => currentSelect.ice = val, null);
         
-        // 🔥 甜度順序調整：無糖 -> 微糖 -> 半糖 -> 八分糖 -> 其他
         let sugarOptGroup = document.getElementById('sugar-opt-group');
         let isFixedSugar = false; 
         let sugarOptions = ["無糖", "微糖", "半糖", "八分糖", "其他"];
