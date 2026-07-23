@@ -566,11 +566,11 @@
         document.getElementById('option-modal').style.display = 'flex';
         
         renderBtns('size-btns', Object.keys(item.prices), (val) => { currentSelect.size = val; currentSelect.toppings = []; renderToppings(item, val); updateOptionPrice(); }, defaultSize);
-        let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : ["正常冰", "少冰", "微冰", "去冰", "常溫", "溫飲"];
+        let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : ["去冰", "微冰", "少冰", "正常冰", "常溫", "溫飲"];
         if (!item.customIce && (item.name.includes("優多") || item.name.includes("冰淇淋"))) iceOptions = iceOptions.filter(opt => opt !== "溫飲");
         renderBtns('ice-btns', iceOptions, (val) => currentSelect.ice = val, null);
         let sugarOptGroup = document.getElementById('sugar-opt-group');
-        let isFixedSugar = false; let sugarOptions = ["八分糖", "半糖", "微糖", "無糖", "其他"];
+        let isFixedSugar = false; let sugarOptions = ["無糖", "微糖", "半糖", "八方糖", "其他"];
         if (item.customSugar && item.customSugar.length > 0) { if (item.customSugar[0] === "固定甜度") isFixedSugar = true; else sugarOptions = item.customSugar; } 
         else { if (item.name.includes("黑糖")) isFixedSugar = true; else if (item.name.includes("蜜")) sugarOptions = sugarOptions.filter(opt => opt !== "無糖"); }
 
