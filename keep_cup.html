@@ -21,31 +21,47 @@
         .search-bar input { width: 100%; padding: 10px 15px; border: 1px solid #ddd; border-radius: 20px; font-size: 0.95rem; box-sizing: border-box; outline: none; background: #f9f9f9; }
         .search-bar input:focus { border-color: var(--brand-color); background: #fff; box-shadow: 0 0 5px rgba(0,210,106,0.2); }
 
-        /* 💡 改為 Grid 網格佈局，一行顯示 2 個顧客卡片 */
+        /* 雙欄網格 */
         .customer-grid { padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 80px; }
         
-        /* 精簡版顧客卡片 */
+        /* 全新優化的顧客卡片 */
         .customer-card { 
             background: white; 
-            border-radius: 10px; 
+            border-radius: 12px; 
             padding: 12px 10px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.06); 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05); 
             border-left: 4px solid var(--brand-color); 
             display: flex; 
             flex-direction: column; 
-            justify-content: space-between; 
-            cursor: pointer;
-            transition: transform 0.1s ease, box-shadow 0.1s ease;
         }
-        .customer-card:active { transform: scale(0.97); background: #fdfdfd; }
         
-        .customer-name { font-size: 1.05rem; font-weight: bold; color: var(--text-main); margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .customer-name { font-size: 1.05rem; font-weight: bold; color: var(--text-main); margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         
-        .balance-wrap { display: flex; justify-content: space-between; align-items: baseline; }
-        .b-cup { font-size: 1.25rem; font-weight: 800; color: var(--brand-color); }
-        .b-money { font-size: 0.75rem; color: #999; }
+        /* 杯數與金額合併，並設計為可點擊的樣式 (看紀錄) */
+        .balance-wrap { 
+            display: flex; 
+            align-items: baseline; 
+            gap: 8px; 
+            background: #fdfdfd; 
+            padding: 6px 8px; 
+            border-radius: 8px; 
+            border: 1px dashed #b2dfdb; 
+            cursor: pointer; 
+            margin-bottom: 6px;
+            transition: background 0.1s;
+        }
+        .balance-wrap:active { background: #e0f2f1; }
+        .b-cup { font-size: 1.35rem; font-weight: 900; color: var(--brand-color); }
+        .b-money { font-size: 0.85rem; color: #777; font-weight: 500; }
         
-        .customer-remark { font-size: 0.75rem; color: #e65100; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .customer-remark { font-size: 0.75rem; color: #e65100; margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* 底部快捷按鈕 */
+        .quick-actions { display: flex; gap: 8px; margin-top: auto; }
+        .q-btn { flex: 1; padding: 8px 0; border: none; border-radius: 8px; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: transform 0.1s; }
+        .q-btn:active { transform: scale(0.95); }
+        .q-btn-take { background: #ffebee; color: #c62828; }
+        .q-btn-deposit { background: #e8f5e9; color: #2e7d32; }
 
         .fab-add { position: fixed; bottom: 20px; right: 20px; width: 55px; height: 55px; background: var(--brand-color); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.8rem; box-shadow: 0 4px 10px rgba(0,210,106,0.4); cursor: pointer; border: none; z-index: 1000; }
 
@@ -59,13 +75,6 @@
         .form-group input:focus { border-color: var(--brand-color); background: #fff; }
         .submit-btn { width: 100%; padding: 12px; background: var(--brand-color); color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 5px; }
         .close-modal { background: #eee; border: none; width: 28px; height: 28px; border-radius: 50%; font-size: 1rem; cursor: pointer; color: #666; }
-
-        /* 點選顧客後彈出的【功能選擇選單】 */
-        .menu-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
-        .menu-btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 1.05rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .menu-btn-take { background: #ffebee; color: #c62828; }
-        .menu-btn-deposit { background: #e8f5e9; color: #2e7d32; }
-        .menu-btn-log { background: #f0f2f5; color: #455a64; }
 
         /* Radio Toggle */
         .radio-group { display: flex; gap: 10px; margin-bottom: 10px; }
@@ -103,21 +112,6 @@
 <div class="customer-grid" id="customerList"></div>
 
 <button class="fab-add" onclick="openAddModal()">+</button>
-
-<!-- 💡 新增：點擊顧客後彈出的【選擇功能】彈窗 -->
-<div class="modal-overlay" id="menuModal" onclick="if(event.target==this) this.style.display='none'">
-    <div class="modal-content">
-        <div class="modal-title">
-            <span id="menuCustomerName">顧客選單</span>
-            <button class="close-modal" onclick="document.getElementById('menuModal').style.display='none'">✕</button>
-        </div>
-        <div class="menu-btns">
-            <button class="menu-btn menu-btn-take" onclick="selectMenuAction('拿取')">➖ 拿取 (扣杯/金額)</button>
-            <button class="menu-btn menu-btn-deposit" onclick="selectMenuAction('寄杯')">➕ 寄杯 (加杯/金額)</button>
-            <button class="menu-btn menu-btn-log" onclick="selectMenuAction('紀錄')">🕒 查看歷史紀錄</button>
-        </div>
-    </div>
-</div>
 
 <!-- 拿取/寄杯 彈窗 -->
 <div class="modal-overlay" id="actionModal" onclick="if(event.target==this) this.style.display='none'">
@@ -181,7 +175,6 @@
     const KEEP_CUP_API_URL = "https://script.google.com/macros/s/AKfycbwzVGw93CzqKJhqFE0BfcP4AfjCfW3HOr-8INTesvTdbwfZr6g3t5bH7LOF21JC2ySr/exec";
 
     let allCustomers = [];
-    let selectedCustomerName = "";
     let currentActionData = {};
 
     function loadData() {
@@ -189,7 +182,6 @@
         fetch(KEEP_CUP_API_URL)
             .then(res => res.json())
             .then(data => {
-                // 自動依最後異動時間 (lastUpdate) 由新到舊排序
                 allCustomers = data.sort((a, b) => {
                     if (!a.lastUpdate) return 1;
                     if (!b.lastUpdate) return -1;
@@ -204,7 +196,7 @@
             });
     }
 
-    // 渲染「精簡版雙欄卡片」
+    // 渲染「直覺操作版雙欄卡片」
     function renderCustomers(list) {
         const container = document.getElementById('customerList');
         container.innerHTML = '';
@@ -216,13 +208,22 @@
         list.forEach(c => {
             let remarkHtml = c.remark ? `<div class="customer-remark">📝 ${c.remark}</div>` : '';
             container.innerHTML += `
-                <div class="customer-card" onclick="openCustomerMenu('${c.name}')">
+                <div class="customer-card">
                     <div class="customer-name">${c.name}</div>
-                    <div class="balance-wrap">
+                    
+                    <!-- 點擊杯數/金額區塊即可查看歷史紀錄 -->
+                    <div class="balance-wrap" onclick="openLogModal('${c.name}')" title="點擊查看紀錄">
                         <span class="b-cup">${c.cups} 杯</span>
                         <span class="b-money">$${c.money}</span>
                     </div>
+                    
                     ${remarkHtml}
+                    
+                    <!-- 捷徑操作按鈕 -->
+                    <div class="quick-actions">
+                        <button class="q-btn q-btn-take" onclick="openActionModal('${c.name}', '拿取')">➖ 取</button>
+                        <button class="q-btn q-btn-deposit" onclick="openActionModal('${c.name}', '寄杯')">➕ 寄</button>
+                    </div>
                 </div>
             `;
         });
@@ -232,23 +233,6 @@
         const keyword = document.getElementById('searchInput').value.toLowerCase();
         const filtered = allCustomers.filter(c => c.name.toLowerCase().includes(keyword));
         renderCustomers(filtered);
-    }
-
-    // 點擊卡片，開啟功能選單
-    function openCustomerMenu(name) {
-        selectedCustomerName = name;
-        document.getElementById('menuCustomerName').innerText = name;
-        document.getElementById('menuModal').style.display = 'flex';
-    }
-
-    // 在選單點擊動作後跳轉
-    function selectMenuAction(action) {
-        document.getElementById('menuModal').style.display = 'none';
-        if (action === '拿取' || action === '寄杯') {
-            openActionModal(selectedCustomerName, action);
-        } else if (action === '紀錄') {
-            openLogModal(selectedCustomerName);
-        }
     }
 
     function openActionModal(name, actionType) {
@@ -284,7 +268,7 @@
             body: JSON.stringify(payload)
         }).then(res => res.json()).then(res => {
             if (res.status === 'success') {
-                alert("異動成功！");
+                // 不使用 alert 打斷流暢度，直接重整資料
                 loadData();
             } else {
                 alert("失敗：" + res.message);
