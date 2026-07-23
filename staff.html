@@ -267,7 +267,7 @@
             <input type="text" id="customer-address" placeholder="請輸入外送地址">
         </div>
         
-        <!-- 新增：整筆訂單備註 -->
+        <!-- 訂單備註 -->
         <div class="opt-title">📝 訂單備註 (選填)</div>
         <textarea id="order-remark" placeholder="例如：盡量不找零、請附提袋..." style="resize: vertical; min-height: 60px;"></textarea>
 
@@ -566,11 +566,17 @@
         document.getElementById('option-modal').style.display = 'flex';
         
         renderBtns('size-btns', Object.keys(item.prices), (val) => { currentSelect.size = val; currentSelect.toppings = []; renderToppings(item, val); updateOptionPrice(); }, defaultSize);
-        let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : ["去冰", "微冰", "少冰", "正常冰", "常溫", "溫飲"];
+        
+        // 🔥 冰塊順序調整：去冰 -> 微冰 -> 少冰 -> 正常冰 -> 常溫 -> 溫飲
+        let defaultIceOptions = ["去冰", "微冰", "少冰", "正常冰", "常溫", "溫飲"];
+        let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : defaultIceOptions;
         if (!item.customIce && (item.name.includes("優多") || item.name.includes("冰淇淋"))) iceOptions = iceOptions.filter(opt => opt !== "溫飲");
         renderBtns('ice-btns', iceOptions, (val) => currentSelect.ice = val, null);
+        
+        // 🔥 甜度順序調整：無糖 -> 微糖 -> 半糖 -> 八分糖 -> 其他
         let sugarOptGroup = document.getElementById('sugar-opt-group');
-        let isFixedSugar = false; let sugarOptions = ["無糖", "微糖", "半糖", "八方糖", "其他"];
+        let isFixedSugar = false; 
+        let sugarOptions = ["無糖", "微糖", "半糖", "八分糖", "其他"];
         if (item.customSugar && item.customSugar.length > 0) { if (item.customSugar[0] === "固定甜度") isFixedSugar = true; else sugarOptions = item.customSugar; } 
         else { if (item.name.includes("黑糖")) isFixedSugar = true; else if (item.name.includes("蜜")) sugarOptions = sugarOptions.filter(opt => opt !== "無糖"); }
 
@@ -618,7 +624,6 @@
     function confirmAddToCart() {
         if(!currentSelect.size || !currentSelect.ice || !currentSelect.sugar) return alert("請完整選擇所有選項");
         
-        // 抓取備註文字
         currentSelect.remark = document.getElementById('item-remark-input').value.trim();
         
         let basePrice = currentSelect.item.prices[currentSelect.size];
@@ -655,7 +660,7 @@
             cart.forEach((item, index) => {
                 originalTotal += item.price; let unitPrice = item.price / item.qty; for(let i=0; i<item.qty; i++) allCups.push(unitPrice);
                 let teaStr = item.teaSwap ? ` / ${item.teaSwap}` : ''; let toppingsStr = item.toppings.length ? ` / 加:${item.toppings.join(',')}` : '';
-                let remarkStr = item.remark ? ` / 📝${item.remark}` : ''; // 呈現單杯備註
+                let remarkStr = item.remark ? ` / 📝${item.remark}` : '';
                 list.innerHTML += `<div class="cart-item"><div class="cart-item-info"><div class="cart-item-title">${item.item.name} (${item.size}) x ${item.qty}</div><div class="cart-item-desc">${item.ice} / ${item.sugar}${teaStr}${toppingsStr}${remarkStr}</div><div style="font-weight:bold; color:var(--brand-color); margin-top:4px;">$${item.price}</div></div><button class="cart-del-btn" onclick="removeFromCart(${index}); event.stopPropagation();">移除</button></div>`;
             });
         } else { list.innerHTML = '<div style="text-align:center; padding:30px; color:#999;">購物車空空的耶，來點杯飲料吧！</div>'; }
@@ -676,7 +681,6 @@
         let phone = document.getElementById('customer-phone').value.trim(); if (!phone) { alert("請先輸入聯絡電話！"); document.getElementById('customer-phone').focus(); return; }
         if (invoiceOption === 'uniform') { const num = document.getElementById('invoice-number').value.trim(); if (!num || num.length !== 8) { alert("請輸入正確的 8 位統一編號！"); return; } invoiceNumber = num; }
         
-        // 抓取整單備註
         let orderRemark = document.getElementById('order-remark').value.trim();
         
         let methodEl = document.querySelector('input[name="delivery-method"]:checked'); let method = methodEl ? methodEl.value : "自取";
@@ -687,7 +691,6 @@
 
         let invoiceText = invoiceOption === 'paper' ? '🧾 紙本發票（店家印出）' : invoiceOption === 'uniform' ? `🏢 統編：${invoiceNumber}` : '📱 載具（請於聊天室上傳圖片）';
         
-        // 將備註資訊打包
         confirmData = { phone, method, address, orderRemark, finalTotal, originalTotal, discount, invoiceText, cartItems: JSON.parse(JSON.stringify(cart)) };
         renderConfirmModal(confirmData); document.getElementById('cart-modal').style.display = 'none'; document.getElementById('confirm-modal').style.display = 'flex';
     }
@@ -702,7 +705,7 @@
         let infoHTML = `<strong>📞 聯絡電話：</strong>${data.phone}<br><strong>🛵 取餐方式：</strong>${data.method}`;
         if (data.method === "外送" && data.address) infoHTML += `<br><strong>📍 外送地址：</strong>${data.address}`;
         infoHTML += `<br><strong>📄 發票：</strong>${data.invoiceText}`;
-        if (data.orderRemark) infoHTML += `<br><strong style="color:#e65100;">📝 訂單備註：</strong>${data.orderRemark}`; // 顯示整單備註
+        if (data.orderRemark) infoHTML += `<br><strong style="color:#e65100;">📝 訂單備註：</strong>${data.orderRemark}`;
         if (data.discount > 0) infoHTML += `<br><strong>🎉 自取買五送一折扣：</strong> -$${data.discount}`;
         document.getElementById('confirm-order-info').innerHTML = infoHTML; document.getElementById('confirm-total-amount').innerText = `$${data.finalTotal}`;
     }
@@ -725,7 +728,6 @@
         let footerBox = [ { type: "separator", margin: "md", color: "#e2e8f0" }, { type: "box", layout: "vertical", margin: "md", contents: [{ type: "text", text: `📞 ${data.phone}`, size: "sm", weight: "bold", color: "#1e293b" }] }, { type: "box", layout: "vertical", margin: "md", contents: [{ type: "text", text: `📄 ${data.invoiceText}`, size: "sm", weight: "bold", color: "#2563eb" }] }, { type: "box", layout: "vertical", margin: "md", contents: [{ type: "text", text: `🛵 ${data.method}`, size: "sm", weight: "bold", color: "#1e293b" }] } ];
         if (data.method === "外送" && data.address) footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [{ type: "text", text: `📍 ${data.address}`, size: "sm", weight: "bold", color: "#e65100", wrap: true }] });
         
-        // 寫入整筆訂單備註到 Flex Message 中
         if (data.orderRemark) {
             footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [{ type: "text", text: `📝 訂單備註：${data.orderRemark}`, size: "sm", weight: "bold", color: "#e65100", wrap: true }] });
         }
@@ -745,11 +747,10 @@
             await liff.sendMessages([{ type: "flex", altText: `🎉 收到新訂單！總計 $${data.finalTotal}`, contents: { type: "carousel", contents: bubbles } }]);
             let successMsg = "✅ 訂單已成功送出！" + (invoiceOption === 'carrier' ? "\n\n📌 請在聊天室上傳您的載具 QR Code 圖片，方便店家掃描。" : ""); alert(successMsg);
             
-            // 成功送出後，清空所有狀態與備註
             cart = []; updateCounter(); 
             document.getElementById('customer-phone').value = ""; 
             document.getElementById('customer-address').value = "";
-            document.getElementById('order-remark').value = ""; // 清空整單備註
+            document.getElementById('order-remark').value = "";
             
             let sm = document.querySelector('input[name="delivery-method"]:checked'); if (sm) sm.checked = false; toggleDeliveryAddress(false);
             selectInvoiceOption('paper'); document.querySelector('input[name="invoice-option"][value="paper"]').checked = true; document.getElementById('invoice-number').value = ''; confirmData = null;
