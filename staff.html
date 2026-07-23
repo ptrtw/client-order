@@ -124,8 +124,8 @@
         .cart-item-title { font-weight: bold; font-size: 1rem; margin-bottom: 4px; }
         .cart-item-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
         .cart-del-btn { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 15px; font-size: 0.85rem; }
-        #customer-phone, #customer-address, #invoice-number { width: 100%; font-family: inherit; margin: 5px 0 15px; padding: 12px; box-sizing: border-box; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; background: #f9f9f9; outline: none; }
-        #customer-phone:focus, #customer-address:focus, #invoice-number:focus { border-color: var(--brand-color); background: #ffffff; }
+        #customer-phone, #customer-address, #invoice-number, #order-remark { width: 100%; font-family: inherit; margin: 5px 0 15px; padding: 12px; box-sizing: border-box; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; background: #f9f9f9; outline: none; }
+        #customer-phone:focus, #customer-address:focus, #invoice-number:focus, #order-remark:focus { border-color: var(--brand-color); background: #ffffff; }
 
         /* 發票與確認訂單 */
         .invoice-option-group { margin: 15px 0 10px 0; }
@@ -211,7 +211,18 @@
                 <option value="換普洱">換普洱</option>
             </select>
         </div>
-        <div class="opt-group"><div class="opt-title">大小</div><div id="size-btns" class="opt-btns"></div></div>
+        
+        <!-- 大小與備註按鈕 (整合在同一行) -->
+        <div class="opt-group">
+            <div class="opt-title">大小</div>
+            <div style="display: flex; gap: 8px;">
+                <div id="size-btns" class="opt-btns" style="flex-grow: 1;"></div>
+                <button class="opt-btn" id="item-remark-btn" onclick="toggleItemRemark()" style="flex-shrink: 0; padding: 6px 12px; background: #fff; border: 1px solid #ddd; color: #666; max-width: 80px;">📝 備註</button>
+            </div>
+            <!-- 單杯備註隱藏輸入框 -->
+            <input type="text" id="item-remark-input" placeholder="單杯備註 (例如：珍珠少一點、去冰溫水)" style="display: none; width: 100%; margin-top: 8px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 0.9rem; background: #f9f9f9; outline: none; font-family: inherit;">
+        </div>
+        
         <div class="opt-group" id="ice-opt-group"><div class="opt-title">冰塊</div><div id="ice-btns" class="opt-btns"></div></div>
         <div class="opt-group" id="sugar-opt-group"><div class="opt-title">甜度</div><div id="sugar-btns" class="opt-btns"></div></div>
         <div class="opt-group"><div class="opt-title">加料</div><div id="topping-btns" class="opt-btns"></div></div>
@@ -255,6 +266,10 @@
             <div class="opt-title">外送地址</div>
             <input type="text" id="customer-address" placeholder="請輸入外送地址">
         </div>
+        
+        <!-- 新增：整筆訂單備註 -->
+        <div class="opt-title">📝 訂單備註 (選填)</div>
+        <textarea id="order-remark" placeholder="例如：盡量不找零、請附提袋..." style="resize: vertical; min-height: 60px;"></textarea>
 
         <div class="invoice-option-group">
             <div class="opt-title">📄 發票選項</div>
@@ -351,7 +366,6 @@
         });
 
         let savedLayout = null;
-        // 優先抓取雲端排版，沒有雲端版才找本地，都沒有就自動填入
         if (data && data.layout) {
             savedLayout = data.layout;
             localStorage.setItem('employee_layout_v60_compact', JSON.stringify(savedLayout)); 
@@ -431,14 +445,12 @@
             
             let newLayout = [];
             document.querySelectorAll('.menu-grid').forEach(grid => {
-                // 🔥 修復關鍵點：將 innerText 改成 textContent.trim()，破解手機隱藏視窗抓不到字的問題
                 let slotNames = Array.from(grid.querySelectorAll('.pos-item')).map(el => {
                     return el.classList.contains('empty-slot') ? null : el.textContent.trim();
                 });
                 newLayout.push(slotNames);
             });
             
-            // 存入本地與雲端
             localStorage.setItem('employee_layout_v60_compact', JSON.stringify(newLayout));
             
             fetch(GAS_API_URL + "?action=saveLayout", {
@@ -521,13 +533,32 @@
         try { localStorage.setItem('pos_cart_data', JSON.stringify(cart)); } catch(e) {}
     }
 
+    // 單杯備註的顯示/隱藏切換
+    function toggleItemRemark() {
+        const input = document.getElementById('item-remark-input');
+        const btn = document.getElementById('item-remark-btn');
+        if (input.style.display === 'none') {
+            input.style.display = 'block';
+            btn.classList.add('active');
+            input.focus();
+        } else {
+            input.style.display = 'none';
+            btn.classList.remove('active');
+        }
+    }
+
     function openModal(item) {
         let defaultSize = item.prices.hasOwnProperty('L') ? 'L' : Object.keys(item.prices)[0];
-        currentSelect = { item, qty: 1, size: defaultSize, ice: null, sugar: null, toppings: [], teaSwap: "" };
+        currentSelect = { item, qty: 1, size: defaultSize, ice: null, sugar: null, toppings: [], teaSwap: "", remark: "" };
         
         document.getElementById('modal-title').innerText = item.name;
         document.getElementById('item-qty').innerText = 1;
         
+        // 每次打開彈窗時重置單杯備註狀態
+        document.getElementById('item-remark-input').value = "";
+        document.getElementById('item-remark-input').style.display = "none";
+        document.getElementById('item-remark-btn').classList.remove('active');
+
         const teaSwapSelect = document.getElementById('tea-swap-select');
         if (item.enableTeaSwap) { teaSwapSelect.style.display = 'block'; teaSwapSelect.value = ""; teaSwapSelect.onchange = (e) => { currentSelect.teaSwap = e.target.value; }; } 
         else { teaSwapSelect.style.display = 'none'; }
@@ -586,6 +617,10 @@
 
     function confirmAddToCart() {
         if(!currentSelect.size || !currentSelect.ice || !currentSelect.sugar) return alert("請完整選擇所有選項");
+        
+        // 抓取備註文字
+        currentSelect.remark = document.getElementById('item-remark-input').value.trim();
+        
         let basePrice = currentSelect.item.prices[currentSelect.size];
         let activeToppings = toppingPrices[currentSelect.size] || {};
         if (currentSelect.item.customToppings && currentSelect.item.customToppings[currentSelect.size]) { activeToppings = currentSelect.item.customToppings[currentSelect.size]; }
@@ -620,7 +655,8 @@
             cart.forEach((item, index) => {
                 originalTotal += item.price; let unitPrice = item.price / item.qty; for(let i=0; i<item.qty; i++) allCups.push(unitPrice);
                 let teaStr = item.teaSwap ? ` / ${item.teaSwap}` : ''; let toppingsStr = item.toppings.length ? ` / 加:${item.toppings.join(',')}` : '';
-                list.innerHTML += `<div class="cart-item"><div class="cart-item-info"><div class="cart-item-title">${item.item.name} (${item.size}) x ${item.qty}</div><div class="cart-item-desc">${item.ice} / ${item.sugar}${teaStr}${toppingsStr}</div><div style="font-weight:bold; color:var(--brand-color); margin-top:4px;">$${item.price}</div></div><button class="cart-del-btn" onclick="removeFromCart(${index}); event.stopPropagation();">移除</button></div>`;
+                let remarkStr = item.remark ? ` / 📝${item.remark}` : ''; // 呈現單杯備註
+                list.innerHTML += `<div class="cart-item"><div class="cart-item-info"><div class="cart-item-title">${item.item.name} (${item.size}) x ${item.qty}</div><div class="cart-item-desc">${item.ice} / ${item.sugar}${teaStr}${toppingsStr}${remarkStr}</div><div style="font-weight:bold; color:var(--brand-color); margin-top:4px;">$${item.price}</div></div><button class="cart-del-btn" onclick="removeFromCart(${index}); event.stopPropagation();">移除</button></div>`;
             });
         } else { list.innerHTML = '<div style="text-align:center; padding:30px; color:#999;">購物車空空的耶，來點杯飲料吧！</div>'; }
         
@@ -639,6 +675,10 @@
         if (cart.length === 0) return alert("購物車是空的喔！請先點餐。");
         let phone = document.getElementById('customer-phone').value.trim(); if (!phone) { alert("請先輸入聯絡電話！"); document.getElementById('customer-phone').focus(); return; }
         if (invoiceOption === 'uniform') { const num = document.getElementById('invoice-number').value.trim(); if (!num || num.length !== 8) { alert("請輸入正確的 8 位統一編號！"); return; } invoiceNumber = num; }
+        
+        // 抓取整單備註
+        let orderRemark = document.getElementById('order-remark').value.trim();
+        
         let methodEl = document.querySelector('input[name="delivery-method"]:checked'); let method = methodEl ? methodEl.value : "自取";
         let address = method === "外送" ? document.getElementById('customer-address').value.trim() : "";
         let allCups = []; let originalTotal = 0; cart.forEach((item) => { originalTotal += item.price; let unitPrice = item.price / item.qty; for (let i = 0; i < item.qty; i++) allCups.push(unitPrice); });
@@ -646,19 +686,23 @@
         let finalTotal = originalTotal - discount;
 
         let invoiceText = invoiceOption === 'paper' ? '🧾 紙本發票（店家印出）' : invoiceOption === 'uniform' ? `🏢 統編：${invoiceNumber}` : '📱 載具（請於聊天室上傳圖片）';
-        confirmData = { phone, method, address, finalTotal, originalTotal, discount, invoiceText, cartItems: JSON.parse(JSON.stringify(cart)) };
+        
+        // 將備註資訊打包
+        confirmData = { phone, method, address, orderRemark, finalTotal, originalTotal, discount, invoiceText, cartItems: JSON.parse(JSON.stringify(cart)) };
         renderConfirmModal(confirmData); document.getElementById('cart-modal').style.display = 'none'; document.getElementById('confirm-modal').style.display = 'flex';
     }
 
     function renderConfirmModal(data) {
         const listContainer = document.getElementById('confirm-order-list'); listContainer.innerHTML = '';
         data.cartItems.forEach((item) => {
-            let details = `${item.ice} / ${item.sugar}`; if (item.teaSwap) details += ` / ${item.teaSwap}`; if (item.toppings.length) details += ` / 加:${item.toppings.join(',')}`;
+            let remarkStr = item.remark ? ` / 📝${item.remark}` : '';
+            let details = `${item.ice} / ${item.sugar}`; if (item.teaSwap) details += ` / ${item.teaSwap}`; if (item.toppings.length) details += ` / 加:${item.toppings.join(',')}`; details += remarkStr;
             listContainer.innerHTML += `<div class="confirm-order-item"><div class="item-left"><div class="item-name">${item.item.name} (${item.size}) x ${item.qty}</div><div class="item-detail">${details}</div></div><div class="item-price">$${item.price}</div></div>`;
         });
         let infoHTML = `<strong>📞 聯絡電話：</strong>${data.phone}<br><strong>🛵 取餐方式：</strong>${data.method}`;
         if (data.method === "外送" && data.address) infoHTML += `<br><strong>📍 外送地址：</strong>${data.address}`;
         infoHTML += `<br><strong>📄 發票：</strong>${data.invoiceText}`;
+        if (data.orderRemark) infoHTML += `<br><strong style="color:#e65100;">📝 訂單備註：</strong>${data.orderRemark}`; // 顯示整單備註
         if (data.discount > 0) infoHTML += `<br><strong>🎉 自取買五送一折扣：</strong> -$${data.discount}`;
         document.getElementById('confirm-order-info').innerHTML = infoHTML; document.getElementById('confirm-total-amount').innerText = `$${data.finalTotal}`;
     }
@@ -673,12 +717,19 @@
 
         const data = confirmData;
         let allItemBoxes = data.cartItems.map(i => {
-            let details = `👉 ${i.ice} / ${i.sugar}`; if (i.teaSwap) details += ` / ${i.teaSwap}`; if (i.toppings && i.toppings.length > 0) details += ` / 加:${i.toppings.join(',')}`;
+            let remarkStr = i.remark ? ` / 📝${i.remark}` : '';
+            let details = `👉 ${i.ice} / ${i.sugar}`; if (i.teaSwap) details += ` / ${i.teaSwap}`; if (i.toppings && i.toppings.length > 0) details += ` / 加:${i.toppings.join(',')}`; details += remarkStr;
             return { type: "box", layout: "vertical", margin: "sm", contents: [ { type: "box", layout: "baseline", contents: [ { type: "text", text: `${i.item.name}(${i.size}) x${i.qty}`, size: "sm", weight: "bold", flex: 3, wrap: true, color: "#1e293b" }, { type: "text", text: `$${i.price}`, size: "sm", align: "end", flex: 1, weight: "bold", color: "#06C755" } ]}, { type: "box", layout: "baseline", margin: "xs", contents: [ { type: "text", text: details, size: "xs", color: "#64748b", flex: 1, wrap: true } ]} ] };
         });
 
         let footerBox = [ { type: "separator", margin: "md", color: "#e2e8f0" }, { type: "box", layout: "vertical", margin: "md", contents: [{ type: "text", text: `📞 ${data.phone}`, size: "sm", weight: "bold", color: "#1e293b" }] }, { type: "box", layout: "vertical", margin: "md", contents: [{ type: "text", text: `📄 ${data.invoiceText}`, size: "sm", weight: "bold", color: "#2563eb" }] }, { type: "box", layout: "vertical", margin: "md", contents: [{ type: "text", text: `🛵 ${data.method}`, size: "sm", weight: "bold", color: "#1e293b" }] } ];
         if (data.method === "外送" && data.address) footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [{ type: "text", text: `📍 ${data.address}`, size: "sm", weight: "bold", color: "#e65100", wrap: true }] });
+        
+        // 寫入整筆訂單備註到 Flex Message 中
+        if (data.orderRemark) {
+            footerBox.push({ type: "box", layout: "vertical", margin: "sm", contents: [{ type: "text", text: `📝 訂單備註：${data.orderRemark}`, size: "sm", weight: "bold", color: "#e65100", wrap: true }] });
+        }
+        
         footerBox.push({ type: "separator", margin: "md", color: "#e2e8f0" });
         
         if (data.discount > 0) { footerBox.push({ type: "box", layout: "baseline", margin: "md", contents: [{ type: "text", text: "商品總計", color: "#64748b", size: "sm" }, { type: "text", text: `$${data.originalTotal}`, color: "#64748b", size: "sm", align: "end" }] }); footerBox.push({ type: "box", layout: "baseline", margin: "sm", contents: [{ type: "text", text: "🎉 自取買五送一", color: "#ef4444", size: "sm", weight: "bold" }, { type: "text", text: `-$${data.discount}`, color: "#ef4444", size: "sm", align: "end", weight: "bold" }] }); }
@@ -693,7 +744,13 @@
         try {
             await liff.sendMessages([{ type: "flex", altText: `🎉 收到新訂單！總計 $${data.finalTotal}`, contents: { type: "carousel", contents: bubbles } }]);
             let successMsg = "✅ 訂單已成功送出！" + (invoiceOption === 'carrier' ? "\n\n📌 請在聊天室上傳您的載具 QR Code 圖片，方便店家掃描。" : ""); alert(successMsg);
-            cart = []; updateCounter(); document.getElementById('customer-phone').value = ""; document.getElementById('customer-address').value = "";
+            
+            // 成功送出後，清空所有狀態與備註
+            cart = []; updateCounter(); 
+            document.getElementById('customer-phone').value = ""; 
+            document.getElementById('customer-address').value = "";
+            document.getElementById('order-remark').value = ""; // 清空整單備註
+            
             let sm = document.querySelector('input[name="delivery-method"]:checked'); if (sm) sm.checked = false; toggleDeliveryAddress(false);
             selectInvoiceOption('paper'); document.querySelector('input[name="invoice-option"][value="paper"]').checked = true; document.getElementById('invoice-number').value = ''; confirmData = null;
             document.getElementById('confirm-modal').style.display = 'none'; liff.closeWindow();
