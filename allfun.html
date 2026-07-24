@@ -460,6 +460,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         cart.push({ item: staffSelect.item, size: staffSelect.size, qty: staffSelect.qty, ice: finalIce, sugar: finalSugar, toppings: staffSelect.toppings, teaSwap: "", price: (base + topCost) * staffSelect.qty });
         updateCounter(); 
         document.getElementById('staff-option-modal').style.display = 'none'; 
+        updateCartUI(); // 🔥 強制在背景直接更新購物車 UI，確保品項立刻生成
     }
 
     // ================= 🍹 一般客戶邏輯 =================
@@ -523,6 +524,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         if(!currentSelect.size || !currentSelect.ice || !currentSelect.sugar) return alert("請完整選擇所有選項（大小/冰塊/甜度）");
         let base = currentSelect.item.prices[currentSelect.size]; let topMap = toppingPrices[currentSelect.size] || {}; if(currentSelect.item.customToppings && currentSelect.item.customToppings[currentSelect.size]) topMap = currentSelect.item.customToppings[currentSelect.size];
         let topCost = currentSelect.toppings.reduce((sum, t) => sum + (topMap[t]||0), 0); cart.push({ ...currentSelect, price: (base + topCost) * currentSelect.qty }); updateCounter(); document.getElementById('option-modal').style.display = 'none';
+        updateCartUI(); // 🔥 強制更新一般點餐的購物車 UI
     }
 
     // ================= 🛒 購物車與結帳邏輯 =================
@@ -531,10 +533,6 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         document.getElementById('staff-cart-counter').innerText = cart.length; 
         document.getElementById('cart-total-preview').innerText = `$${cart.reduce((s,i)=>s+i.price,0)}`; 
         try { localStorage.setItem('pos_cart_data', JSON.stringify(cart)); } catch(e){}
-        // 🔥 自動更新購物車明細介面，確保品項隨時同步
-        if(document.getElementById('cart-modal').style.display === 'flex') {
-            updateCartUI();
-        }
     }
     function selectInvoiceOption(opt) {
         invoiceOption = opt; document.querySelectorAll('.invoice-option-btns label').forEach(el=>el.classList.remove('active'));
@@ -543,7 +541,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         document.getElementById('invoice-number-container').style.display = opt==='uniform'?'block':'none'; if(opt!=='uniform') document.getElementById('invoice-number').value='';
     }
     function showCart() {
-        document.getElementById('cart-modal').style.display = 'flex'; document.getElementById('cart-closed-warning').style.display = isStoreCurrentlyClosed ? 'block' : 'none';
+        document.getElementById('cart-modal').style.display = 'flex'; 
         let sm = document.querySelector('input[name="delivery-method"]:checked'); if(sm) toggleDeliveryAddress(sm.value==='外送'); else { document.getElementById('payment-title').style.display='none'; document.getElementById('payment-options').style.display='none'; }
         selectInvoiceOption('paper'); updateCartUI();
     }
