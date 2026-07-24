@@ -735,7 +735,8 @@
         });
         
         let isFixedSugar = false;
-        let sugarOptions = ["無糖", "微糖", "半糖", "少糖", "多糖", "1分糖", "3分糖", "4分糖", "6分糖", "7分糖"];
+        // 🔥 將允許的甜度清單同步更新為 "八分糖"
+        let sugarOptions = ["無糖", "微糖", "半糖", "八分糖", "多糖", "1分糖", "3分糖", "4分糖", "6分糖", "7分糖"];
         if (item.customSugar && item.customSugar.length > 0) { 
             if (item.customSugar[0] === "固定甜度") isFixedSugar = true; 
             else sugarOptions = item.customSugar; 
@@ -806,7 +807,6 @@
 
     function changeQty(diff) { currentSelect.qty = Math.max(1, currentSelect.qty + diff); document.getElementById('item-qty').innerText = currentSelect.qty; }
 
-    // 🔥 拿掉了冰塊與甜度的必選驗證
     function confirmAddToCart() {
         if(!currentSelect.size) return alert("請至少選擇杯子大小！");
         
@@ -846,7 +846,6 @@
             cart.forEach((item, index) => {
                 originalTotal += item.price; let unitPrice = item.price / item.qty; for(let i=0; i<item.qty; i++) allCups.push(unitPrice);
                 
-                // 🔥 如果沒有選，自動顯示為預設冰 / 預設甜
                 let iceStr = item.ice || "預設冰";
                 let sugarStr = item.sugar || "預設甜";
                 
