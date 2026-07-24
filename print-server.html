@@ -12,16 +12,16 @@
     .log-box { background: #000; color: #0f0; text-align: left; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; height: 250px; overflow-y: auto; margin-top: 20px; border: 1px solid #333; }
     .btn { background: #06C755; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%; }
 
-    /* 預設隱藏，列印時才會浮現 */
     #print-area { display: none; }
 
-    /* ====== 這是破除縮小的終極關鍵 ====== */
+    /* ====== 精準省紙排版 ====== */
     @media print {
         @page {
-            margin: 0 !important; /* 殺掉 Chrome 的預設左右白邊 */
-            size: 80mm auto;      /* 告訴瀏覽器這是 80mm 的紙 */
+            margin: 0 !important; 
+            size: 80mm auto;      
         }
-        body { margin: 0; padding: 0; }
+        /* 強制高度為自動，不補滿 A4 */
+        html, body { margin: 0; padding: 0; height: auto !important; background: #fff; }
         body * { visibility: hidden; }
         #print-area, #print-area * { visibility: visible; }
         #print-area {
@@ -29,15 +29,13 @@
             position: absolute;
             left: 0;
             top: 0;
-            width: 76mm; /* 強制撐滿 80mm 熱感紙 */
+            width: 76mm; 
             padding: 2mm;
-            font-family: sans-serif; /* 黑體在熱感紙上最清晰 */
-            font-size: 26px !important; /* 字體翻倍放大 */
-            font-weight: 900 !important; /* 最粗體 */
+            font-family: sans-serif; 
             color: #000 !important;
             line-height: 1.4;
         }
-        .line { border-bottom: 3px dashed #000; margin: 10px 0; }
+        .line { border-bottom: 2px dashed #000; margin: 8px 0; }
     }
 </style>
 </head>
@@ -99,27 +97,26 @@
     }
 
     function triggerAutoPrint(order) {
-        // 品項字體也全面加粗放大
+        // 字體縮小回合理的大字範圍，不多留白
         let itemsHtml = order.cartItems.map(i => `
-            <div style="font-size: 28px; font-weight: 900; margin-top: 10px;">${i.item.name}(${i.size}) x${i.qty}</div>
-            <div style="font-size: 24px; font-weight: 900; margin-bottom: 5px;"> └ ${i.ice}/${i.sugar}${i.toppings.length ? '/加:'+i.toppings.join() : ''}  $${i.price}</div>
+            <div style="font-size: 20px; font-weight: 900; margin-top: 8px;">${i.item.name}(${i.size}) x${i.qty}</div>
+            <div style="font-size: 16px; font-weight: 900; margin-bottom: 4px;"> └ ${i.ice}/${i.sugar}${i.toppings.length ? '/加:'+i.toppings.join() : ''}  $${i.price}</div>
         `).join('');
 
-        // 將 Emojis 換成實體文字 [電話], [方式]，避免熱感紙印出灰階雜訊
+        // 移除了最後的 <br> 換行，避免浪費紙
         document.getElementById('print-area').innerHTML = `
-            <div style="text-align: center; font-size: 32px; font-weight: 900;">★ 清心福全左營榮總店 ★</div>
-            <div style="text-align: center; font-size: 22px; margin-bottom: 5px;">【 網路新訂單 】</div>
+            <div style="text-align: center; font-size: 24px; font-weight: 900;">★ 清心福全左營榮總店 ★</div>
+            <div style="text-align: center; font-size: 16px; margin-bottom: 5px;">【 網路新訂單 】</div>
             <div class="line"></div>
-            <div style="font-size: 24px; font-weight: 900;">[電話] ${order.phone}</div>
-            <div style="font-size: 24px; font-weight: 900;">[方式] ${order.method}</div>
-            ${order.address ? `<div style="font-size: 24px; font-weight: 900;">[地址] ${order.address}</div>` : ''}
-            ${order.note ? `<div style="font-size: 24px; font-weight: 900;">[備註] ${order.note}</div>` : ''}
+            <div style="font-size: 18px; font-weight: 900;">[電話] ${order.phone}</div>
+            <div style="font-size: 18px; font-weight: 900;">[方式] ${order.method}</div>
+            ${order.address ? `<div style="font-size: 18px; font-weight: 900;">[地址] ${order.address}</div>` : ''}
+            ${order.note ? `<div style="font-size: 18px; font-weight: 900;">[備註] ${order.note}</div>` : ''}
             <div class="line"></div>
             ${itemsHtml}
             <div class="line"></div>
-            <div style="text-align: right; font-size: 32px; font-weight: 900;">總計: $${order.finalTotal}</div>
-            <div style="text-align: center; font-size: 20px; margin-top: 15px;">--- 謝謝光臨 ---</div>
-            <br><br>
+            <div style="text-align: right; font-size: 24px; font-weight: 900;">總計: $${order.finalTotal}</div>
+            <div style="text-align: center; font-size: 14px; margin-top: 10px;">--- 謝謝光臨 ---</div>
         `;
 
         setTimeout(() => {
