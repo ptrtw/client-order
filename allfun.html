@@ -19,6 +19,15 @@
         /* 頂部搜尋與導覽列容器 */
         .sticky-header-container { position: sticky; top: 0; z-index: 999; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         
+        /* 🔥 新增：雙擊彩蛋專用觸發列 (隱藏於最上方，對應瀏覽器標題區域) */
+        .secret-easter-egg-bar {
+            height: 24px;
+            width: 100%;
+            background: transparent;
+            cursor: default;
+            user-select: none;
+        }
+
         /* 搜尋列 */
         .search-container { padding: 16px 20px; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.3); }
         #search-input { width: 100%; padding: 14px 20px 14px 48px; border-radius: 40px; border: none; background: rgba(255, 255, 255, 0.5) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>') no-repeat 16px center; background-size: 22px; font-size: 1rem; color: #1e293b; box-shadow: 0 4px 20px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8); transition: all 0.3s cubic-bezier(0.2, 0, 0, 1); outline: none; }
@@ -133,6 +142,8 @@
 </div>
 
 <div class="sticky-header-container">
+    <!-- 🔥 綁定雙擊事件的隱藏彩蛋觸發區 (對應你截圖圈起來的頂部標題區域) -->
+    <div class="secret-easter-egg-bar" ondblclick="openSecretStaffPage()"></div>
     <div class="search-container">
         <input type="text" id="search-input" onkeyup="filterMenu()" placeholder="搜尋產品關鍵字...">
     </div>
@@ -330,7 +341,6 @@
     <div class="modal-content" style="text-align: center; padding: 30px 20px;">
         <h3 style="color: #d97706; margin-top: 0; font-size: 1.4rem;">🔄 等待付款中...</h3>
         <p style="margin: 15px 0; font-size: 1rem;">訂單已送出！請前往全支付完成轉帳<br>結帳金額為：<br><strong style="font-size: 1.8rem; color: #d32f2f;">$<span id="transit-amount">0</span></strong></p>
-        <!-- 🔥 修改了這裡的提示，告知客人已經自動帶入金額 -->
         <p style="font-size: 0.85rem; color: #06C755; font-weight: bold;">✅ 系統已自動帶入付款金額，請直接確認結帳即可</p>
         
         <button onclick="reportPaid()" style="width: 100%; padding: 15px; background: var(--brand-color); color: white; border: none; border-radius: 14px; font-weight: bold; margin-top: 20px; font-size: 1.1rem;">✅ 我已完成付款</button>
@@ -341,6 +351,16 @@
 <script>
     const LIFF_ID = "2010718024-7lUixuAF"; // 您的 LIFF ID
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
+
+    // 🔥 雙擊彩蛋：連入員工快速點餐網址
+    function openSecretStaffPage() {
+        const staffUrl = "https://liff.line.me/2010718024-5LLzGr1V";
+        if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
+            liff.openWindow({ url: staffUrl, external: true });
+        } else {
+            window.open(staffUrl, '_blank');
+        }
+    }
 
     // 預設資料 (避免雲端載入失敗時無畫面)
     const DEFAULT_TOPPING_PRICES = { M: { "珍珠": 5, "椰果": 5, "布丁": 15, "仙草凍": 5, "QQ": 5, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 }, L: { "珍珠": 10, "椰果": 10, "布丁": 15, "仙草凍": 10, "QQ": 10, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 } };
@@ -533,7 +553,6 @@
         currentSelect = { item, qty: 1, size: defaultSize, ice: null, sugar: null, toppings: [], teaSwap: "" };
         document.getElementById('modal-title').innerText = item.name;
         
-        // 🔥 新增：打開視窗時，預設數量為 1
         document.getElementById('item-qty').value = 1;
         
         const teaSwapSelect = document.getElementById('tea-swap-select');
@@ -590,16 +609,14 @@
         });
     }
 
-    // 🔥 新增：修改按鈕加減數量的邏輯（改為賦值到 input）
     function changeQty(diff) { 
         currentSelect.qty = Math.max(1, currentSelect.qty + diff); 
         document.getElementById('item-qty').value = currentSelect.qty; 
     }
 
-    // 🔥 新增：支援鍵盤手動輸入數量，並防止輸入負數或亂碼
     function manualChangeQty(val) {
         let num = parseInt(val);
-        if (isNaN(num) || num < 1) num = 1; // 如果亂打或小於 1，強制變回 1
+        if (isNaN(num) || num < 1) num = 1;
         currentSelect.qty = num;
         document.getElementById('item-qty').value = currentSelect.qty;
     }
@@ -687,7 +704,6 @@
         let payMethodEl = document.querySelector('input[name="payment-method"]:checked');
         let payMethod = payMethodEl ? payMethodEl.value : "現金";
         
-        // 抓取備註內容
         let noteEl = document.getElementById('order-note');
         let note = (noteEl && noteEl.value.trim()) ? noteEl.value.trim() : "";
 
@@ -760,7 +776,6 @@
                 document.getElementById('confirm-modal').style.display = 'none'; document.getElementById('transit-modal').style.display = 'flex'; document.getElementById('transit-amount').innerText = data.finalTotal;
                 alert("訂單已送出！\n\n📌 點擊確認後，將為您跳轉至全支付完成付款。");
                 
-                // 🔥 動態生成全支付連結，自動帶入結帳金額 data.finalTotal
                 const dynamicPxPayUrl = `https://service.pxpayplus.com/pxplus_redirect/page_redirect/jumj?memberCode=MC17320294&amount=${data.finalTotal}`;
                 liff.openWindow({ url: dynamicPxPayUrl, external: true });
             } else {
