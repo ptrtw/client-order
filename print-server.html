@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>清心福全 - 全自動出單中心 (Pro版)</title>
+<title>清心福全 - 自動出單監控中心</title>
 <style>
     body { font-family: sans-serif; background: #121212; color: #fff; text-align: center; padding: 20px; margin: 0; }
     .card { background: #1e1e1e; max-width: 500px; margin: 0 auto; padding: 30px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
@@ -11,22 +11,46 @@
     .status-online { background: #06C755; color: #fff; }
     .log-box { background: #000; color: #0f0; text-align: left; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; height: 250px; overflow-y: auto; margin-top: 20px; border: 1px solid #333; }
     .btn { background: #06C755; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%; }
-    .btn:active { background: #05a044; }
+
+    /* 預設隱藏，列印時才會浮現 */
+    #print-area { display: none; }
+
+    @media print {
+        body * { visibility: hidden; }
+        #print-area, #print-area * { visibility: visible; }
+        #print-area {
+            display: block !important;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 18px !important;  /* 80mm 專用大字 */
+            font-weight: bold !important;
+            color: #000 !important;
+            line-height: 1.2;
+            padding: 0;
+            margin: 0;
+        }
+    }
 </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>🚀 Pro 級靜默出單監控中</h2>
-    <div id="status" class="status-badge status-online">🟢 系統運作中（自動攔截新單）</div>
-    <p style="color: #aaa; font-size: 0.95rem;">請讓此畫面常駐於平板。收到訂單將自動直連印表機，不需手動確認。</p>
+    <h2>🖨️ 自動出單監控中</h2>
+    <div id="status" class="status-badge status-online">🟢 系統監控中（每 3 秒檢查一次）</div>
+    <p style="color: #aaa; font-size: 0.95rem;">請讓此畫面常駐於平板。收到新訂單將自動觸發列印。</p>
     
-    <button class="btn" onclick="testPrint()">⚡ 測試一鍵秒印</button>
+    <button class="btn" onclick="testPrint()">🧪 測試手動列印</button>
 
     <div class="log-box" id="log-container">
         [系統初始化] 準備就緒，監控雲端訂單中...<br>
     </div>
 </div>
+
+<!-- 80mm 熱感紙專屬排版區塊 -->
+<div id="print-area"></div>
 
 <script>
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
@@ -38,7 +62,6 @@
         box.scrollTop = box.scrollHeight;
     }
 
-    // 模擬測試訂單
     function testPrint() {
         addLog("▶️ 觸發測試列印...");
         let mockOrder = {
@@ -52,10 +75,9 @@
                 { item: { name: "烏龍綠茶" }, size: "L", qty: 1, price: 65, ice: "去冰", sugar: "無糖", toppings: [] }
             ]
         };
-        sendToRawBT(mockOrder);
+        triggerAutoPrint(mockOrder);
     }
 
-    // 每 3 秒問一次 Google 有沒有新訂單
     setInterval(checkForNewOrders, 3000);
 
     function checkForNewOrders() {
@@ -63,68 +85,46 @@
         .then(r => r.json())
         .then(data => {
             if (data && data.hasNewOrder) {
-                addLog(`🎉 收到新訂單！總計：$${data.order.finalTotal}，秒速出單中...`);
-                sendToRawBT(data.order);
+                addLog(`🎉 收到新訂單！總計：$${data.order.finalTotal}`);
+                triggerAutoPrint(data.order);
                 markOrderAsPrinted(data.order.orderId);
             }
         })
-        .catch(err => {}); // 網路波動不干擾畫面
+        .catch(err => {});
     }
 
-    // 終極解法：透過 WebSocket 把純文字直送 RawBT，呼叫出單機原生大字體
-    function sendToRawBT(order) {
-        // 組裝純文字訂單，使用印表機原生字體排版
-        let receiptText = "\n";
-        receiptText += "==============================\n";
-        receiptText += "      ★ 清心福全左營榮總店 ★      \n";
-        receiptText += "        【 網路自動接單 】        \n";
-        receiptText += "==============================\n";
-        receiptText += `📞 電話: ${order.phone}\n`;
-        receiptText += `🛵 方式: ${order.method}\n`;
-        if (order.address) receiptText += `📍 地址: ${order.address}\n`;
-        if (order.note) receiptText += `📝 備註: ${order.note}\n`;
-        receiptText += "------------------------------\n";
-        
-        // 迴圈印出品項
-        order.cartItems.forEach(i => {
-            receiptText += `[${i.item.name}] (${i.size}) x ${i.qty}\n`;
-            receiptText += `   $${i.price} | ${i.ice}/${i.sugar}`;
-            if(i.toppings && i.toppings.length > 0) {
-                receiptText += `+${i.toppings.join()}`;
-            }
-            receiptText += "\n\n"; // 品項之間空行
-        });
+    function triggerAutoPrint(order) {
+        let itemsHtml = order.cartItems.map(i => `
+            <div style="font-size: 19px; font-weight: bold; margin-top: 6px;">${i.item.name} (${i.size}) x${i.qty} $${i.price}</div>
+            <div style="font-size: 16px; font-weight: bold; margin-bottom: 4px;">　-> ${i.ice} / ${i.sugar} ${i.toppings.length ? '/加:'+i.toppings.join() : ''}</div>
+        `).join('');
 
-        receiptText += "------------------------------\n";
-        receiptText += `💰 總計金額: $${order.finalTotal}\n`;
-        receiptText += "==============================\n";
-        receiptText += "          --- 謝謝光臨 ---        \n";
-        receiptText += "\n\n\n\n\n"; // 多送出幾個換行把紙推出來方便撕
+        document.getElementById('print-area').innerHTML = `
+            <div style="text-align: center; font-size: 22px; font-weight: bold;">★ 清心福全左營榮總店 ★</div>
+            <div style="text-align: center; font-size: 16px;">【 網路新訂單 】</div>
+            <div style="border-bottom: 2px dashed #000; margin: 6px 0;"></div>
+            <div style="font-size: 16px;">📞 電話：${order.phone}</div>
+            <div style="font-size: 16px;">🛵 方式：${order.method}</div>
+            ${order.address ? `<div style="font-size: 16px;">📍 地址：${order.address}</div>` : ''}
+            ${order.note ? `<div style="font-size: 16px;">📝 備註：${order.note}</div>` : ''}
+            <div style="border-bottom: 2px dashed #000; margin: 6px 0;"></div>
+            ${itemsHtml}
+            <div style="border-bottom: 2px dashed #000; margin: 6px 0;"></div>
+            <div style="text-align: right; font-size: 22px; font-weight: bold;">總計: $${order.finalTotal}</div>
+            <div style="text-align: center; font-size: 14px; margin-top: 10px;">--- 謝謝光臨 ---</div>
+        `;
 
-        // 建立 WebSocket 連線，瞬間送出
-        try {
-            let ws = new WebSocket("ws://127.0.0.1:4022/");
-            
-            ws.onopen = function() {
-                ws.send(receiptText);
-                ws.close();
-                addLog("✅ 成功！指令已無聲送達出單機。");
-            };
-            
-            ws.onerror = function() {
-                addLog("❌ 無法連線出單機！請檢查 RawBT 裡的 WebSocket 是否有打勾開啟。");
-            };
-        } catch(e) {
-            addLog("❌ 系統發送失敗：" + e.message);
-        }
+        setTimeout(() => {
+            window.print();
+            addLog("✅ 已送出列印表單");
+        }, 300);
     }
 
-    // 通知雲端已列印
     function markOrderAsPrinted(orderId) {
         fetch(GAS_API_URL + "?action=markPrinted&id=" + orderId)
         .then(r => r.json())
         .then(res => {
-            addLog("☁️ 雲端狀態已同步為：已列印");
+            addLog("☁️ 雲端狀態已更新");
         });
     }
 </script>
