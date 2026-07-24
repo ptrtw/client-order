@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>清心福全自動出單監控中心</title>
+<style>
+    body { font-family: sans-serif; background: #f0f2f5; color: #333; text-align: center; padding: 30px; margin: 0; }
+    .card { background: white; max-width: 500px; margin: 0 auto; padding: 30px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .status-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 1.1rem; margin-bottom: 20px; }
+    .status-online { background: #e8f5e9; color: #06C755; }
+    .log-box { background: #1e293b; color: #38bdf8; text-align: left; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.85rem; height: 180px; overflow-y: auto; margin-top: 20px; }
+    .btn { background: #06C755; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%; }
+</style>
+</head>
+<body>
+
+<div class="card">
+    <h2>🖨️ 平板自動出單監控中</h2>
+    <div id="status" class="status-badge status-online">🟢 系統監控中（每 3 秒檢查一次）</div>
+    <p style="color: #666; font-size: 0.9rem;">請讓此分頁保持開啟，切勿關閉瀏覽器。<br>當有新訂單進來時，出單機將自動列印。</p>
+    
+    <button class="btn" onclick="testPrint()">🧪 測試手動列印</button>
+
+    <div class="log-box" id="log-container">
+        [系統初始化] 正在建立與雲端後台的連線...<br>
+    </div>
+</div>
+
+<script>
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
+    
+    function addLog(msg) {
+        const box = document.getElementById('log-container');
+        const time = new Date().toLocaleTimeString();
+        box.innerHTML += `[${time}] ${msg}<br>`;
+        box.scrollTop = box.scrollHeight;
+    }
+
+    // 模擬測試列印
+    function testPrint() {
+        addLog("正在發送測試列印指令...");
+        window.print();
+    }
+
+    // 背景輪詢機制：每 3 秒向 GAS 後台詢問是否有未列印的新訂單
+    setInterval(checkForNewOrders, 3000);
+
+    function checkForNewOrders() {
+        fetch(GAS_API_URL + "?action=getPendingOrders")
+        .then(r => r.json())
+        .then(data => {
+            if (data && data.hasNewOrder) {
+                addLog(`🎉 發現新訂單！金額：$${data.order.finalTotal}，正在觸發自動列印...`);
+                
+                // 1. 執行瀏覽器列印（這會直接驅動平板連接的區網 CK-710）
+                triggerAutoPrint(data.order);
+                
+                // 2. 回報雲端將該訂單標記為「已列印」，避免重複印
+                markOrderAsPrinted(data.order.orderId);
+            }
+        })
+        .catch(err => {
+            // 網路波動時不干擾畫面，僅在背景記錄
+        });
+    }
+
+    function triggerAutoPrint(order) {
+        // 這裡可以動態產生要列印的單據排版
+        let printWindow = window.open('', '_blank', 'width=300,height=600');
+        let itemsHtml = order.cartItems.map(i => `
+            <div style="display:flex; justify-content:space-between; margin:4px 0;">
+                <span>${i.item.name}(${i.size}) x${i.qty}</span>
+                <span>$${i.price}</span>
+            </div>
+            <div style="font-size:11px; color:#555;">${i.ice}/${i.sugar} ${i.toppings.length ? '/加:'+i.toppings.join() : ''}</div>
+        `).join('');
+
+        printWindow.document.write(`
+            <html>
+            <head><style>body{font-family:monospace; width:200px; padding:5px; margin:0; font-size:12px;}</style></head>
+            <body>
+                <h3 style="text-align:center; margin:0;">清心福全左營榮總店</h3>
+                <div style="text-align:center; border-bottom:1px dashed #000; padding-bottom:5px; margin-bottom:5px;">*** 網路自動接單 ***</div>
+                <div><strong>電話：</strong>${order.phone}</div>
+                <div><strong>方式：</strong>${order.method}</div>
+                ${order.address ? `<div><strong>地址：</strong>${order.address}</div>` : ''}
+                <div style="border-bottom:1px dashed #000; margin:5px 0;"></div>
+                ${itemsHtml}
+                <div style="border-bottom:1px dashed #000; margin:5px 0;"></div>
+                <div style="text-align:right; font-weight:bold; font-size:14px;">總計: $${order.finalTotal}</div>
+                <div style="text-align:center; margin-top:10px; font-size:10px;">謝謝光臨</div>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        
+        // 自動執行列印
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+            addLog("✅ 訂單已送出至出單機！");
+        }, 500);
+    }
+
+    function markOrderAsPrinted(orderId) {
+        fetch(GAS_API_URL + "?action=markPrinted&id=" + orderId)
+        .then(r => r.json())
+        .then(res => {
+            addLog("雲端狀態已更新為：已列印");
+        });
+    }
+</script>
+
+</body>
+</html>
