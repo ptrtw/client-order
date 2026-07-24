@@ -15,9 +15,8 @@
             --text-muted: #888888;
         }
         
-        /* 鎖死網頁高度，禁止整體滾動，完美支援手機的動態網址列 (100dvh) */
         html, body { 
-            height: 100vh; /* 備用 */
+            height: 100vh;
             height: 100dvh; 
             overflow: hidden; 
             display: flex; 
@@ -27,7 +26,6 @@
             -webkit-tap-highlight-color: transparent; 
         }
         
-        /* 頂部 Header (高度固定，不被壓縮) */
         .employee-header {
             flex-shrink: 0;
             background-color: var(--brand-color); color: white; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; font-weight: bold; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -35,7 +33,7 @@
         .header-actions { display: flex; gap: 10px; align-items: center; }
         .edit-btn { background: #ffffff; color: var(--text-main); border: none; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.2s; }
 
-        /* 導覽列與購物車 (同一行) */
+        /* 導覽列、購物車與測距按鈕 */
         .top-control-bar {
             flex-shrink: 0;
             display: flex;
@@ -51,6 +49,12 @@
             background: var(--brand-color); color: white;
             padding: 8px 14px; border-radius: 8px; font-weight: bold;
             font-size: 1rem; cursor: pointer; box-shadow: 0 2px 4px rgba(0,210,106,0.3);
+            white-space: nowrap;
+        }
+        /* 測距按鈕特殊樣式 */
+        .map-btn-top {
+            background: #4285F4; /* Google Map Blue */
+            box-shadow: 0 2px 4px rgba(66,133,244,0.3);
         }
         .top-nav-tabs { 
             flex-grow: 1; display: flex; gap: 6px; 
@@ -61,23 +65,14 @@
         }
         .top-nav-tabs .nav-btn.active { color: var(--brand-color); border-color: var(--brand-color); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-        /* 中間容器佔滿剩餘空間 */
         #menu-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            overflow-x: hidden;
-            scroll-behavior: smooth;
-            touch-action: pan-y;
+            flex-grow: 1; display: flex; flex-direction: column;
+            overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth; touch-action: pan-y;
         }
 
-        /* 員工專用 6欄 × 10行 (60格) 網格 */
         .menu-grid { 
-            flex-grow: 1;
-            display: none; 
-            grid-template-columns: repeat(6, 1fr); 
-            grid-template-rows: repeat(10, 1fr);
+            flex-grow: 1; display: none; 
+            grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(10, 1fr);
             gap: 4px; padding: 4px 8px 12px; background: var(--bg-color); 
         }
         .menu-grid.active { display: grid; }
@@ -106,18 +101,16 @@
         .modal-header h3 { margin: 0; font-size: 1.1rem; color: var(--text-main); }
         .close-btn { background: #f0f0f0; border: none; width: 26px; height: 26px; border-radius: 50%; font-size: 1rem; color: #666; cursor: pointer; }
         
-        /* 選項 UI */
         .opt-group { margin-bottom: 12px; }
         .opt-title { font-size: 0.85rem; font-weight: bold; color: var(--text-main); margin-bottom: 6px; }
         .opt-btns { display: flex; flex-wrap: wrap; gap: 5px; } 
         .opt-btn { background: #f5f6f8; color: var(--text-main); border: 1px solid transparent; padding: 6px 8px; border-radius: 15px; font-size: 0.8rem; cursor: pointer; text-align: center; transition: all 0.2s; white-space: nowrap; flex: 1; } 
         .opt-btn.active { background: var(--brand-light); color: var(--brand-color); border: 1px solid var(--brand-color); font-weight: bold; }
         
-        /* 大小按鈕改為固定尺寸，保留肌肉記憶 */
         #size-btns { display: flex; gap: 8px; justify-content: flex-start; }
-        #size-btns .opt-btn { flex: 0 0 75px; font-size: 0.9rem; } /* 取消 flex-grow，給定死寬度 */
+        #size-btns .opt-btn { flex: 0 0 75px; font-size: 0.9rem; } 
 
-        /* 全新 POS 網格 (冰塊/甜度/其他) */
+        /* POS 網格 */
         .pos-options-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
         .pos-col { display: flex; flex-direction: column; gap: 6px; }
         .pos-col-title { background: #f0f2f5; padding: 4px; font-size: 0.85rem; font-weight: bold; text-align: center; border-radius: 4px; color: #555; margin-bottom: 2px; }
@@ -136,16 +129,14 @@
         .option-price-display .price-unit { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); }
         .submit-btn { width: 100%; padding: 12px; background: var(--brand-color); color: white; border: none; border-radius: 14px; font-weight: bold; margin-top: 5px; cursor: pointer; }
 
-        /* 購物車列表 */
         .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f0f0f0; }
         .cart-item-info { flex-grow: 1; padding-right: 15px; }
         .cart-item-title { font-weight: bold; font-size: 1rem; margin-bottom: 4px; }
         .cart-item-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
         .cart-del-btn { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 15px; font-size: 0.85rem; }
-        #customer-phone, #customer-address, #invoice-number, #order-remark { width: 100%; font-family: inherit; margin: 5px 0 15px; padding: 12px; box-sizing: border-box; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; background: #f9f9f9; outline: none; }
-        #customer-phone:focus, #customer-address:focus, #invoice-number:focus, #order-remark:focus { border-color: var(--brand-color); background: #ffffff; }
+        #customer-phone, #customer-address, #invoice-number, #order-remark, #map-search-input { width: 100%; font-family: inherit; margin: 5px 0 15px; padding: 12px; box-sizing: border-box; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; background: #f9f9f9; outline: none; }
+        #customer-phone:focus, #customer-address:focus, #invoice-number:focus, #order-remark:focus, #map-search-input:focus { border-color: var(--brand-color); background: #ffffff; }
 
-        /* 發票與確認訂單 */
         .invoice-option-group { margin: 15px 0 10px 0; }
         .invoice-option-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
         .invoice-option-btns label { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.9rem; cursor: pointer; padding: 10px 6px; border-radius: 12px; border: 2px solid #e0e0e0; text-align: center; transition: all 0.2s; }
@@ -186,22 +177,47 @@
     </div>
 </div>
 
-<!-- 員工 POS 標題與導覽 -->
 <div class="employee-header">
     <div>快速點餐</div>
     <div class="header-actions">
         <button id="edit-btn" class="edit-btn" onclick="toggleEditMode()">⚙️ 編輯排版</button>
     </div>
 </div>
-<!-- 第一個要求：合併購物車與導覽列 -->
+
+<!-- 頂部控制列：加入測距按鈕 -->
 <div class="top-control-bar">
     <div class="cart-btn-top" onclick="showCart()">
         🛒 <span id="cart-counter" style="margin-left: 5px;">0</span>
+    </div>
+    <div class="cart-btn-top map-btn-top" onclick="openMapModal()">
+        📍 測距
     </div>
     <div class="top-nav-tabs" id="nav-bar"></div>
 </div>
 
 <div id="menu-content"></div>
+
+<!-- 📍 外送測距與地址 Modal -->
+<div id="map-modal" class="modal-overlay" onclick="if(event.target==this) this.style.display='none'">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>📍 外送測距與地址</h3>
+            <button class="close-btn" onclick="document.getElementById('map-modal').style.display='none'">✕</button>
+        </div>
+        <div class="opt-group">
+            <div class="opt-title">請輸入客人外送地址：</div>
+            <input type="text" id="map-search-input" placeholder="例如：大中一路123號">
+            
+            <div style="display: flex; gap: 10px; margin-top: 5px;">
+                <button onclick="checkDistance()" style="flex: 1; padding: 12px; background: #f0f2f5; color: #333; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;">🗺️ 開啟地圖測距</button>
+                <button onclick="applyAddressToCart()" style="flex: 1; padding: 12px; background: var(--brand-color); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;">✅ 帶入購物車</button>
+            </div>
+            <div style="font-size: 0.8rem; color: #888; margin-top: 12px; text-align: center; line-height: 1.4;">
+                💡 點擊「開啟地圖測距」會另開視窗自動規劃路線。<br>確認距離沒問題後，再點擊「帶入購物車」。
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- 點餐 Modal -->
 <div id="option-modal" class="modal-overlay" onclick="if(event.target==this) this.style.display='none'">
@@ -233,7 +249,6 @@
             </select>
         </div>
         
-        <!-- 第二個要求：大小按鈕固定尺寸 -->
         <div class="opt-group">
             <div class="opt-title">大小</div>
             <div style="display: flex; gap: 8px;">
@@ -243,9 +258,7 @@
             <input type="text" id="item-remark-input" placeholder="單杯備註 (例如：珍珠少一點)" style="display: none; width: 100%; margin-top: 8px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 0.9rem; background: #f9f9f9; outline: none; font-family: inherit;">
         </div>
         
-        <!-- 第三個要求：全新 POS 冰塊甜度網格介面 -->
         <div class="pos-options-container">
-            <!-- 冰塊列 -->
             <div class="pos-col">
                 <div class="pos-col-title">🧊 冰塊</div>
                 <button class="pos-btn ice-btn" data-val="去冰" onclick="setIce('去冰')">去冰</button>
@@ -254,7 +267,6 @@
                 <button class="pos-btn ice-btn" data-val="正常冰" onclick="setIce('正常冰')">正常冰</button>
                 <button class="pos-btn ice-btn" data-val="多冰" onclick="setIce('多冰')">多冰</button>
             </div>
-            <!-- 甜度列 -->
             <div class="pos-col">
                 <div class="pos-col-title">🍬 甜度</div>
                 <div id="fixed-sugar-msg" style="display:none; color:#c62828; font-size:0.75rem; text-align:center; padding:2px; font-weight:bold;">(固定甜度)</div>
@@ -264,7 +276,6 @@
                 <button class="pos-btn sugar-btn" data-val="少糖" onclick="setSugar('少糖')">少糖</button>
                 <button class="pos-btn sugar-btn" data-val="多糖" onclick="setSugar('多糖')">多糖</button>
             </div>
-            <!-- 其他列 -->
             <div class="pos-col">
                 <div class="pos-col-title">🔄 其他</div>
                 <select class="pos-btn sugar-btn" id="other-sugar-select" onchange="setSugar(this.value)">
@@ -316,7 +327,7 @@
                 <input type="radio" name="delivery-method" value="自取" onclick="toggleDeliveryAddress(false)" style="accent-color: var(--brand-color);" checked> 自取
             </label>
             <label style="display: flex; align-items: center; gap: 8px; font-size: 1rem; cursor: pointer;">
-                <input type="radio" name="delivery-method" value="外送" onclick="toggleDeliveryAddress(true)" style="accent-color: var(--brand-color);"> 外送
+                <input type="radio" name="delivery-method" id="delivery-radio-btn" value="外送" onclick="toggleDeliveryAddress(true)" style="accent-color: var(--brand-color);"> 外送
             </label>
         </div>
         <div id="address-container" style="display: none;">
@@ -324,7 +335,6 @@
             <input type="text" id="customer-address" placeholder="請輸入外送地址">
         </div>
         
-        <!-- 訂單備註 -->
         <div class="opt-title">📝 訂單備註 (選填)</div>
         <textarea id="order-remark" placeholder="例如：盡量不找零、請附提袋..." style="resize: vertical; min-height: 60px;"></textarea>
 
@@ -388,6 +398,43 @@
     let isEditMode = false;
     let sortableInstances = [];
     let currentCategoryIndex = 0;
+
+    // --- 📍 地圖測距相關功能 ---
+    function openMapModal() {
+        document.getElementById('map-modal').style.display = 'flex';
+        setTimeout(() => document.getElementById('map-search-input').focus(), 300);
+    }
+
+    function checkDistance() {
+        const storeAddress = "高雄市左營區榮總路29號";
+        const targetAddress = document.getElementById('map-search-input').value.trim();
+        if (!targetAddress) return alert("請先輸入客人地址！");
+        
+        // 組合 Google Maps 路線規劃網址並開啟新分頁
+        const mapUrl = `https://www.google.com/maps/dir/${encodeURIComponent(storeAddress)}/${encodeURIComponent(targetAddress)}`;
+        window.open(mapUrl, '_blank');
+    }
+
+    function applyAddressToCart() {
+        const targetAddress = document.getElementById('map-search-input').value.trim();
+        if (!targetAddress) return alert("請先輸入客人地址！");
+        
+        // 將地址帶入購物車欄位
+        document.getElementById('customer-address').value = targetAddress;
+        
+        // 切換為外送模式
+        const deliveryRadio = document.getElementById('delivery-radio-btn');
+        if (deliveryRadio) {
+            deliveryRadio.checked = true;
+            toggleDeliveryAddress(true);
+        }
+        
+        document.getElementById('map-modal').style.display = 'none';
+        
+        // 如果想順便打開購物車，可以把下面這行取消註解：
+        // showCart();
+    }
+    // ----------------------------
 
     function loadCloudConfig() {
         const cachedData = localStorage.getItem('pos_cloud_cache');
@@ -646,7 +693,6 @@
         }
     }
 
-    // --- POS 網格選取邏輯 ---
     function setIce(val) {
         if (document.querySelector(`.ice-btn[data-val="${val}"]`)?.disabled) return;
         currentSelect.ice = val;
@@ -689,13 +735,11 @@
 
         document.getElementById('option-modal').style.display = 'flex';
         
-        // 渲染 Size，由於 CSS 已改死寬度，不管幾個選項都能完美對齊
         renderBtns('size-btns', Object.keys(item.prices), (val) => { currentSelect.size = val; currentSelect.toppings = []; renderToppings(item, val); updateOptionPrice(); }, defaultSize);
         
-        // --- 冰塊防呆邏輯 ---
         let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : ["去冰", "微冰", "少冰", "正常冰", "多冰", "小碎冰", "常溫", "溫飲", "熱飲"];
         if (!item.customIce && (item.name.includes("優多") || item.name.includes("冰淇淋"))) {
-            iceOptions = iceOptions.filter(opt => opt !== "溫飲" && opt !== "熱飲"); // 這些不能做熱的
+            iceOptions = iceOptions.filter(opt => opt !== "溫飲" && opt !== "熱飲");
         }
         document.querySelectorAll('.ice-btn').forEach(btn => {
             btn.classList.remove('active');
@@ -704,7 +748,6 @@
             else btn.disabled = true;
         });
         
-        // --- 甜度防呆邏輯 ---
         let isFixedSugar = false;
         let sugarOptions = ["無糖", "微糖", "半糖", "少糖", "多糖", "1分糖", "3分糖", "4分糖", "6分糖", "7分糖"];
         if (item.customSugar && item.customSugar.length > 0) { 
@@ -724,7 +767,7 @@
             } else {
                 let val = btn.dataset.val;
                 if (btn.tagName === 'SELECT') {
-                    btn.disabled = false; // "其他"選項保持開啟
+                    btn.disabled = false; 
                 } else if (sugarOptions.includes(val)) {
                     btn.disabled = false;
                 } else {
@@ -733,12 +776,10 @@
             }
         });
 
-        // 固定甜度的標示顯示
         const fixedMsg = document.getElementById('fixed-sugar-msg');
         if (isFixedSugar) {
             currentSelect.sugar = "固定甜度";
             fixedMsg.style.display = "block";
-            // 讓標題與提示空間完美搭配
             fixedMsg.previousElementSibling.style.marginBottom = "0"; 
         } else {
             fixedMsg.style.display = "none";
