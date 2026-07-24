@@ -18,12 +18,12 @@
 <div class="card">
     <h2>🚀 背景自動秒印中</h2>
     <div id="status" class="status-badge status-online">🟢 系統監控中（每 3 秒檢查一次）</div>
-    <p style="color: #aaa; font-size: 0.95rem;">此畫面可保持開啟。收到新訂單將透過通道直驅 RawBT，不跳預覽！</p>
+    <p style="color: #aaa; font-size: 0.95rem;">此畫面可保持開啟。收到新訂單將透過隱藏通道直驅 RawBT！</p>
     
     <button class="btn" onclick="testPrint()">⚡ 測試背景秒印</button>
 
     <div class="log-box" id="log-container">
-        [系統初始化] 準備就緒，監控雲端訂單中...<br>
+        [系統初始化] 準備就緒,監控雲端訂單中...<br>
     </div>
 </div>
 
@@ -69,7 +69,7 @@
         .catch(err => {});
     }
 
-    // 🌟 透過 Android 專屬通訊協定直接喚醒 RawBT App 背景列印
+    // 🌟 隱藏 iframe 通道版
     function sendToRawBTApp(order) {
         let text = "\n";
         text += "==============================\n";
@@ -94,15 +94,21 @@
         text += "==============================\n";
         text += "         --- 謝謝光臨 ---         \n\n\n";
 
-        // 將組合好的文字轉為 Base64 格式打包
         let encodedText = btoa(unescape(encodeURIComponent(text)));
-        
-        // 呼叫 RawBT 專屬的 intent 連結，不需透過瀏覽器列印預覽
         let rawbtUrl = "rawbt:base64," + encodedText;
         
-        // 在背景偷偷切換或開啟通訊協定
-        window.location.href = rawbtUrl;
-        addLog("✅ 背景列印指令已拋給 RawBT！");
+        // 透過隱藏 iframe 悄悄拋送指令
+        let iframeId = "hidden-rawbt-frame";
+        let iframe = document.getElementById(iframeId);
+        if (!iframe) {
+            iframe = document.createElement("iframe");
+            iframe.id = iframeId;
+            iframe.style.display = "none";
+            document.body.appendChild(iframe);
+        }
+        iframe.src = rawbtUrl;
+        
+        addLog("✅ 背景通道已靜默送出指令！");
     }
 
     function markOrderAsPrinted(orderId) {
