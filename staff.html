@@ -33,7 +33,6 @@
         .header-actions { display: flex; gap: 10px; align-items: center; }
         .edit-btn { background: #ffffff; color: var(--text-main); border: none; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.2s; }
 
-        /* 導覽列、購物車與測距按鈕 */
         .top-control-bar {
             flex-shrink: 0;
             display: flex;
@@ -51,9 +50,8 @@
             font-size: 1rem; cursor: pointer; box-shadow: 0 2px 4px rgba(0,210,106,0.3);
             white-space: nowrap;
         }
-        /* 測距按鈕特殊樣式 */
         .map-btn-top {
-            background: #4285F4; /* Google Map Blue */
+            background: #4285F4;
             box-shadow: 0 2px 4px rgba(66,133,244,0.3);
         }
         .top-nav-tabs { 
@@ -81,7 +79,6 @@
         .pos-item:active { transform: scale(0.95); background: #f8f9fa; }
         .pos-item.empty-slot { background: transparent; box-shadow: none; border: 1px dashed rgba(0,0,0,0.04); cursor: default; }
 
-        /* ===== 編輯模式專屬樣式 ===== */
         body.edit-mode #menu-content { display: block; padding-bottom: 80px; }
         body.edit-mode .top-control-bar { display: none; } 
         body.edit-mode .menu-grid { display: grid !important; position: relative; margin: 20px 8px 15px; padding: 15px 4px 4px; border: 2px dashed #00d26a; border-radius: 10px; background: rgba(0,210,106,0.03); height: 85vh; }
@@ -92,7 +89,6 @@
         .dragging { opacity: 0.3; transform: scale(1.05); }
         .highlight-swap { background: rgba(0, 210, 106, 0.15) !important; border: 2px solid var(--brand-color) !important; border-radius: 4px; }
 
-        /* 底部彈窗 */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 2000; animation: fadeIn 0.2s ease-out; }
         .modal-content { background: #ffffff; width: 100%; max-width: 600px; padding: 15px; border-radius: 20px 20px 0 0; max-height: 90vh; overflow-y: auto; box-sizing: border-box; animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -110,7 +106,6 @@
         #size-btns { display: flex; gap: 8px; justify-content: flex-start; }
         #size-btns .opt-btn { flex: 0 0 75px; font-size: 0.9rem; } 
 
-        /* POS 網格 */
         .pos-options-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
         .pos-col { display: flex; flex-direction: column; gap: 6px; }
         .pos-col-title { background: #f0f2f5; padding: 4px; font-size: 0.85rem; font-weight: bold; text-align: center; border-radius: 4px; color: #555; margin-bottom: 2px; }
@@ -184,7 +179,6 @@
     </div>
 </div>
 
-<!-- 頂部控制列：加入測距按鈕 -->
 <div class="top-control-bar">
     <div class="cart-btn-top" onclick="showCart()">
         🛒 <span id="cart-counter" style="margin-left: 5px;">0</span>
@@ -399,7 +393,6 @@
     let sortableInstances = [];
     let currentCategoryIndex = 0;
 
-    // --- 📍 地圖測距相關功能 ---
     function openMapModal() {
         document.getElementById('map-modal').style.display = 'flex';
         setTimeout(() => document.getElementById('map-search-input').focus(), 300);
@@ -410,7 +403,6 @@
         const targetAddress = document.getElementById('map-search-input').value.trim();
         if (!targetAddress) return alert("請先輸入客人地址！");
         
-        // 組合 Google Maps 路線規劃網址並開啟新分頁
         const mapUrl = `https://www.google.com/maps/dir/${encodeURIComponent(storeAddress)}/${encodeURIComponent(targetAddress)}`;
         window.open(mapUrl, '_blank');
     }
@@ -419,10 +411,8 @@
         const targetAddress = document.getElementById('map-search-input').value.trim();
         if (!targetAddress) return alert("請先輸入客人地址！");
         
-        // 將地址帶入購物車欄位
         document.getElementById('customer-address').value = targetAddress;
         
-        // 切換為外送模式
         const deliveryRadio = document.getElementById('delivery-radio-btn');
         if (deliveryRadio) {
             deliveryRadio.checked = true;
@@ -430,11 +420,7 @@
         }
         
         document.getElementById('map-modal').style.display = 'none';
-        
-        // 如果想順便打開購物車，可以把下面這行取消註解：
-        // showCart();
     }
-    // ----------------------------
 
     function loadCloudConfig() {
         const cachedData = localStorage.getItem('pos_cloud_cache');
@@ -820,8 +806,9 @@
 
     function changeQty(diff) { currentSelect.qty = Math.max(1, currentSelect.qty + diff); document.getElementById('item-qty').innerText = currentSelect.qty; }
 
+    // 🔥 拿掉了冰塊與甜度的必選驗證
     function confirmAddToCart() {
-        if(!currentSelect.size || !currentSelect.ice || !currentSelect.sugar) return alert("請完整選擇所有選項 (大小、冰塊、甜度)");
+        if(!currentSelect.size) return alert("請至少選擇杯子大小！");
         
         currentSelect.remark = document.getElementById('item-remark-input').value.trim();
         
@@ -858,9 +845,14 @@
         if(cart.length > 0) {
             cart.forEach((item, index) => {
                 originalTotal += item.price; let unitPrice = item.price / item.qty; for(let i=0; i<item.qty; i++) allCups.push(unitPrice);
+                
+                // 🔥 如果沒有選，自動顯示為預設冰 / 預設甜
+                let iceStr = item.ice || "預設冰";
+                let sugarStr = item.sugar || "預設甜";
+                
                 let teaStr = item.teaSwap ? ` / ${item.teaSwap}` : ''; let toppingsStr = item.toppings.length ? ` / 加:${item.toppings.join(',')}` : '';
                 let remarkStr = item.remark ? ` / 📝${item.remark}` : '';
-                list.innerHTML += `<div class="cart-item"><div class="cart-item-info"><div class="cart-item-title">${item.item.name} (${item.size}) x ${item.qty}</div><div class="cart-item-desc">${item.ice} / ${item.sugar}${teaStr}${toppingsStr}${remarkStr}</div><div style="font-weight:bold; color:var(--brand-color); margin-top:4px;">$${item.price}</div></div><button class="cart-del-btn" onclick="removeFromCart(${index}); event.stopPropagation();">移除</button></div>`;
+                list.innerHTML += `<div class="cart-item"><div class="cart-item-info"><div class="cart-item-title">${item.item.name} (${item.size}) x ${item.qty}</div><div class="cart-item-desc">${iceStr} / ${sugarStr}${teaStr}${toppingsStr}${remarkStr}</div><div style="font-weight:bold; color:var(--brand-color); margin-top:4px;">$${item.price}</div></div><button class="cart-del-btn" onclick="removeFromCart(${index}); event.stopPropagation();">移除</button></div>`;
             });
         } else { list.innerHTML = '<div style="text-align:center; padding:30px; color:#999;">購物車空空的耶，來點杯飲料吧！</div>'; }
         
@@ -897,8 +889,10 @@
     function renderConfirmModal(data) {
         const listContainer = document.getElementById('confirm-order-list'); listContainer.innerHTML = '';
         data.cartItems.forEach((item) => {
+            let iceStr = item.ice || "預設冰";
+            let sugarStr = item.sugar || "預設甜";
             let remarkStr = item.remark ? ` / 📝${item.remark}` : '';
-            let details = `${item.ice} / ${item.sugar}`; if (item.teaSwap) details += ` / ${item.teaSwap}`; if (item.toppings.length) details += ` / 加:${item.toppings.join(',')}`; details += remarkStr;
+            let details = `${iceStr} / ${sugarStr}`; if (item.teaSwap) details += ` / ${item.teaSwap}`; if (item.toppings.length) details += ` / 加:${item.toppings.join(',')}`; details += remarkStr;
             listContainer.innerHTML += `<div class="confirm-order-item"><div class="item-left"><div class="item-name">${item.item.name} (${item.size}) x ${item.qty}</div><div class="item-detail">${details}</div></div><div class="item-price">$${item.price}</div></div>`;
         });
         let infoHTML = `<strong>📞 聯絡電話：</strong>${data.phone}<br><strong>🛵 取餐方式：</strong>${data.method}`;
@@ -919,8 +913,10 @@
 
         const data = confirmData;
         let allItemBoxes = data.cartItems.map(i => {
+            let iceStr = i.ice || "預設冰";
+            let sugarStr = i.sugar || "預設甜";
             let remarkStr = i.remark ? ` / 📝${i.remark}` : '';
-            let details = `👉 ${i.ice} / ${i.sugar}`; if (i.teaSwap) details += ` / ${i.teaSwap}`; if (i.toppings && i.toppings.length > 0) details += ` / 加:${i.toppings.join(',')}`; details += remarkStr;
+            let details = `👉 ${iceStr} / ${sugarStr}`; if (i.teaSwap) details += ` / ${i.teaSwap}`; if (i.toppings && i.toppings.length > 0) details += ` / 加:${i.toppings.join(',')}`; details += remarkStr;
             return { type: "box", layout: "vertical", margin: "sm", contents: [ { type: "box", layout: "baseline", contents: [ { type: "text", text: `${i.item.name}(${i.size}) x${i.qty}`, size: "sm", weight: "bold", flex: 3, wrap: true, color: "#1e293b" }, { type: "text", text: `$${i.price}`, size: "sm", align: "end", flex: 1, weight: "bold", color: "#06C755" } ]}, { type: "box", layout: "baseline", margin: "xs", contents: [ { type: "text", text: details, size: "xs", color: "#64748b", flex: 1, wrap: true } ]} ] };
         });
 
