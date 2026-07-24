@@ -11,6 +11,26 @@
     .status-online { background: #e8f5e9; color: #06C755; }
     .log-box { background: #1e293b; color: #38bdf8; text-align: left; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.85rem; height: 180px; overflow-y: auto; margin-top: 20px; }
     .btn { background: #06C755; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%; }
+
+    /* 預設隱藏，只有在列印時才會浮現出來給熱感應機印 */
+    #print-area { display: none; }
+
+    @media print {
+        body * { visibility: hidden; }
+        #print-area, #print-area * { visibility: visible; }
+        #print-area {
+            display: block !important;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            font-family: monospace;
+            font-size: 14px;
+            font-weight: bold;
+            color: #000;
+            padding: 5px;
+        }
+    }
 </style>
 </head>
 <body>
@@ -27,6 +47,9 @@
     </div>
 </div>
 
+<!-- 專門用來給熱感應機列印的隱藏單據容器 -->
+<div id="print-area"></div>
+
 <script>
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
     
@@ -37,7 +60,6 @@
         box.scrollTop = box.scrollHeight;
     }
 
-    // 測試手動列印
     function testPrint() {
         addLog("正在發送測試列印指令...");
         let mockOrder = {
@@ -69,47 +91,32 @@
     }
 
     function triggerAutoPrint(order) {
-        let printWindow = window.open('', '_blank', 'width=300,height=600');
-        
         let itemsHtml = order.cartItems.map(i => `
             <div style="font-size: 15px; font-weight: bold; margin-top: 6px;">${i.item.name} (${i.size}) x ${i.qty}  $${i.price}</div>
             <div style="font-size: 13px; font-weight: bold; color: #000; margin-bottom: 4px;">　-> ${i.ice} / ${i.sugar} ${i.toppings.length ? '/ 加:'+i.toppings.join() : ''}</div>
         `).join('');
 
-        printWindow.document.write(`
-            <html>
-            <head>
-                <style>
-                    body { font-family: monospace; width: 100%; padding: 0; margin: 0; font-size: 14px; font-weight: bold; color: #000; }
-                    .center { text-align: center; }
-                    .bold { font-weight: 900; }
-                    .line { border-bottom: 2px dashed #000; margin: 8px 0; }
-                </style>
-            </head>
-            <body>
-                <div class="center" style="font-size: 18px;" class="bold">★ 清心福全左營榮總店 ★</div>
-                <div class="center" style="font-size: 13px;">【 網路新訂單 】</div>
-                <div class="line"></div>
-                <div style="font-size: 14px;">📞 電話：${order.phone}</div>
-                <div style="font-size: 14px;">🛵 方式：${order.method}</div>
-                ${order.address ? `<div style="font-size: 14px;">📍 地址：${order.address}</div>` : ''}
-                ${order.note ? `<div style="font-size: 14px; color: #000;">📝 備註：${order.note}</div>` : ''}
-                <div class="line"></div>
-                ${itemsHtml}
-                <div class="line"></div>
-                <div style="text-align: right; font-size: 18px;" class="bold">總計: $${order.finalTotal}</div>
-                <div class="center" style="font-size: 12px; margin-top: 15px;">--- 謝謝光臨 ---</div>
-            </body>
-            </html>
-        `);
-        printWindow.document.close();
-        printWindow.focus();
-        
+        // 將訂單內容塞入隱藏的列印區塊
+        document.getElementById('print-area').innerHTML = `
+            <div style="text-align: center; font-size: 18px; font-weight: 900;">★ 清心福全左營榮總店 ★</div>
+            <div style="text-align: center; font-size: 13px;">【 網路新訂單 】</div>
+            <div style="border-bottom: 2px dashed #000; margin: 8px 0;"></div>
+            <div style="font-size: 14px;">📞 電話：${order.phone}</div>
+            <div style="font-size: 14px;">🛵 方式：${order.method}</div>
+            ${order.address ? `<div style="font-size: 14px;">📍 地址：${order.address}</div>` : ''}
+            ${order.note ? `<div style="font-size: 14px; color: #000;">📝 備註：${order.note}</div>` : ''}
+            <div style="border-bottom: 2px dashed #000; margin: 8px 0;"></div>
+            ${itemsHtml}
+            <div style="border-bottom: 2px dashed #000; margin: 8px 0;"></div>
+            <div style="text-align: right; font-size: 18px; font-weight: 900;">總計: $${order.finalTotal}</div>
+            <div style="text-align: center; font-size: 12px; margin-top: 15px;">--- 謝謝光臨 ---</div>
+        `;
+
+        // 直接呼叫瀏覽器列印當前頁面（CSS 會自動只抓取 print-area 裡面的內容）
         setTimeout(() => {
-            printWindow.print();
-            printWindow.close();
-            addLog("✅ 訂單已送出至出單機！");
-        }, 500);
+            window.print();
+            addLog("✅ 列印指令已送出！");
+        }, 300);
     }
 
     function markOrderAsPrinted(orderId) {
