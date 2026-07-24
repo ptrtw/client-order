@@ -106,6 +106,7 @@
         #size-btns { display: flex; gap: 8px; justify-content: flex-start; }
         #size-btns .opt-btn { flex: 0 0 75px; font-size: 0.9rem; } 
 
+        /* 🔥 改為 4 欄式的 POS 矩陣排版 */
         .pos-options-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 15px; }
         .pos-col { display: flex; flex-direction: column; gap: 5px; }
         .pos-col-title { background: #f0f2f5; padding: 4px; font-size: 0.8rem; font-weight: bold; text-align: center; border-radius: 4px; color: #555; margin-bottom: 2px; }
@@ -251,7 +252,9 @@
             <input type="text" id="item-remark-input" placeholder="單杯備註 (例如：珍珠少一點)" style="display: none; width: 100%; margin-top: 8px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 0.9rem; background: #f9f9f9; outline: none; font-family: inherit;">
         </div>
         
+        <!-- 🔥 依照照片復刻的 4 欄式直覺 POS 矩陣 -->
         <div class="pos-options-container">
+            <!-- 第 1 欄：冰塊 -->
             <div class="pos-col">
                 <div class="pos-col-title">冰塊</div>
                 <button class="pos-btn ice-btn" data-val="去冰" onclick="setIce('去冰')">去冰</button>
@@ -260,6 +263,7 @@
                 <button class="pos-btn ice-btn" data-val="正常冰" onclick="setIce('正常冰')">正常冰</button>
                 <button class="pos-btn ice-btn" data-val="多冰" onclick="setIce('多冰')">多冰</button>
             </div>
+            <!-- 第 2 欄：甜度 1 -->
             <div class="pos-col">
                 <div class="pos-col-title">甜度</div>
                 <button class="pos-btn sugar-btn" data-val="無糖" onclick="setSugar('無糖')">無糖</button>
@@ -268,6 +272,7 @@
                 <button class="pos-btn sugar-btn" data-val="八分糖" onclick="setSugar('八分糖')">八分糖</button>
                 <button class="pos-btn sugar-btn" data-val="多糖" onclick="setSugar('多糖')">多糖</button>
             </div>
+            <!-- 第 3 欄：甜度 2 -->
             <div class="pos-col">
                 <div class="pos-col-title">其他甜</div>
                 <button class="pos-btn sugar-btn" data-val="1分糖" onclick="setSugar('1分糖')">1分糖</button>
@@ -276,6 +281,7 @@
                 <button class="pos-btn sugar-btn" data-val="6分糖" onclick="setSugar('6分糖')">6分糖</button>
                 <button class="pos-btn sugar-btn" data-val="7分糖" onclick="setSugar('7分糖')">7分糖</button>
             </div>
+            <!-- 第 4 欄：其他 / 溫度 -->
             <div class="pos-col">
                 <div class="pos-col-title">溫度</div>
                 <button class="pos-btn ice-btn" data-val="全部" onclick="setIce('全部')">全部</button>
@@ -507,17 +513,7 @@
         checkStoreStatus(); 
     }
 
-    // 🔥 升級版 LIFF 初始化：自動檢查登入並帶入 Token，防止 403 權限不足
-    liff.init({ liffId: LIFF_ID }).then(() => { 
-        if (!liff.isLoggedIn()) {
-            liff.login(); 
-        } else {
-            loadCloudConfig();
-        }
-    }).catch((err) => {
-        console.error("LIFF 初始化失敗", err);
-        loadCloudConfig();
-    });
+    liff.init({ liffId: LIFF_ID }).then(() => { if (!liff.isLoggedIn()) liff.login(); else loadCloudConfig(); }).catch(() => loadCloudConfig());
 
     function toggleEditMode() {
         isEditMode = !isEditMode;
@@ -539,7 +535,7 @@
                     ghostClass: 'dragging'
                 }));
             });
-            alert("進入編輯模式！\n\n長按飲料方塊可互相「交換位置」或移至空格。\n排版完成後請按右上角專用按鈕儲存。");
+            alert("進入編輯模式！\n\n長按飲料方塊可互相「交換位置」或移至空格。\n排版完成後請按右上角「儲存鎖定」。");
         } else {
             btn.innerHTML = "⏳ 儲存中...";
             btn.style.color = "var(--text-main)";
@@ -558,7 +554,7 @@
                 method: "POST",
                 body: JSON.stringify(newLayout)
             }).then(r => r.json()).then(res => {
-                alert("排版已成功同步到雲端！");
+                alert("排版已成功同步到雲端！全店手機都會自動更新！");
                 location.reload(); 
             }).catch(err => {
                 alert("雲端同步失敗，但已為您暫存於本機。");
@@ -573,9 +569,16 @@
     function switchCategory(targetIdx) {
         if (isEditMode) return;
         if (targetIdx < 0 || targetIdx >= menuData.length) return;
+        
         currentCategoryIndex = targetIdx;
-        document.querySelectorAll('.nav-btn').forEach((b, idx) => b.classList.toggle('active', idx === currentCategoryIndex));
-        document.querySelectorAll('.menu-grid').forEach((g, idx) => g.classList.toggle('active', idx === currentCategoryIndex));
+        
+        document.querySelectorAll('.nav-btn').forEach((b, idx) => {
+            b.classList.toggle('active', idx === currentCategoryIndex);
+        });
+        
+        document.querySelectorAll('.menu-grid').forEach((g, idx) => {
+            g.classList.toggle('active', idx === currentCategoryIndex);
+        });
     }
 
     function renderMenu() {
@@ -614,13 +617,17 @@
             });
             container.appendChild(grid);
         });
+        
         initSwipeGesture();
         updateCounter();
     }
 
     function initSwipeGesture() {
         const container = document.getElementById('menu-content');
-        let touchStartX = 0, touchStartY = 0, touchEndX = 0, touchEndY = 0;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
 
         container.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
@@ -629,8 +636,10 @@
 
         container.addEventListener('touchend', (e) => {
             if (isEditMode) return; 
+            
             touchEndX = e.changedTouches[0].screenX;
             touchEndY = e.changedTouches[0].screenY;
+            
             const diffX = touchEndX - touchStartX;
             const diffY = touchEndY - touchStartY;
             
@@ -698,6 +707,7 @@
         
         document.getElementById('modal-title').innerText = item.name;
         document.getElementById('item-qty').innerText = 1;
+        
         document.getElementById('item-remark-input').value = "";
         document.getElementById('item-remark-input').style.display = "none";
         document.getElementById('item-remark-btn').classList.remove('active');
@@ -707,6 +717,7 @@
         else { teaSwapSelect.style.display = 'none'; }
 
         document.getElementById('option-modal').style.display = 'flex';
+        
         renderBtns('size-btns', Object.keys(item.prices), (val) => { currentSelect.size = val; currentSelect.toppings = []; renderToppings(item, val); updateOptionPrice(); }, defaultSize);
         
         let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : ["去冰", "微冰", "少冰", "正常冰", "多冰", "全部", "小碎冰", "常溫", "溫飲", "熱飲"];
@@ -786,7 +797,9 @@
 
     function confirmAddToCart() {
         if(!currentSelect.size) return alert("請至少選擇杯子大小！");
+        
         currentSelect.remark = document.getElementById('item-remark-input').value.trim();
+        
         let basePrice = currentSelect.item.prices[currentSelect.size];
         let activeToppings = toppingPrices[currentSelect.size] || {};
         if (currentSelect.item.customToppings && currentSelect.item.customToppings[currentSelect.size]) { activeToppings = currentSelect.item.customToppings[currentSelect.size]; }
@@ -820,8 +833,10 @@
         if(cart.length > 0) {
             cart.forEach((item, index) => {
                 originalTotal += item.price; let unitPrice = item.price / item.qty; for(let i=0; i<item.qty; i++) allCups.push(unitPrice);
+                
                 let iceStr = item.ice || "預設冰";
                 let sugarStr = item.sugar || "預設甜";
+                
                 let teaStr = item.teaSwap ? ` / ${item.teaSwap}` : ''; let toppingsStr = item.toppings.length ? ` / 加:${item.toppings.join(',')}` : '';
                 let remarkStr = item.remark ? ` / 📝${item.remark}` : '';
                 list.innerHTML += `<div class="cart-item"><div class="cart-item-info"><div class="cart-item-title">${item.item.name} (${item.size}) x ${item.qty}</div><div class="cart-item-desc">${iceStr} / ${sugarStr}${teaStr}${toppingsStr}${remarkStr}</div><div style="font-weight:bold; color:var(--brand-color); margin-top:4px;">$${item.price}</div></div><button class="cart-del-btn" onclick="removeFromCart(${index}); event.stopPropagation();">移除</button></div>`;
@@ -845,6 +860,7 @@
         if (invoiceOption === 'uniform') { const num = document.getElementById('invoice-number').value.trim(); if (!num || num.length !== 8) { alert("請輸入正確的 8 位統一編號！"); return; } invoiceNumber = num; }
         
         let orderRemark = document.getElementById('order-remark').value.trim();
+        
         let methodEl = document.querySelector('input[name="delivery-method"]:checked'); let method = methodEl ? methodEl.value : "自取";
         let address = method === "外送" ? document.getElementById('customer-address').value.trim() : "";
         let allCups = []; let originalTotal = 0; cart.forEach((item) => { originalTotal += item.price; let unitPrice = item.price / item.qty; for (let i = 0; i < item.qty; i++) allCups.push(unitPrice); });
@@ -877,14 +893,8 @@
     function closeConfirmModal() { document.getElementById('confirm-modal').style.display = 'none'; document.getElementById('cart-modal').style.display = 'flex'; updateCartUI(); }
 
     async function sendToLine() {
-        if (!liff.isInClient()) {
-            alert("請透過 LINE 應用程式開啟此頁面以發送訂單。");
-            return;
-        }
-        if (!liff.isLoggedIn()) {
-            liff.login();
-            return;
-        }
+        if (!liff.isInClient()) return alert("請在 LINE 聊天室內開啟此頁面，否則無法送出訂單。");
+        if (!liff.isLoggedIn()) { alert("尚未登入 LINE，即將跳轉。"); liff.login(); return; }
         if (isStoreCurrentlyClosed) return alert("⚠️ 目前為非營業時間，暫不開放結帳！");
         if (!confirmData || confirmData.cartItems.length === 0) return alert("訂單資料有誤，請重新操作。");
 
