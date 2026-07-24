@@ -452,7 +452,6 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         Object.entries(topMap).forEach(([name, price]) => { let b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = `${name} +$${price}`; b.onclick = () => { b.classList.toggle('active'); if(b.classList.contains('active')) staffSelect.toppings.push(name); else staffSelect.toppings = staffSelect.toppings.filter(t=>t!==name); updateStaffPrice(); }; c.appendChild(b); });
     }
     
-    // 🔥 關鍵修正：員工版加入購物車後，留在員工快速點餐介面，不關閉背景
     function staffConfirmAddToCart() {
         if(!staffSelect.size) return alert("請選擇大小！");
         let base = staffSelect.item.prices[staffSelect.size]; let topMap = toppingPrices[staffSelect.size] || {};
@@ -460,7 +459,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         let topCost = staffSelect.toppings.reduce((sum, t) => sum + (topMap[t]||0), 0); let finalIce = staffSelect.ice || "預設冰"; let finalSugar = staffSelect.sugar || "預設甜";
         cart.push({ item: staffSelect.item, size: staffSelect.size, qty: staffSelect.qty, ice: finalIce, sugar: finalSugar, toppings: staffSelect.toppings, teaSwap: "", price: (base + topCost) * staffSelect.qty });
         updateCounter(); 
-        document.getElementById('staff-option-modal').style.display = 'none'; // 只關閉單品選項視窗，保留員工面板繼續點餐！
+        document.getElementById('staff-option-modal').style.display = 'none'; 
     }
 
     // ================= 🍹 一般客戶邏輯 =================
@@ -528,7 +527,14 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
 
     // ================= 🛒 購物車與結帳邏輯 =================
     function updateCounter() {
-        document.getElementById('cart-counter').innerText = cart.length; document.getElementById('staff-cart-counter').innerText = cart.length; document.getElementById('cart-total-preview').innerText = `$${cart.reduce((s,i)=>s+i.price,0)}`; try { localStorage.setItem('pos_cart_data', JSON.stringify(cart)); } catch(e){}
+        document.getElementById('cart-counter').innerText = cart.length; 
+        document.getElementById('staff-cart-counter').innerText = cart.length; 
+        document.getElementById('cart-total-preview').innerText = `$${cart.reduce((s,i)=>s+i.price,0)}`; 
+        try { localStorage.setItem('pos_cart_data', JSON.stringify(cart)); } catch(e){}
+        // 🔥 自動更新購物車明細介面，確保品項隨時同步
+        if(document.getElementById('cart-modal').style.display === 'flex') {
+            updateCartUI();
+        }
     }
     function selectInvoiceOption(opt) {
         invoiceOption = opt; document.querySelectorAll('.invoice-option-btns label').forEach(el=>el.classList.remove('active'));
