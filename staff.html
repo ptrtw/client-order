@@ -106,13 +106,13 @@
         #size-btns { display: flex; gap: 8px; justify-content: flex-start; }
         #size-btns .opt-btn { flex: 0 0 75px; font-size: 0.9rem; } 
 
-        .pos-options-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
-        .pos-col { display: flex; flex-direction: column; gap: 6px; }
-        .pos-col-title { background: #f0f2f5; padding: 4px; font-size: 0.85rem; font-weight: bold; text-align: center; border-radius: 4px; color: #555; margin-bottom: 2px; }
-        .pos-btn { padding: 10px 2px; border-radius: 8px; border: 1px solid #dcdcdc; background: #fff; font-size: 0.85rem; cursor: pointer; color: #333; transition: all 0.1s; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+        /* 🔥 改為 4 欄式的 POS 矩陣排版 */
+        .pos-options-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 15px; }
+        .pos-col { display: flex; flex-direction: column; gap: 5px; }
+        .pos-col-title { background: #f0f2f5; padding: 4px; font-size: 0.8rem; font-weight: bold; text-align: center; border-radius: 4px; color: #555; margin-bottom: 2px; }
+        .pos-btn { padding: 9px 2px; border-radius: 6px; border: 1px solid #dcdcdc; background: #fff; font-size: 0.8rem; cursor: pointer; color: #333; transition: all 0.1s; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
         .pos-btn.active { background: var(--brand-light); border-color: var(--brand-color); color: var(--brand-color); font-weight: bold; }
         .pos-btn:disabled { opacity: 0.35; cursor: not-allowed; background: #f9f9f9; border-color: #eee; }
-        select.pos-btn { appearance: none; -webkit-appearance: none; outline: none; padding-right: 15px; background-image: url('data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position-x: 95%; background-position-y: center; background-size: 14px; }
         
         .top-ctrl-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 8px; }
         .top-ctrl-left { display: flex; align-items: center; gap: 10px; }
@@ -252,40 +252,46 @@
             <input type="text" id="item-remark-input" placeholder="單杯備註 (例如：珍珠少一點)" style="display: none; width: 100%; margin-top: 8px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 0.9rem; background: #f9f9f9; outline: none; font-family: inherit;">
         </div>
         
+        <!-- 🔥 依照照片復刻的 4 欄式直覺 POS 矩陣 -->
         <div class="pos-options-container">
+            <!-- 第 1 欄：冰塊 -->
             <div class="pos-col">
-                <div class="pos-col-title">🧊 冰塊</div>
+                <div class="pos-col-title">冰塊</div>
                 <button class="pos-btn ice-btn" data-val="去冰" onclick="setIce('去冰')">去冰</button>
                 <button class="pos-btn ice-btn" data-val="微冰" onclick="setIce('微冰')">微冰</button>
                 <button class="pos-btn ice-btn" data-val="少冰" onclick="setIce('少冰')">少冰</button>
                 <button class="pos-btn ice-btn" data-val="正常冰" onclick="setIce('正常冰')">正常冰</button>
                 <button class="pos-btn ice-btn" data-val="多冰" onclick="setIce('多冰')">多冰</button>
             </div>
+            <!-- 第 2 欄：甜度 1 -->
             <div class="pos-col">
-                <div class="pos-col-title">🍬 甜度</div>
-                <div id="fixed-sugar-msg" style="display:none; color:#c62828; font-size:0.75rem; text-align:center; padding:2px; font-weight:bold;">(固定甜度)</div>
+                <div class="pos-col-title">甜度</div>
                 <button class="pos-btn sugar-btn" data-val="無糖" onclick="setSugar('無糖')">無糖</button>
                 <button class="pos-btn sugar-btn" data-val="微糖" onclick="setSugar('微糖')">微糖</button>
                 <button class="pos-btn sugar-btn" data-val="半糖" onclick="setSugar('半糖')">半糖</button>
                 <button class="pos-btn sugar-btn" data-val="八分糖" onclick="setSugar('八分糖')">八分糖</button>
                 <button class="pos-btn sugar-btn" data-val="多糖" onclick="setSugar('多糖')">多糖</button>
             </div>
+            <!-- 第 3 欄：甜度 2 -->
             <div class="pos-col">
-                <div class="pos-col-title">🔄 其他</div>
-                <select class="pos-btn sugar-btn" id="other-sugar-select" onchange="setSugar(this.value)">
-                    <option value="" disabled selected>其他甜度</option>
-                    <option value="1分糖">1分糖</option>
-                    <option value="3分糖">3分糖</option>
-                    <option value="4分糖">4分糖</option>
-                    <option value="6分糖">6分糖</option>
-                    <option value="7分糖">7分糖</option>
-                </select>
+                <div class="pos-col-title">其他甜</div>
+                <button class="pos-btn sugar-btn" data-val="1分糖" onclick="setSugar('1分糖')">1分糖</button>
+                <button class="pos-btn sugar-btn" data-val="3分糖" onclick="setSugar('3分糖')">3分糖</button>
+                <button class="pos-btn sugar-btn" data-val="4分糖" onclick="setSugar('4分糖')">4分糖</button>
+                <button class="pos-btn sugar-btn" data-val="6分糖" onclick="setSugar('6分糖')">6分糖</button>
+                <button class="pos-btn sugar-btn" data-val="7分糖" onclick="setSugar('7分糖')">7分糖</button>
+            </div>
+            <!-- 第 4 欄：其他 / 溫度 -->
+            <div class="pos-col">
+                <div class="pos-col-title">溫度</div>
+                <button class="pos-btn ice-btn" data-val="全部" onclick="setIce('全部')">全部</button>
                 <button class="pos-btn ice-btn" data-val="小碎冰" onclick="setIce('小碎冰')">小碎冰</button>
                 <button class="pos-btn ice-btn" data-val="常溫" onclick="setIce('常溫')">常溫</button>
                 <button class="pos-btn ice-btn" data-val="溫飲" onclick="setIce('溫飲')">溫飲</button>
                 <button class="pos-btn ice-btn" data-val="熱飲" onclick="setIce('熱飲')">熱飲</button>
             </div>
         </div>
+        <div id="fixed-sugar-msg" style="display:none; color:#c62828; font-size:0.75rem; text-align:center; padding:2px; font-weight:bold; margin-bottom: 8px;">(固定甜度)</div>
 
         <div class="opt-group"><div class="opt-title">加料</div><div id="topping-btns" class="opt-btns"></div></div>
         <button class="submit-btn" onclick="confirmAddToCart()">加入購物車</button>
@@ -688,20 +694,11 @@
     }
 
     function setSugar(val) {
-        if (document.querySelector(`.sugar-btn[data-val="${val}"]`)?.disabled && !val.includes("分糖")) return;
+        if (document.querySelector(`.sugar-btn[data-val="${val}"]`)?.disabled) return;
         currentSelect.sugar = val;
-        document.querySelectorAll('.sugar-btn').forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.tagName === 'SELECT') btn.selectedIndex = 0; 
-        });
+        document.querySelectorAll('.sugar-btn').forEach(btn => btn.classList.remove('active'));
         const activeBtn = document.querySelector(`.sugar-btn[data-val="${val}"]`);
-        if (activeBtn) {
-            activeBtn.classList.add('active');
-        } else if (val.includes("分糖")) {
-            const sel = document.getElementById('other-sugar-select');
-            sel.value = val;
-            sel.classList.add('active');
-        }
+        if (activeBtn) activeBtn.classList.add('active');
     }
 
     function openModal(item) {
@@ -723,7 +720,7 @@
         
         renderBtns('size-btns', Object.keys(item.prices), (val) => { currentSelect.size = val; currentSelect.toppings = []; renderToppings(item, val); updateOptionPrice(); }, defaultSize);
         
-        let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : ["去冰", "微冰", "少冰", "正常冰", "多冰", "小碎冰", "常溫", "溫飲", "熱飲"];
+        let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : ["去冰", "微冰", "少冰", "正常冰", "多冰", "全部", "小碎冰", "常溫", "溫飲", "熱飲"];
         if (!item.customIce && (item.name.includes("優多") || item.name.includes("冰淇淋"))) {
             iceOptions = iceOptions.filter(opt => opt !== "溫飲" && opt !== "熱飲");
         }
@@ -735,7 +732,6 @@
         });
         
         let isFixedSugar = false;
-        // 🔥 將允許的甜度清單同步更新為 "八分糖"
         let sugarOptions = ["無糖", "微糖", "半糖", "八分糖", "多糖", "1分糖", "3分糖", "4分糖", "6分糖", "7分糖"];
         if (item.customSugar && item.customSugar.length > 0) { 
             if (item.customSugar[0] === "固定甜度") isFixedSugar = true; 
@@ -747,19 +743,13 @@
 
         document.querySelectorAll('.sugar-btn').forEach(btn => {
             btn.classList.remove('active');
-            if(btn.tagName === 'SELECT') btn.selectedIndex = 0;
-
+            let val = btn.dataset.val;
             if (isFixedSugar) {
                 btn.disabled = true;
+            } else if (sugarOptions.includes(val)) {
+                btn.disabled = false;
             } else {
-                let val = btn.dataset.val;
-                if (btn.tagName === 'SELECT') {
-                    btn.disabled = false; 
-                } else if (sugarOptions.includes(val)) {
-                    btn.disabled = false;
-                } else {
-                    btn.disabled = true;
-                }
+                btn.disabled = true;
             }
         });
 
@@ -767,10 +757,8 @@
         if (isFixedSugar) {
             currentSelect.sugar = "固定甜度";
             fixedMsg.style.display = "block";
-            fixedMsg.previousElementSibling.style.marginBottom = "0"; 
         } else {
             fixedMsg.style.display = "none";
-            fixedMsg.previousElementSibling.style.marginBottom = "2px";
         }
 
         renderToppings(item, defaultSize); 
