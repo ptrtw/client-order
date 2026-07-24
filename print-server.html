@@ -18,7 +18,7 @@
 <div class="card">
     <h2>🚀 背景自動秒印中</h2>
     <div id="status" class="status-badge status-online">🟢 系統監控中（每 3 秒檢查一次）</div>
-    <p style="color: #aaa; font-size: 0.95rem;">此畫面可保持開啟。收到新訂單將自動直驅 RawBT 列印！</p>
+    <p style="color: #aaa; font-size: 0.95rem;">此畫面可保持開啟。收到新訂單將透過 Intent 協議直驅 RawBT！</p>
     
     <button class="btn" onclick="testPrint()">⚡ 測試背景秒印</button>
 
@@ -61,7 +61,7 @@
         .then(r => r.json())
         .then(data => {
             if (data && data.hasNewOrder) {
-                addLog(`🎉 收到新訂單！總計：$${data.order.finalTotal}，強制造紙中...`);
+                addLog(`🎉 收到新訂單！總計：$${data.order.finalTotal}，背景靜默直印中...`);
                 sendToRawBTApp(data.order);
                 markOrderAsPrinted(data.order.orderId);
             }
@@ -69,7 +69,7 @@
         .catch(err => {});
     }
 
-    // 🌟 強制轉址直驅版
+    // 🌟 Intent 完美直通版
     function sendToRawBTApp(order) {
         let text = "\n";
         text += "==============================\n";
@@ -95,12 +95,28 @@
         text += "         --- 謝謝光臨 ---         \n\n\n";
 
         let encodedText = btoa(unescape(encodeURIComponent(text)));
-        let rawbtUrl = "rawbt:base64," + encodedText;
         
-        // 透過頂層頁面轉址強行喚醒 RawBT
-        window.location.href = rawbtUrl;
+        // 使用 Android 專屬 Intent 協議，明確指定 RawBT 套件，避開 Chrome 警告
+        let beforeUrl = "intent:base64," + encodedText;
+        let afterUrl = "#Intent;" +
+            "package=ru.a402d.rawbtprinter;" +
+            "component=ru.a402d.rawbtprinter.activity.PrintDownloadActivity;" +
+            "end;";
         
-        addLog("✅ 已強制切換至 RawBT 進行列印！");
+        let finalIntentUrl = beforeUrl + afterUrl;
+
+        // 透過隱藏 iframe 執行 Intent 導向
+        let iframeId = "hidden-rawbt-intent-frame";
+        let iframe = document.getElementById(iframeId);
+        if (!iframe) {
+            iframe = document.createElement("iframe");
+            iframe.id = iframeId;
+            iframe.style.display = "none";
+            document.body.appendChild(iframe);
+        }
+        iframe.src = finalIntentUrl;
+        
+        addLog("✅ 專屬 Intent 通道已靜默送出！");
     }
 
     function markOrderAsPrinted(orderId) {
