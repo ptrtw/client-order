@@ -19,7 +19,7 @@
         html, body { 
             height: 100vh; /* 備用 */
             height: 100dvh; 
-            overflow: hidden; /* 鎖死畫面，拒絕整頁滾動 */
+            overflow: hidden; 
             display: flex; 
             flex-direction: column; 
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
@@ -34,11 +34,31 @@
         }
         .header-actions { display: flex; gap: 10px; align-items: center; }
         .edit-btn { background: #ffffff; color: var(--text-main); border: none; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.2s; }
-        .cart-btn-top { display: flex; align-items: center; gap: 4px; font-size: 1.1rem; cursor: pointer; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; }
 
-        /* 導覽列 (高度固定) */
-        .top-nav-tabs { flex-shrink: 0; display: flex; padding: 6px 10px; gap: 8px; background: var(--bg-color); z-index: 999; }
-        .top-nav-tabs .nav-btn { flex: 1; padding: 8px 2px; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.85rem; font-weight: bold; color: #666; cursor: pointer; text-align: center; }
+        /* 導覽列與購物車 (同一行) */
+        .top-control-bar {
+            flex-shrink: 0;
+            display: flex;
+            padding: 6px 10px;
+            gap: 10px;
+            background: var(--bg-color);
+            z-index: 999;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        }
+        .cart-btn-top {
+            display: flex; align-items: center; justify-content: center;
+            background: var(--brand-color); color: white;
+            padding: 8px 14px; border-radius: 8px; font-weight: bold;
+            font-size: 1rem; cursor: pointer; box-shadow: 0 2px 4px rgba(0,210,106,0.3);
+        }
+        .top-nav-tabs { 
+            flex-grow: 1; display: flex; gap: 6px; 
+        }
+        .top-nav-tabs .nav-btn { 
+            flex: 1; padding: 8px 0; background: #ffffff; border: 1px solid #e0e0e0; 
+            border-radius: 6px; font-size: 0.85rem; font-weight: bold; color: #666; cursor: pointer; text-align: center; 
+        }
         .top-nav-tabs .nav-btn.active { color: var(--brand-color); border-color: var(--brand-color); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
         /* 中間容器佔滿剩餘空間 */
@@ -46,45 +66,30 @@
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            overflow-y: auto; /* 允許容器內部上下滾動，解決編輯模式卡死問題 */
+            overflow-y: auto;
             overflow-x: hidden;
             scroll-behavior: smooth;
-            touch-action: pan-y; /* 避免左右滑動與瀏覽器頁面手勢衝突 */
+            touch-action: pan-y;
         }
 
-        /* 員工專用 6欄 × 10行 (60格) 網格 - 高度動態均分 1fr */
+        /* 員工專用 6欄 × 10行 (60格) 網格 */
         .menu-grid { 
             flex-grow: 1;
             display: none; 
             grid-template-columns: repeat(6, 1fr); 
-            grid-template-rows: repeat(10, 1fr); /* 強制將剩餘高度平均切成 10 份 */
+            grid-template-rows: repeat(10, 1fr);
             gap: 4px; padding: 4px 8px 12px; background: var(--bg-color); 
         }
         .menu-grid.active { display: grid; }
         
-        /* 格子高度設為 100% 自動適應，字體微調 */
         .pos-item { background: #ffffff; border-radius: 4px; height: 100%; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 0.75rem; font-weight: bold; color: #333; padding: 2px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.08); word-break: break-all; line-height: 1.2; user-select: none; transition: transform 0.1s; }
         .pos-item:active { transform: scale(0.95); background: #f8f9fa; }
-
-        /* 空白格常態顯示：保持位置固定，乾淨隱形不佔視覺 */
         .pos-item.empty-slot { background: transparent; box-shadow: none; border: 1px dashed rgba(0,0,0,0.04); cursor: default; }
 
         /* ===== 編輯模式專屬樣式 ===== */
-        body.edit-mode #menu-content {
-            display: block; /* 讓網格自然往下排，不受 flex 擠壓 */
-            padding-bottom: 80px; /* 底部留一點白，方便拖曳到最下面 */
-        }
-        body.edit-mode .top-nav-tabs { display: none; } 
-        body.edit-mode .menu-grid { 
-            display: grid !important; 
-            position: relative; 
-            margin: 20px 8px 15px; 
-            padding: 15px 4px 4px; 
-            border: 2px dashed #00d26a; 
-            border-radius: 10px; 
-            background: rgba(0,210,106,0.03); 
-            height: 85vh; /* 強制設定高度，撐開捲軸 */
-        }
+        body.edit-mode #menu-content { display: block; padding-bottom: 80px; }
+        body.edit-mode .top-control-bar { display: none; } 
+        body.edit-mode .menu-grid { display: grid !important; position: relative; margin: 20px 8px 15px; padding: 15px 4px 4px; border: 2px dashed #00d26a; border-radius: 10px; background: rgba(0,210,106,0.03); height: 85vh; }
         body.edit-mode .menu-grid::before { content: attr(data-cat-name) " (60格拖曳排版)"; position: absolute; top: -13px; left: 12px; background: #e8f5e9; color: #008b46; padding: 2px 10px; border-radius: 12px; font-weight: bold; font-size: 0.78rem; border: 1px solid #00d26a; }
         body.edit-mode .pos-item.empty-slot { background: rgba(255,255,255,0.7); border: 2px dashed #cbd5e1; color: #94a3b8; font-size: 0.65rem; cursor: pointer; }
         body.edit-mode .pos-item.empty-slot::after { content: "空位"; }
@@ -107,8 +112,20 @@
         .opt-btns { display: flex; flex-wrap: wrap; gap: 5px; } 
         .opt-btn { background: #f5f6f8; color: var(--text-main); border: 1px solid transparent; padding: 6px 8px; border-radius: 15px; font-size: 0.8rem; cursor: pointer; text-align: center; transition: all 0.2s; white-space: nowrap; flex: 1; } 
         .opt-btn.active { background: var(--brand-light); color: var(--brand-color); border: 1px solid var(--brand-color); font-weight: bold; }
-        select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padding-right: 20px; background-image: url('data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position-x: 100%; background-position-y: center; background-size: 16px; }
-        #size-btns .opt-btn { flex-grow: 1; }
+        
+        /* 大小按鈕改為固定尺寸，保留肌肉記憶 */
+        #size-btns { display: flex; gap: 8px; justify-content: flex-start; }
+        #size-btns .opt-btn { flex: 0 0 75px; font-size: 0.9rem; } /* 取消 flex-grow，給定死寬度 */
+
+        /* 全新 POS 網格 (冰塊/甜度/其他) */
+        .pos-options-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+        .pos-col { display: flex; flex-direction: column; gap: 6px; }
+        .pos-col-title { background: #f0f2f5; padding: 4px; font-size: 0.85rem; font-weight: bold; text-align: center; border-radius: 4px; color: #555; margin-bottom: 2px; }
+        .pos-btn { padding: 10px 2px; border-radius: 8px; border: 1px solid #dcdcdc; background: #fff; font-size: 0.85rem; cursor: pointer; color: #333; transition: all 0.1s; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+        .pos-btn.active { background: var(--brand-light); border-color: var(--brand-color); color: var(--brand-color); font-weight: bold; }
+        .pos-btn:disabled { opacity: 0.35; cursor: not-allowed; background: #f9f9f9; border-color: #eee; }
+        select.pos-btn { appearance: none; -webkit-appearance: none; outline: none; padding-right: 15px; background-image: url('data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position-x: 95%; background-position-y: center; background-size: 14px; }
+        
         .top-ctrl-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 8px; }
         .top-ctrl-left { display: flex; align-items: center; gap: 10px; }
         .qty-ctrl { display: flex; align-items: center; background: #f5f6f8; border-radius: 15px; padding: 3px; }
@@ -174,13 +191,16 @@
     <div>快速點餐</div>
     <div class="header-actions">
         <button id="edit-btn" class="edit-btn" onclick="toggleEditMode()">⚙️ 編輯排版</button>
-        <div class="cart-btn-top" onclick="showCart()">
-            🛒 <span id="cart-counter">0</span>
-        </div>
     </div>
 </div>
+<!-- 第一個要求：合併購物車與導覽列 -->
+<div class="top-control-bar">
+    <div class="cart-btn-top" onclick="showCart()">
+        🛒 <span id="cart-counter" style="margin-left: 5px;">0</span>
+    </div>
+    <div class="top-nav-tabs" id="nav-bar"></div>
+</div>
 
-<div class="top-nav-tabs" id="nav-bar"></div>
 <div id="menu-content"></div>
 
 <!-- 點餐 Modal -->
@@ -213,19 +233,55 @@
             </select>
         </div>
         
-        <!-- 大小與備註按鈕 (整合在同一行) -->
+        <!-- 第二個要求：大小按鈕固定尺寸 -->
         <div class="opt-group">
             <div class="opt-title">大小</div>
             <div style="display: flex; gap: 8px;">
-                <div id="size-btns" class="opt-btns" style="flex-grow: 1;"></div>
+                <div id="size-btns" style="flex-grow: 1;"></div>
                 <button class="opt-btn" id="item-remark-btn" onclick="toggleItemRemark()" style="flex-shrink: 0; padding: 6px 12px; background: #fff; border: 1px solid #ddd; color: #666; max-width: 80px;">📝 備註</button>
             </div>
-            <!-- 單杯備註隱藏輸入框 -->
-            <input type="text" id="item-remark-input" placeholder="單杯備註 (例如：珍珠少一點、去冰溫水)" style="display: none; width: 100%; margin-top: 8px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 0.9rem; background: #f9f9f9; outline: none; font-family: inherit;">
+            <input type="text" id="item-remark-input" placeholder="單杯備註 (例如：珍珠少一點)" style="display: none; width: 100%; margin-top: 8px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 0.9rem; background: #f9f9f9; outline: none; font-family: inherit;">
         </div>
         
-        <div class="opt-group" id="ice-opt-group"><div class="opt-title">冰塊</div><div id="ice-btns" class="opt-btns"></div></div>
-        <div class="opt-group" id="sugar-opt-group"><div class="opt-title">甜度</div><div id="sugar-btns" class="opt-btns"></div></div>
+        <!-- 第三個要求：全新 POS 冰塊甜度網格介面 -->
+        <div class="pos-options-container">
+            <!-- 冰塊列 -->
+            <div class="pos-col">
+                <div class="pos-col-title">🧊 冰塊</div>
+                <button class="pos-btn ice-btn" data-val="去冰" onclick="setIce('去冰')">去冰</button>
+                <button class="pos-btn ice-btn" data-val="微冰" onclick="setIce('微冰')">微冰</button>
+                <button class="pos-btn ice-btn" data-val="少冰" onclick="setIce('少冰')">少冰</button>
+                <button class="pos-btn ice-btn" data-val="正常冰" onclick="setIce('正常冰')">正常冰</button>
+                <button class="pos-btn ice-btn" data-val="多冰" onclick="setIce('多冰')">多冰</button>
+            </div>
+            <!-- 甜度列 -->
+            <div class="pos-col">
+                <div class="pos-col-title">🍬 甜度</div>
+                <div id="fixed-sugar-msg" style="display:none; color:#c62828; font-size:0.75rem; text-align:center; padding:2px; font-weight:bold;">(固定甜度)</div>
+                <button class="pos-btn sugar-btn" data-val="無糖" onclick="setSugar('無糖')">無糖</button>
+                <button class="pos-btn sugar-btn" data-val="微糖" onclick="setSugar('微糖')">微糖</button>
+                <button class="pos-btn sugar-btn" data-val="半糖" onclick="setSugar('半糖')">半糖</button>
+                <button class="pos-btn sugar-btn" data-val="少糖" onclick="setSugar('少糖')">少糖</button>
+                <button class="pos-btn sugar-btn" data-val="多糖" onclick="setSugar('多糖')">多糖</button>
+            </div>
+            <!-- 其他列 -->
+            <div class="pos-col">
+                <div class="pos-col-title">🔄 其他</div>
+                <select class="pos-btn sugar-btn" id="other-sugar-select" onchange="setSugar(this.value)">
+                    <option value="" disabled selected>其他甜度</option>
+                    <option value="1分糖">1分糖</option>
+                    <option value="3分糖">3分糖</option>
+                    <option value="4分糖">4分糖</option>
+                    <option value="6分糖">6分糖</option>
+                    <option value="7分糖">7分糖</option>
+                </select>
+                <button class="pos-btn ice-btn" data-val="小碎冰" onclick="setIce('小碎冰')">小碎冰</button>
+                <button class="pos-btn ice-btn" data-val="常溫" onclick="setIce('常溫')">常溫</button>
+                <button class="pos-btn ice-btn" data-val="溫飲" onclick="setIce('溫飲')">溫飲</button>
+                <button class="pos-btn ice-btn" data-val="熱飲" onclick="setIce('熱飲')">熱飲</button>
+            </div>
+        </div>
+
         <div class="opt-group"><div class="opt-title">加料</div><div id="topping-btns" class="opt-btns"></div></div>
         <button class="submit-btn" onclick="confirmAddToCart()">加入購物車</button>
     </div>
@@ -331,8 +387,6 @@
 
     let isEditMode = false;
     let sortableInstances = [];
-
-    // 當前大類索引 (0, 1, 2)
     let currentCategoryIndex = 0;
 
     function loadCloudConfig() {
@@ -473,7 +527,6 @@
         }
     }
 
-    // 切換大類的統一函式
     function switchCategory(targetIdx) {
         if (isEditMode) return;
         if (targetIdx < 0 || targetIdx >= menuData.length) return;
@@ -526,12 +579,10 @@
             container.appendChild(grid);
         });
         
-        // 綁定左右滑動手勢
         initSwipeGesture();
         updateCounter();
     }
 
-    // 🔥 左右拖曳滑動手勢監聽
     function initSwipeGesture() {
         const container = document.getElementById('menu-content');
         let touchStartX = 0;
@@ -545,7 +596,7 @@
         }, { passive: true });
 
         container.addEventListener('touchend', (e) => {
-            if (isEditMode) return; // 編輯模式下停用頁面滑動切換，避免影響拖曳
+            if (isEditMode) return; 
             
             touchEndX = e.changedTouches[0].screenX;
             touchEndY = e.changedTouches[0].screenY;
@@ -553,18 +604,11 @@
             const diffX = touchEndX - touchStartX;
             const diffY = touchEndY - touchStartY;
             
-            // 判定是否為「水平滑動」 (X 軸移動距離大於 50px 且垂直 Y 軸偏移不大於 60px)
             if (Math.abs(diffX) > 50 && Math.abs(diffY) < 60) {
                 if (diffX < 0) {
-                    // 向左滑動 -> 下一個分類
-                    if (currentCategoryIndex < menuData.length - 1) {
-                        switchCategory(currentCategoryIndex + 1);
-                    }
+                    if (currentCategoryIndex < menuData.length - 1) switchCategory(currentCategoryIndex + 1);
                 } else {
-                    // 向右滑動 -> 上一個分類
-                    if (currentCategoryIndex > 0) {
-                        switchCategory(currentCategoryIndex - 1);
-                    }
+                    if (currentCategoryIndex > 0) switchCategory(currentCategoryIndex - 1);
                 }
             }
         }, { passive: true });
@@ -602,6 +646,32 @@
         }
     }
 
+    // --- POS 網格選取邏輯 ---
+    function setIce(val) {
+        if (document.querySelector(`.ice-btn[data-val="${val}"]`)?.disabled) return;
+        currentSelect.ice = val;
+        document.querySelectorAll('.ice-btn').forEach(btn => btn.classList.remove('active'));
+        const activeBtn = document.querySelector(`.ice-btn[data-val="${val}"]`);
+        if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    function setSugar(val) {
+        if (document.querySelector(`.sugar-btn[data-val="${val}"]`)?.disabled && !val.includes("分糖")) return;
+        currentSelect.sugar = val;
+        document.querySelectorAll('.sugar-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.tagName === 'SELECT') btn.selectedIndex = 0; 
+        });
+        const activeBtn = document.querySelector(`.sugar-btn[data-val="${val}"]`);
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+        } else if (val.includes("分糖")) {
+            const sel = document.getElementById('other-sugar-select');
+            sel.value = val;
+            sel.classList.add('active');
+        }
+    }
+
     function openModal(item) {
         let defaultSize = item.prices.hasOwnProperty('L') ? 'L' : Object.keys(item.prices)[0];
         currentSelect = { item, qty: 1, size: defaultSize, ice: null, sugar: null, toppings: [], teaSwap: "", remark: "" };
@@ -619,22 +689,64 @@
 
         document.getElementById('option-modal').style.display = 'flex';
         
+        // 渲染 Size，由於 CSS 已改死寬度，不管幾個選項都能完美對齊
         renderBtns('size-btns', Object.keys(item.prices), (val) => { currentSelect.size = val; currentSelect.toppings = []; renderToppings(item, val); updateOptionPrice(); }, defaultSize);
         
-        let defaultIceOptions = ["去冰", "微冰", "少冰", "正常冰", "常溫", "溫飲"];
-        let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : defaultIceOptions;
-        if (!item.customIce && (item.name.includes("優多") || item.name.includes("冰淇淋"))) iceOptions = iceOptions.filter(opt => opt !== "溫飲");
-        renderBtns('ice-btns', iceOptions, (val) => currentSelect.ice = val, null);
+        // --- 冰塊防呆邏輯 ---
+        let iceOptions = item.customIce && item.customIce.length > 0 ? item.customIce : ["去冰", "微冰", "少冰", "正常冰", "多冰", "小碎冰", "常溫", "溫飲", "熱飲"];
+        if (!item.customIce && (item.name.includes("優多") || item.name.includes("冰淇淋"))) {
+            iceOptions = iceOptions.filter(opt => opt !== "溫飲" && opt !== "熱飲"); // 這些不能做熱的
+        }
+        document.querySelectorAll('.ice-btn').forEach(btn => {
+            btn.classList.remove('active');
+            let val = btn.dataset.val;
+            if(iceOptions.includes(val)) btn.disabled = false;
+            else btn.disabled = true;
+        });
         
-        let sugarOptGroup = document.getElementById('sugar-opt-group');
-        let isFixedSugar = false; 
-        let sugarOptions = ["無糖", "微糖", "半糖", "八分糖", "其他"];
-        if (item.customSugar && item.customSugar.length > 0) { if (item.customSugar[0] === "固定甜度") isFixedSugar = true; else sugarOptions = item.customSugar; } 
-        else { if (item.name.includes("黑糖")) isFixedSugar = true; else if (item.name.includes("蜜")) sugarOptions = sugarOptions.filter(opt => opt !== "無糖"); }
+        // --- 甜度防呆邏輯 ---
+        let isFixedSugar = false;
+        let sugarOptions = ["無糖", "微糖", "半糖", "少糖", "多糖", "1分糖", "3分糖", "4分糖", "6分糖", "7分糖"];
+        if (item.customSugar && item.customSugar.length > 0) { 
+            if (item.customSugar[0] === "固定甜度") isFixedSugar = true; 
+            else sugarOptions = item.customSugar; 
+        } else { 
+            if (item.name.includes("黑糖")) isFixedSugar = true; 
+            else if (item.name.includes("蜜")) sugarOptions = sugarOptions.filter(opt => opt !== "無糖"); 
+        }
 
-        if (isFixedSugar) { sugarOptGroup.style.display = 'none'; currentSelect.sugar = "固定甜度"; } 
-        else { sugarOptGroup.style.display = 'block'; renderBtns('sugar-btns', sugarOptions, (val) => { currentSelect.sugar = val; }, null); }
-        renderToppings(item, defaultSize); updateOptionPrice(); 
+        document.querySelectorAll('.sugar-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if(btn.tagName === 'SELECT') btn.selectedIndex = 0;
+
+            if (isFixedSugar) {
+                btn.disabled = true;
+            } else {
+                let val = btn.dataset.val;
+                if (btn.tagName === 'SELECT') {
+                    btn.disabled = false; // "其他"選項保持開啟
+                } else if (sugarOptions.includes(val)) {
+                    btn.disabled = false;
+                } else {
+                    btn.disabled = true;
+                }
+            }
+        });
+
+        // 固定甜度的標示顯示
+        const fixedMsg = document.getElementById('fixed-sugar-msg');
+        if (isFixedSugar) {
+            currentSelect.sugar = "固定甜度";
+            fixedMsg.style.display = "block";
+            // 讓標題與提示空間完美搭配
+            fixedMsg.previousElementSibling.style.marginBottom = "0"; 
+        } else {
+            fixedMsg.style.display = "none";
+            fixedMsg.previousElementSibling.style.marginBottom = "2px";
+        }
+
+        renderToppings(item, defaultSize); 
+        updateOptionPrice(); 
     }
 
     function updateOptionPrice() {
@@ -647,16 +759,10 @@
     }
 
     function renderBtns(containerId, options, callback, defaultVal) {
-        const container = document.getElementById(containerId); container.innerHTML = ''; const isSugar = (containerId === 'sugar-btns');
+        const container = document.getElementById(containerId); container.innerHTML = '';
         options.forEach(opt => {
-            if (isSugar && opt === "其他") {
-                const sel = document.createElement('select'); sel.className = 'opt-btn';
-                sel.innerHTML = `<option value="" disabled selected>其他</option><option value="1分糖">1分糖</option><option value="3分糖">3分糖</option><option value="4分糖">4分糖</option><option value="6分糖">6分糖</option><option value="7分糖">7分糖</option>`;
-                sel.onchange = (e) => { container.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active')); sel.classList.add('active'); callback(e.target.value); }; container.appendChild(sel);
-            } else {
-                const btn = document.createElement('button'); btn.className = 'opt-btn' + (opt === defaultVal ? ' active' : ''); btn.innerText = opt;
-                btn.onclick = () => { container.querySelectorAll('.opt-btn').forEach(b => { b.classList.remove('active'); if (b.tagName === 'SELECT') b.selectedIndex = 0; }); btn.classList.add('active'); callback(opt); }; container.appendChild(btn);
-            }
+            const btn = document.createElement('button'); btn.className = 'opt-btn' + (opt === defaultVal ? ' active' : ''); btn.innerText = opt;
+            btn.onclick = () => { container.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); callback(opt); }; container.appendChild(btn);
         });
     }
 
@@ -674,7 +780,7 @@
     function changeQty(diff) { currentSelect.qty = Math.max(1, currentSelect.qty + diff); document.getElementById('item-qty').innerText = currentSelect.qty; }
 
     function confirmAddToCart() {
-        if(!currentSelect.size || !currentSelect.ice || !currentSelect.sugar) return alert("請完整選擇所有選項");
+        if(!currentSelect.size || !currentSelect.ice || !currentSelect.sugar) return alert("請完整選擇所有選項 (大小、冰塊、甜度)");
         
         currentSelect.remark = document.getElementById('item-remark-input').value.trim();
         
