@@ -460,7 +460,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         cart.push({ item: staffSelect.item, size: staffSelect.size, qty: staffSelect.qty, ice: finalIce, sugar: finalSugar, toppings: staffSelect.toppings, teaSwap: "", price: (base + topCost) * staffSelect.qty });
         updateCounter(); 
         document.getElementById('staff-option-modal').style.display = 'none'; 
-        updateCartUI(); // 🔥 強制在背景直接更新購物車 UI，確保品項立刻生成
+        updateCartUI(); 
     }
 
     // ================= 🍹 一般客戶邏輯 =================
@@ -524,7 +524,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         if(!currentSelect.size || !currentSelect.ice || !currentSelect.sugar) return alert("請完整選擇所有選項（大小/冰塊/甜度）");
         let base = currentSelect.item.prices[currentSelect.size]; let topMap = toppingPrices[currentSelect.size] || {}; if(currentSelect.item.customToppings && currentSelect.item.customToppings[currentSelect.size]) topMap = currentSelect.item.customToppings[currentSelect.size];
         let topCost = currentSelect.toppings.reduce((sum, t) => sum + (topMap[t]||0), 0); cart.push({ ...currentSelect, price: (base + topCost) * currentSelect.qty }); updateCounter(); document.getElementById('option-modal').style.display = 'none';
-        updateCartUI(); // 🔥 強制更新一般點餐的購物車 UI
+        updateCartUI(); 
     }
 
     // ================= 🛒 購物車與結帳邏輯 =================
@@ -571,7 +571,13 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         let allCups = []; let origTotal = 0; cart.forEach(i => { origTotal += i.price; for(let k=0; k<i.qty; k++) allCups.push(i.price/i.qty); });
         let disc = 0; if(method==="自取" && allCups.length>=6){ allCups.sort((a,b)=>b-a); for(let i=5; i<allCups.length; i+=6) disc+=allCups[i]; }
         let finalTotal = origTotal - disc; let invText = invoiceOption==='paper'?'🧾 紙本發票':(invoiceOption==='uniform'?`🏢 統編：${invoiceNumber}`:'📱 載具');
-        confirmData = { phone, method, address, payMethod, note, finalTotal, originalTotal: origTotal, discount: disc, invoiceText: invText, cartItems: JSON.parse(JSON.stringify(cart)) };
+        
+        // 🔥 關鍵更新：賦予這筆訂單一個唯一的 ID (orderId)，讓出單機能夠標記已列印
+        confirmData = { 
+            orderId: Date.now().toString(),
+            phone, method, address, payMethod, note, finalTotal, originalTotal: origTotal, discount: disc, invoiceText: invText, cartItems: JSON.parse(JSON.stringify(cart)) 
+        };
+        
         let lc = document.getElementById('confirm-order-list'); lc.innerHTML = '';
         confirmData.cartItems.forEach(i => { let dt = `${i.ice} / ${i.sugar}`; if(i.teaSwap) dt+=` / ${i.teaSwap}`; if(i.toppings.length) dt+=` / 加:${i.toppings.join(',')}`; lc.innerHTML += `<div class="confirm-order-item"><div class="item-left"><div class="item-name">${i.item.name} (${i.size}) x ${i.qty}</div><div class="item-detail">${dt}</div></div><div class="item-price">$${i.price}</div></div>`; });
         let ih = `<strong>📞 聯絡電話：</strong>${phone}<br><strong>🛵 取餐方式：</strong>${method}`; if(method==="外送" && address) ih+=`<br><strong>📍 外送地址：</strong>${address}`; if(note) ih+=`<br><strong>📝 訂單備註：</strong><span style="color:#d32f2f;">${note}</span>`;
@@ -579,18 +585,46 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         document.getElementById('confirm-order-info').innerHTML = ih; document.getElementById('confirm-total-amount').innerText = `$${finalTotal}`; document.getElementById('cart-modal').style.display = 'none'; document.getElementById('confirm-modal').style.display = 'flex';
     }
     function closeConfirmModal() { document.getElementById('confirm-modal').style.display='none'; document.getElementById('cart-modal').style.display='flex'; }
+    
     async function sendToLine() {
-        if(!liff.isInClient()) return alert("請在 LINE 聊天室開啟！"); if(!liff.isLoggedIn()) { liff.login(); return; } if(isStoreCurrentlyClosed) return alert("目前非營業時間！"); if(!confirmData) return;
-        let d = confirmData; let boxes = d.cartItems.map(i => { let dt = `👉 ${i.ice} / ${i.sugar}`; if(i.teaSwap) dt+=` / ${i.teaSwap}`; if(i.toppings.length) dt+=` / 加:${i.toppings.join(',')}`; return { type:"box", layout:"vertical", margin:"sm", contents:[ {type:"box", layout:"baseline", contents:[{type:"text", text:`${i.item.name}(${i.size}) x${i.qty}`, size:"sm", weight:"bold", flex:3},{type:"text", text:`$${i.price}`, size:"sm", align:"end", flex:1, weight:"bold", color:"#06C755"}]}, {type:"box", layout:"baseline", margin:"xs", contents:[{type:"text", text:dt, size:"xs", color:"#64748b", flex:1, wrap:true}]} ]}; });
+        if(!liff.isInClient()) return alert("請在 LINE 聊天室開啟！"); 
+        if(!liff.isLoggedIn()) { liff.login(); return; } 
+        if(isStoreCurrentlyClosed) return alert("目前非營業時間！"); 
+        if(!confirmData) return;
+        
+        let d = confirmData; 
+        let boxes = d.cartItems.map(i => { let dt = `👉 ${i.ice} / ${i.sugar}`; if(i.teaSwap) dt+=` / ${i.teaSwap}`; if(i.toppings.length) dt+=` / 加:${i.toppings.join(',')}`; return { type:"box", layout:"vertical", margin:"sm", contents:[ {type:"box", layout:"baseline", contents:[{type:"text", text:`${i.item.name}(${i.size}) x${i.qty}`, size:"sm", weight:"bold", flex:3},{type:"text", text:`$${i.price}`, size:"sm", align:"end", flex:1, weight:"bold", color:"#06C755"}]}, {type:"box", layout:"baseline", margin:"xs", contents:[{type:"text", text:dt, size:"xs", color:"#64748b", flex:1, wrap:true}]} ]}; });
         let fb = [ {type:"separator", margin:"md"} ]; fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📞 ${d.phone}`, size:"sm", weight:"bold"}]}); fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`💳 ${d.payMethod==='全支付'?'🟡 全支付 (待付款)':'🟢 現金付款'}`, size:"sm", weight:"bold", color:d.payMethod==='全支付'?'#d97706':'#06C755'}]}); fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📄 ${d.invoiceText}`, size:"sm", weight:"bold", color:"#2563eb"}]}); fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`🛵 ${d.method}`, size:"sm", weight:"bold"}]});
         if(d.address) fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📍 ${d.address}`, size:"sm", weight:"bold", color:"#e65100", wrap:true}]}); if(d.note) fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📝 ${d.note}`, size:"sm", weight:"bold", color:"#d32f2f", wrap:true}]}); fb.push({type:"separator", margin:"md"});
         if(d.discount>0) { fb.push({type:"box", layout:"baseline", margin:"sm", contents:[{type:"text", text:"🎉 自取買五送一", color:"#ef4444", size:"sm", weight:"bold"}, {type:"text", text:`-$${d.discount}`, color:"#ef4444", size:"sm", align:"end", weight:"bold"}]}); }
         fb.push({type:"box", layout:"baseline", margin:"md", contents:[{type:"text", text:"💰 結帳金額", weight:"bold", size:"md"}, {type:"text", text:`$${d.finalTotal}`, weight:"bold", size:"xl", align:"end", color:"#06C755"}]});
         const per = 10; let bubbles = []; for(let i=0; i<boxes.length; i+=per) { let chunk = boxes.slice(i, i+per); let isLast = (i+per >= boxes.length); let bc = [{type:"box", layout:"vertical", spacing:"md", contents:chunk}]; if(isLast) bc.push(...fb); bubbles.push({type:"bubble", size:"mega", header:{type:"box", layout:"vertical", backgroundColor:"#1e293b", paddingAll:"md", contents:[{type:"text", text:`🌟 新進顧客訂單 (${Math.floor(i/per)+1})`, weight:"bold", size:"xl", color:"#ffffff"}]}, body:{type:"box", layout:"vertical", contents:bc}}); }
+        
         try {
+            // ⚡ 動作 1：送出 LINE Flex Message
             await liff.sendMessages([{type:"flex", altText:`🎉 新訂單！總計 $${d.finalTotal}`, contents:{type:"carousel", contents:bubbles}}]);
-            if(d.payMethod === "全支付") { document.getElementById('confirm-modal').style.display='none'; document.getElementById('transit-modal').style.display='flex'; document.getElementById('transit-amount').innerText=d.finalTotal; liff.openWindow({ url: `https://service.pxpayplus.com/pxplus_redirect/page_redirect/jumj?memberCode=MC17320294&amount=${d.finalTotal}`, external: true }); } else { alert("✅ 訂單送出成功！"); cart=[]; updateCounter(); liff.closeWindow(); }
-        } catch(e) { alert("傳送失敗: " + JSON.stringify(e)); }
+            
+            // ⚡ 動作 2：【關鍵新增】將訂單資料丟到 GAS 排隊等待出單機列印
+            fetch(GAS_API_URL + "?action=submitOrder", {
+                method: "POST",
+                body: JSON.stringify(confirmData)
+            }).catch(e => console.log("出單機背景傳送失敗", e));
+
+            // ⚡ 動作 3：結帳後續流程
+            if(d.payMethod === "全支付") { 
+                document.getElementById('confirm-modal').style.display='none'; 
+                document.getElementById('transit-modal').style.display='flex'; 
+                document.getElementById('transit-amount').innerText=d.finalTotal; 
+                liff.openWindow({ url: `https://service.pxpayplus.com/pxplus_redirect/page_redirect/jumj?memberCode=MC17320294&amount=${d.finalTotal}`, external: true }); 
+            } else { 
+                alert("✅ 訂單送出成功！"); 
+                cart=[]; 
+                updateCounter(); 
+                liff.closeWindow(); 
+            }
+        } catch(e) { 
+            alert("傳送失敗: " + JSON.stringify(e)); 
+        }
     }
     async function reportPaid() { if(!confirmData) return; try { await liff.sendMessages([{type:"text", text:`🟢 顧客回報：訂單總額 $${confirmData.finalTotal} 已透過【全支付】付款！`}]); alert("✅ 已回報付款！"); cart=[]; liff.closeWindow(); } catch(e){ alert("請直接在聊天室告知店家！"); liff.closeWindow(); } }
     async function changePaymentMethod() { if(!confirmData) return; try { await liff.sendMessages([{type:"text", text:`🟡 顧客回報：想要更改付款方式！`}]); alert("✅ 已通知店家更改付款！"); cart=[]; liff.closeWindow(); } catch(e){ alert("請直接在聊天室告知店家！"); liff.closeWindow(); } }
