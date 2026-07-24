@@ -37,13 +37,22 @@
         box.scrollTop = box.scrollHeight;
     }
 
-    // 模擬測試列印
+    // 測試手動列印
     function testPrint() {
         addLog("正在發送測試列印指令...");
-        window.print();
+        let mockOrder = {
+            phone: "0912345678",
+            method: "自取",
+            address: "",
+            note: "少冰微糖",
+            finalTotal: 110,
+            cartItems: [
+                { item: { name: "珍珠奶茶" }, size: "L", qty: 2, price: 110, ice: "少冰", sugar: "微糖", toppings: ["珍珠"] }
+            ]
+        };
+        triggerAutoPrint(mockOrder);
     }
 
-    // 背景輪詢機制：每 3 秒向 GAS 後台詢問是否有未列印的新訂單
     setInterval(checkForNewOrders, 3000);
 
     function checkForNewOrders() {
@@ -52,51 +61,50 @@
         .then(data => {
             if (data && data.hasNewOrder) {
                 addLog(`🎉 發現新訂單！金額：$${data.order.finalTotal}，正在觸發自動列印...`);
-                
-                // 1. 執行瀏覽器列印（這會直接驅動平板連接的區網 CK-710）
                 triggerAutoPrint(data.order);
-                
-                // 2. 回報雲端將該訂單標記為「已列印」，避免重複印
                 markOrderAsPrinted(data.order.orderId);
             }
         })
-        .catch(err => {
-            // 網路波動時不干擾畫面，僅在背景記錄
-        });
+        .catch(err => {});
     }
 
     function triggerAutoPrint(order) {
-        // 這裡可以動態產生要列印的單據排版
         let printWindow = window.open('', '_blank', 'width=300,height=600');
+        
         let itemsHtml = order.cartItems.map(i => `
-            <div style="display:flex; justify-content:space-between; margin:4px 0;">
-                <span>${i.item.name}(${i.size}) x${i.qty}</span>
-                <span>$${i.price}</span>
-            </div>
-            <div style="font-size:11px; color:#555;">${i.ice}/${i.sugar} ${i.toppings.length ? '/加:'+i.toppings.join() : ''}</div>
+            <div style="font-size: 15px; font-weight: bold; margin-top: 6px;">${i.item.name} (${i.size}) x ${i.qty}  $${i.price}</div>
+            <div style="font-size: 13px; font-weight: bold; color: #000; margin-bottom: 4px;">　-> ${i.ice} / ${i.sugar} ${i.toppings.length ? '/ 加:'+i.toppings.join() : ''}</div>
         `).join('');
 
         printWindow.document.write(`
             <html>
-            <head><style>body{font-family:monospace; width:200px; padding:5px; margin:0; font-size:12px;}</style></head>
+            <head>
+                <style>
+                    body { font-family: monospace; width: 100%; padding: 0; margin: 0; font-size: 14px; font-weight: bold; color: #000; }
+                    .center { text-align: center; }
+                    .bold { font-weight: 900; }
+                    .line { border-bottom: 2px dashed #000; margin: 8px 0; }
+                </style>
+            </head>
             <body>
-                <h3 style="text-align:center; margin:0;">清心福全左營榮總店</h3>
-                <div style="text-align:center; border-bottom:1px dashed #000; padding-bottom:5px; margin-bottom:5px;">*** 網路自動接單 ***</div>
-                <div><strong>電話：</strong>${order.phone}</div>
-                <div><strong>方式：</strong>${order.method}</div>
-                ${order.address ? `<div><strong>地址：</strong>${order.address}</div>` : ''}
-                <div style="border-bottom:1px dashed #000; margin:5px 0;"></div>
+                <div class="center" style="font-size: 18px;" class="bold">★ 清心福全左營榮總店 ★</div>
+                <div class="center" style="font-size: 13px;">【 網路新訂單 】</div>
+                <div class="line"></div>
+                <div style="font-size: 14px;">📞 電話：${order.phone}</div>
+                <div style="font-size: 14px;">🛵 方式：${order.method}</div>
+                ${order.address ? `<div style="font-size: 14px;">📍 地址：${order.address}</div>` : ''}
+                ${order.note ? `<div style="font-size: 14px; color: #000;">📝 備註：${order.note}</div>` : ''}
+                <div class="line"></div>
                 ${itemsHtml}
-                <div style="border-bottom:1px dashed #000; margin:5px 0;"></div>
-                <div style="text-align:right; font-weight:bold; font-size:14px;">總計: $${order.finalTotal}</div>
-                <div style="text-align:center; margin-top:10px; font-size:10px;">謝謝光臨</div>
+                <div class="line"></div>
+                <div style="text-align: right; font-size: 18px;" class="bold">總計: $${order.finalTotal}</div>
+                <div class="center" style="font-size: 12px; margin-top: 15px;">--- 謝謝光臨 ---</div>
             </body>
             </html>
         `);
         printWindow.document.close();
         printWindow.focus();
         
-        // 自動執行列印
         setTimeout(() => {
             printWindow.print();
             printWindow.close();
