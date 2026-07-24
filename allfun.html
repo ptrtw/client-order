@@ -4,7 +4,6 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>歡迎光臨清心福全左營榮總店</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<!-- 🔥 加入拖曳排版功能所需的套件 -->
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <style>
 :root { --brand-color: #06C755; --brand-light: #e8f5e9; --bg-color: #f0f2f5; --text-main: #333333; --text-muted: #888888; }
@@ -121,7 +120,6 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
 </div>
 
 <div class="sticky-header-container">
-    <!-- 🔥 雙擊頂部觸發員工模式 -->
     <div class="secret-easter-egg-bar" ondblclick="openStaffMode()"></div>
     <div class="search-container"><input type="text" id="search-input" onkeyup="filterMenu()" placeholder="搜尋產品關鍵字..."></div>
     <div id="nav-bar" class="sticky-nav"></div>
@@ -134,7 +132,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
     <span id="cart-total-preview">$0</span>
 </button>
 
-<!-- 🌟 員工快速點餐專用面板 (隱藏彈窗) -->
+<!-- 🌟 員工快速點餐專用面板 -->
 <div id="staff-mode-modal">
     <div class="staff-header">
         <span>⚡ 員工專屬系統 (60格)</span>
@@ -148,7 +146,6 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         <div class="cart-btn-top map-btn-top" onclick="openMapModal()">📍 測距</div>
         <div class="staff-nav" id="staff-nav-bar"></div>
     </div>
-    <!-- 加入滑動偵測區塊 -->
     <div id="staff-content-area" style="flex-grow:1; overflow-y:auto; background:#f0f2f5;"></div>
 </div>
 
@@ -166,12 +163,11 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
                 <button onclick="checkDistance()" style="flex: 1; padding: 12px; background: #f0f2f5; color: #333; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;">🗺️ 開啟地圖測距</button>
                 <button onclick="applyAddressToCart()" style="flex: 1; padding: 12px; background: var(--brand-color); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;">✅ 帶入購物車</button>
             </div>
-            <div style="font-size: 0.8rem; color: #888; margin-top: 12px; text-align: center;">💡 確認距離沒問題後，再點擊「帶入購物車」。</div>
         </div>
     </div>
 </div>
 
-<!-- 🌟 員工點餐選項 Modal (層級拉高到 3100) -->
+<!-- 🌟 員工點餐選項 Modal -->
 <div id="staff-option-modal" class="modal-overlay" onclick="if(event.target==this) this.style.display='none'">
     <div class="modal-content">
         <div class="modal-header">
@@ -284,7 +280,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
 </div>
 
 <script>
-    const LIFF_ID = "2010718024-7lUixuAF"; // 保持使用全功能版的 Token
+    const LIFF_ID = "2010718024-7lUixuAF";
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec";
 
     let toppingPrices = { M: { "珍珠": 5, "椰果": 5, "布丁": 15, "仙草凍": 5, "QQ": 5, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 }, L: { "珍珠": 10, "椰果": 10, "布丁": 15, "仙草凍": 10, "QQ": 10, "咖啡凍": 15, "蘆薈": 20, "茉綠茶凍": 10 } };
@@ -302,7 +298,6 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         else { cartTitleTimer = setTimeout(() => { cartTitleClickCount = 0; }, 800); }
     }
 
-    // 🔥 測距地圖功能
     function openMapModal() { document.getElementById('map-modal').style.display = 'flex'; setTimeout(() => document.getElementById('map-search-input').focus(), 300); }
     function checkDistance() {
         const storeAddress = "高雄市左營區榮總路29號"; const targetAddress = document.getElementById('map-search-input').value.trim();
@@ -371,7 +366,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         document.getElementById('closed-banner-ui').style.display = isStoreCurrentlyClosed ? 'flex' : 'none';
     } setInterval(checkStoreStatus, 60000);
 
-    // ================= 🌟 員工專屬邏輯 (加入滑動與編輯) =================
+    // ================= 🌟 員工專屬邏輯 =================
     function openStaffMode() {
         if(staffMenuData.length === 0) return alert("資料載入中，請稍後...");
         document.getElementById('staff-mode-modal').style.display = 'flex';
@@ -456,13 +451,16 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         if (item.customToppings && item.customToppings[size]) topMap = item.customToppings[size];
         Object.entries(topMap).forEach(([name, price]) => { let b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = `${name} +$${price}`; b.onclick = () => { b.classList.toggle('active'); if(b.classList.contains('active')) staffSelect.toppings.push(name); else staffSelect.toppings = staffSelect.toppings.filter(t=>t!==name); updateStaffPrice(); }; c.appendChild(b); });
     }
+    
+    // 🔥 關鍵修正：員工版加入購物車後，留在員工快速點餐介面，不關閉背景
     function staffConfirmAddToCart() {
         if(!staffSelect.size) return alert("請選擇大小！");
         let base = staffSelect.item.prices[staffSelect.size]; let topMap = toppingPrices[staffSelect.size] || {};
         if(staffSelect.item.customToppings && staffSelect.item.customToppings[staffSelect.size]) topMap = staffSelect.item.customToppings[staffSelect.size];
-        let topCost = staffSelect.toppings.reduce((sum, t) => sum + (topMap[t] || 0), 0); let finalIce = staffSelect.ice || "預設冰"; let finalSugar = staffSelect.sugar || "預設甜";
+        let topCost = staffSelect.toppings.reduce((sum, t) => sum + (topMap[t]||0), 0); let finalIce = staffSelect.ice || "預設冰"; let finalSugar = staffSelect.sugar || "預設甜";
         cart.push({ item: staffSelect.item, size: staffSelect.size, qty: staffSelect.qty, ice: finalIce, sugar: finalSugar, toppings: staffSelect.toppings, teaSwap: "", price: (base + topCost) * staffSelect.qty });
-        updateCounter(); document.getElementById('staff-option-modal').style.display = 'none'; document.getElementById('staff-mode-modal').style.display = 'none'; alert("✅ 員工訂單已加入購物車！");
+        updateCounter(); 
+        document.getElementById('staff-option-modal').style.display = 'none'; // 只關閉單品選項視窗，保留員工面板繼續點餐！
     }
 
     // ================= 🍹 一般客戶邏輯 =================
@@ -580,8 +578,8 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
     async function sendToLine() {
         if(!liff.isInClient()) return alert("請在 LINE 聊天室開啟！"); if(!liff.isLoggedIn()) { liff.login(); return; } if(isStoreCurrentlyClosed) return alert("目前非營業時間！"); if(!confirmData) return;
         let d = confirmData; let boxes = d.cartItems.map(i => { let dt = `👉 ${i.ice} / ${i.sugar}`; if(i.teaSwap) dt+=` / ${i.teaSwap}`; if(i.toppings.length) dt+=` / 加:${i.toppings.join(',')}`; return { type:"box", layout:"vertical", margin:"sm", contents:[ {type:"box", layout:"baseline", contents:[{type:"text", text:`${i.item.name}(${i.size}) x${i.qty}`, size:"sm", weight:"bold", flex:3},{type:"text", text:`$${i.price}`, size:"sm", align:"end", flex:1, weight:"bold", color:"#06C755"}]}, {type:"box", layout:"baseline", margin:"xs", contents:[{type:"text", text:dt, size:"xs", color:"#64748b", flex:1, wrap:true}]} ]}; });
-        let fb = [ {type:"separator", margin:"md"} ]; fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📞 ${d.phone}`, size:"sm", weight:"bold"}]}); fb.push({type:"box", layout:"vertical", margin:"sm", contents:[{type:"text", text:`💳 ${d.payMethod==='全支付'?'🟡 全支付 (待付款)':'🟢 現金付款'}`, size:"sm", weight:"bold", color:d.payMethod==='全支付'?'#d97706':'#06C755'}]}); fb.push({type:"box", layout:"vertical", margin:"sm", contents:[{type:"text", text:`📄 ${d.invoiceText}`, size:"sm", weight:"bold", color:"#2563eb"}]}); fb.push({type:"box", layout:"vertical", margin:"sm", contents:[{type:"text", text:`🛵 ${d.method}`, size:"sm", weight:"bold"}]});
-        if(d.address) fb.push({type:"box", layout:"vertical", margin:"sm", contents:[{type:"text", text:`📍 ${d.address}`, size:"sm", weight:"bold", color:"#e65100", wrap:true}]}); if(d.note) fb.push({type:"box", layout:"vertical", margin:"sm", contents:[{type:"text", text:`📝 ${d.note}`, size:"sm", weight:"bold", color:"#d32f2f", wrap:true}]}); fb.push({type:"separator", margin:"md"});
+        let fb = [ {type:"separator", margin:"md"} ]; fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📞 ${d.phone}`, size:"sm", weight:"bold"}]}); fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`💳 ${d.payMethod==='全支付'?'🟡 全支付 (待付款)':'🟢 現金付款'}`, size:"sm", weight:"bold", color:d.payMethod==='全支付'?'#d97706':'#06C755'}]}); fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📄 ${d.invoiceText}`, size:"sm", weight:"bold", color:"#2563eb"}]}); fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`🛵 ${d.method}`, size:"sm", weight:"bold"}]});
+        if(d.address) fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📍 ${d.address}`, size:"sm", weight:"bold", color:"#e65100", wrap:true}]}); if(d.note) fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📝 ${d.note}`, size:"sm", weight:"bold", color:"#d32f2f", wrap:true}]}); fb.push({type:"separator", margin:"md"});
         if(d.discount>0) { fb.push({type:"box", layout:"baseline", margin:"sm", contents:[{type:"text", text:"🎉 自取買五送一", color:"#ef4444", size:"sm", weight:"bold"}, {type:"text", text:`-$${d.discount}`, color:"#ef4444", size:"sm", align:"end", weight:"bold"}]}); }
         fb.push({type:"box", layout:"baseline", margin:"md", contents:[{type:"text", text:"💰 結帳金額", weight:"bold", size:"md"}, {type:"text", text:`$${d.finalTotal}`, weight:"bold", size:"xl", align:"end", color:"#06C755"}]});
         const per = 10; let bubbles = []; for(let i=0; i<boxes.length; i+=per) { let chunk = boxes.slice(i, i+per); let isLast = (i+per >= boxes.length); let bc = [{type:"box", layout:"vertical", spacing:"md", contents:chunk}]; if(isLast) bc.push(...fb); bubbles.push({type:"bubble", size:"mega", header:{type:"box", layout:"vertical", backgroundColor:"#1e293b", paddingAll:"md", contents:[{type:"text", text:`🌟 新進顧客訂單 (${Math.floor(i/per)+1})`, weight:"bold", size:"xl", color:"#ffffff"}]}, body:{type:"box", layout:"vertical", contents:bc}}); }
