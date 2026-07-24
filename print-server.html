@@ -18,12 +18,12 @@
 <div class="card">
     <h2>🚀 背景自動秒印中</h2>
     <div id="status" class="status-badge status-online">🟢 系統監控中（每 3 秒檢查一次）</div>
-    <p style="color: #aaa; font-size: 0.95rem;">此畫面可保持開啟。收到新訂單將透過隱藏通道直驅 RawBT！</p>
+    <p style="color: #aaa; font-size: 0.95rem;">此畫面可保持開啟。收到新訂單將自動直驅 RawBT 列印！</p>
     
     <button class="btn" onclick="testPrint()">⚡ 測試背景秒印</button>
 
     <div class="log-box" id="log-container">
-        [系統初始化] 準備就緒,監控雲端訂單中...<br>
+        [系統初始化] 準備就緒，監控雲端訂單中...<br>
     </div>
 </div>
 
@@ -61,7 +61,7 @@
         .then(r => r.json())
         .then(data => {
             if (data && data.hasNewOrder) {
-                addLog(`🎉 收到新訂單！總計：$${data.order.finalTotal}，背景直印中...`);
+                addLog(`🎉 收到新訂單！總計：$${data.order.finalTotal}，強制造紙中...`);
                 sendToRawBTApp(data.order);
                 markOrderAsPrinted(data.order.orderId);
             }
@@ -69,7 +69,7 @@
         .catch(err => {});
     }
 
-    // 🌟 隱藏 iframe 通道版
+    // 🌟 強制轉址直驅版
     function sendToRawBTApp(order) {
         let text = "\n";
         text += "==============================\n";
@@ -97,18 +97,10 @@
         let encodedText = btoa(unescape(encodeURIComponent(text)));
         let rawbtUrl = "rawbt:base64," + encodedText;
         
-        // 透過隱藏 iframe 悄悄拋送指令
-        let iframeId = "hidden-rawbt-frame";
-        let iframe = document.getElementById(iframeId);
-        if (!iframe) {
-            iframe = document.createElement("iframe");
-            iframe.id = iframeId;
-            iframe.style.display = "none";
-            document.body.appendChild(iframe);
-        }
-        iframe.src = rawbtUrl;
+        // 透過頂層頁面轉址強行喚醒 RawBT
+        window.location.href = rawbtUrl;
         
-        addLog("✅ 背景通道已靜默送出指令！");
+        addLog("✅ 已強制切換至 RawBT 進行列印！");
     }
 
     function markOrderAsPrinted(orderId) {
