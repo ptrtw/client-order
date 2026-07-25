@@ -267,7 +267,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
             <!-- 統編強制 8 碼 -->
             <div id="invoice-number-container"><input type="text" id="invoice-number" placeholder="請輸入統一編號（8位數字）" maxlength="8" inputmode="numeric" oninput="this.value = this.value.replace(/\D/g, '')"></div>
             
-            <!-- 👉 新增：載具號碼輸入框 (自動轉大寫) -->
+            <!-- 載具號碼輸入框 -->
             <div id="carrier-input-container">
                 <input type="text" id="carrier-number" placeholder="請包含/完整填入您的載具 (選填)" oninput="this.value = this.value.toUpperCase()">
             </div>
@@ -555,7 +555,6 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         try { localStorage.setItem('pos_cart_data', JSON.stringify(cart)); } catch(e){}
     }
     
-    // 👉 更新：發票選項切換邏輯 (控制顯示欄位)
     function selectInvoiceOption(opt) {
         invoiceOption = opt; 
         document.querySelectorAll('.invoice-option-btns label').forEach(el=>el.classList.remove('active'));
@@ -614,7 +613,6 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         let phone = document.getElementById('customer-phone').value.trim(); 
         if(phone.length !== 10) return alert("請輸入正確的 10 碼電話號碼 (例如: 0912345678)！");
         
-        // 👉 更新：發票與載具防呆處理
         let invoiceNumber = ''; let carrierNumber = '';
         if (invoiceOption === 'uniform') { 
             invoiceNumber = document.getElementById('invoice-number').value.trim(); 
@@ -630,13 +628,11 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         let disc = 0; if(method==="自取" && allCups.length>=6){ allCups.sort((a,b)=>b-a); for(let i=5; i<allCups.length; i+=6) disc+=allCups[i]; }
         let finalTotal = origTotal - disc; 
         
-        // 👉 LINE 顯示的文字格式
         let invText = '';
         if (invoiceOption === 'paper') invText = '🧾 紙本發票';
         else if (invoiceOption === 'uniform') invText = `🏢 統編：${invoiceNumber}`;
         else invText = carrierNumber ? `📱 載具：${carrierNumber}` : '📱 載具 (未填寫，請於聊天室提供截圖)';
         
-        // 👉 將發票選項、統編、載具分開儲存傳給 GAS
         confirmData = { 
             orderId: Date.now().toString(),
             phone, method, address, payMethod, note, finalTotal, originalTotal: origTotal, discount: disc, invoiceText: invText,
@@ -667,6 +663,17 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         if(!confirmData) return;
         
         let d = confirmData; 
+        
+        // 👉 根據發票選項產生條碼圖片網址
+        let barcodeValue = "";
+        if (d.invoiceOption === 'uniform' && d.invoiceNumber) {
+            barcodeValue = d.invoiceNumber;
+        } else if (d.invoiceOption === 'carrier' && d.carrierNumber) {
+            barcodeValue = d.carrierNumber;
+        }
+        let barcodeImgUrl = barcodeValue ? 
+            (`https://bwipjs-api.metafloor.com/?bcid=code128&text=${encodeURIComponent(barcodeValue)}&scale=3&height=12&includetext=true`) : "";
+
         let boxes = d.cartItems.map(i => { 
             let dt = `👉 ${i.ice} / ${i.sugar}`; 
             if(i.teaSwap) dt+=` / ${i.teaSwap}`; 
@@ -674,11 +681,52 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
             if(i.note) dt+=` / 備註:${i.note}`; 
             return { type:"box", layout:"vertical", margin:"sm", contents:[ {type:"box", layout:"baseline", contents:[{type:"text", text:`${i.item.name}(${i.size}) x${i.qty}`, size:"sm", weight:"bold", flex:3},{type:"text", text:`$${i.price}`, size:"sm", align:"end", flex:1, weight:"bold", color:"#06C755"}]}, {type:"box", layout:"baseline", margin:"xs", contents:[{type:"text", text:dt, size:"xs", color:"#64748b", flex:1, wrap:true}]} ]}; 
         });
-        let fb = [ {type:"separator", margin:"md"} ]; fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📞 ${d.phone}`, size:"sm", weight:"bold"}]}); fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`💳 ${d.payMethod==='全支付'?'🟡 全支付 (待付款)':'🟢 現金付款'}`, size:"sm", weight:"bold", color:d.payMethod==='全支付'?'#d97706':'#06C755'}]}); fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📄 ${d.invoiceText}`, size:"sm", weight:"bold", color:"#2563eb"}]}); fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`🛵 ${d.method}`, size:"sm", weight:"bold"}]});
-        if(d.address) fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📍 ${d.address}`, size:"sm", weight:"bold", color:"#e65100", wrap:true}]}); if(d.note) fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📝 ${d.note}`, size:"sm", weight:"bold", color:"#d32f2f", wrap:true}]}); fb.push({type:"separator", margin:"md"});
-        if(d.discount>0) { fb.push({type:"box", layout:"baseline", margin:"sm", contents:[{type:"text", text:"🎉 自取買五送一", color:"#ef4444", size:"sm", weight:"bold"}, {type:"text", text:`-$${d.discount}`, color:"#ef4444", size:"sm", align:"end", weight:"bold"}]}); }
+        
+        let fb = [ {type:"separator", margin:"md"} ]; 
+        fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📞 ${d.phone}`, size:"sm", weight:"bold"}]}); 
+        fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`💳 ${d.payMethod==='全支付'?'🟡 全支付 (待付款)':'🟢 現金付款'}`, size:"sm", weight:"bold", color:d.payMethod==='全支付'?'#d97706':'#06C755'}]}); 
+        fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📄 ${d.invoiceText}`, size:"sm", weight:"bold", color:"#2563eb"}]}); 
+        fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`🛵 ${d.method}`, size:"sm", weight:"bold"}]});
+        
+        if(d.address) fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📍 ${d.address}`, size:"sm", weight:"bold", color:"#e65100", wrap:true}]}); 
+        if(d.note) fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📝 ${d.note}`, size:"sm", weight:"bold", color:"#d32f2f", wrap:true}]}); 
+        fb.push({type:"separator", margin:"md"});
+        
+        if(d.discount>0) { 
+            fb.push({type:"box", layout:"baseline", margin:"sm", contents:[{type:"text", text:"🎉 自取買五送一", color:"#ef4444", size:"sm", weight:"bold"}, {type:"text", text:`-$${d.discount}`, color:"#ef4444", size:"sm", align:"end", weight:"bold"}]}); 
+        }
+        
         fb.push({type:"box", layout:"baseline", margin:"md", contents:[{type:"text", text:"💰 結帳金額", weight:"bold", size:"md"}, {type:"text", text:`$${d.finalTotal}`, weight:"bold", size:"xl", align:"end", color:"#06C755"}]});
-        const per = 10; let bubbles = []; for(let i=0; i<boxes.length; i+=per) { let chunk = boxes.slice(i, i+per); let isLast = (i+per >= boxes.length); let bc = [{type:"box", layout:"vertical", spacing:"md", contents:chunk}]; if(isLast) bc.push(...fb); bubbles.push({type:"bubble", size:"mega", header:{type:"box", layout:"vertical", backgroundColor:"#1e293b", paddingAll:"md", contents:[{type:"text", text:`🌟 新進顧客訂單 (${Math.floor(i/per)+1})`, weight:"bold", size:"xl", color:"#ffffff"}]}, body:{type:"box", layout:"vertical", contents:bc}}); }
+
+        // 🌟 如果有填寫載具或統編，直接在下方追加一顆顯眼的條碼按鈕！
+        if (barcodeImgUrl) {
+            fb.push({
+                type: "box",
+                layout: "vertical",
+                margin: "md",
+                contents: [
+                    {
+                        type: "button",
+                        action: {
+                            type: "uri",
+                            label: "🔍 點擊開啟發票條碼",
+                            uri: barcodeImgUrl
+                        },
+                        style: "primary",
+                        color: "#1db446"
+                    }
+                ]
+            });
+        }
+
+        const per = 10; let bubbles = []; 
+        for(let i=0; i<boxes.length; i+=per) { 
+            let chunk = boxes.slice(i, i+per); 
+            let isLast = (i+per >= boxes.length); 
+            let bc = [{type:"box", layout:"vertical", spacing:"md", contents:chunk}]; 
+            if(isLast) bc.push(...fb); 
+            bubbles.push({type:"bubble", size:"mega", header:{type:"box", layout:"vertical", backgroundColor:"#1e293b", paddingAll:"md", contents:[{type:"text", text:`🌟 新進顧客訂單 (${Math.floor(i/per)+1})`, weight:"bold", size:"xl", color:"#ffffff"}]}, body:{type:"box", layout:"vertical", contents:bc}}); 
+        }
         
         try {
             await liff.sendMessages([{type:"flex", altText:`🎉 新訂單！總計 $${d.finalTotal}`, contents:{type:"carousel", contents:bubbles}}]);
