@@ -54,14 +54,14 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
 .cart-item-title { font-weight: bold; font-size: 1rem; margin-bottom: 4px; }
 .cart-item-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
 .cart-del-btn { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 15px; font-size: 0.85rem; }
-#customer-phone, #customer-address, #invoice-number, #order-note, #map-search-input { width: 100%; padding: 12px; box-sizing: border-box; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; background: #f9f9f9; outline: none; margin: 5px 0 15px; }
+#customer-phone, #customer-address, #invoice-number, #carrier-number, #order-note, #map-search-input { width: 100%; padding: 12px; box-sizing: border-box; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; background: #f9f9f9; outline: none; margin: 5px 0 15px; }
 .submit-btn { width: 100%; padding: 12px; background: var(--brand-color); color: white; border: none; border-radius: 14px; font-weight: bold; margin-top: 5px; cursor: pointer; }
 .invoice-option-group { margin: 15px 0 10px 0; }
 .invoice-option-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
 .invoice-option-btns label { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.9rem; cursor: pointer; padding: 10px 6px; border-radius: 12px; border: 2px solid #e0e0e0; text-align: center; }
 .invoice-option-btns label.active { border-color: var(--brand-color); background: var(--brand-light); }
 .invoice-option-btns input[type="radio"] { accent-color: var(--brand-color); transform: scale(1.1); margin: 0; }
-.paper-invoice-hint, #carrier-hint, #invoice-number-container { display: none; font-size: 0.75rem; color: var(--text-muted); text-align: center; }
+.paper-invoice-hint, #carrier-hint, #invoice-number-container, #carrier-input-container { display: none; font-size: 0.75rem; color: var(--text-muted); text-align: center; }
 .paper-invoice-hint.show, #carrier-hint.show { display: block; margin: 4px 0 12px; padding: 6px; background: #f5f5f5; border-radius: 8px; }
 .confirm-order-summary { background: #f8fafc; border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; max-height: 40vh; overflow-y: auto; }
 .confirm-order-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #eef2f6; font-size: 0.9rem; }
@@ -179,7 +179,6 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
                 <div class="opt-title" style="margin:0;">數量</div>
                 <div class="qty-ctrl">
                     <button class="qty-btn" onclick="staffChangeQty(-1)">-</button>
-                    <!-- 👉 新增：開放員工直接打數字 (onchange) -->
                     <input type="number" class="qty-num" id="staff-item-qty" value="1" min="1" onclick="this.select()" onchange="staffManualChangeQty(this.value)">
                     <button class="qty-btn" onclick="staffChangeQty(1)">+</button>
                 </div>
@@ -198,7 +197,6 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         </div>
         <div class="opt-group"><div class="opt-title">加料</div><div id="staff-topping-btns" class="opt-btns"></div></div>
         
-        <!-- 👉 新增：員工專用單杯備註欄 -->
         <div class="opt-group" style="margin-top: 10px;">
             <div class="opt-title">📝 單杯備註 (選填)</div>
             <input type="text" id="staff-item-note" placeholder="例如：少冰、不要吸管..." style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 8px; font-size: 0.9rem; background: #f9f9f9; outline: none; box-sizing: border-box;">
@@ -241,7 +239,6 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         <div style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0 20px; font-size: 1.2rem; font-weight: bold;"><span>結帳總額</span><span style="color: var(--brand-color); font-size: 1.5rem;">$<span id="cart-total">0</span></span></div>
         <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
         
-        <!-- 👉 新增：防呆10碼數字電話 -->
         <div class="opt-title">聯絡電話 <span style="color: red;">*</span></div>
         <input type="tel" id="customer-phone" placeholder="請輸入 10 碼聯絡電話" maxlength="10" inputmode="numeric" oninput="this.value = this.value.replace(/\D/g, '')" required>
         
@@ -262,11 +259,19 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
             <div class="invoice-option-btns">
                 <label id="invoice-option-paper" class="active" onclick="selectInvoiceOption('paper')"><input type="radio" name="invoice-option" value="paper" checked>🧾 紙本發票<span class="sub-text">店家直接印出</span></label>
                 <label id="invoice-option-uniform" onclick="selectInvoiceOption('uniform')"><input type="radio" name="invoice-option" value="uniform">🏢 統編<span class="sub-text">輸入統編號碼</span></label>
-                <label id="invoice-option-carrier" onclick="selectInvoiceOption('carrier')"><input type="radio" name="invoice-option" value="carrier">📱 載具<span class="sub-text">無需輸入</span></label>
+                <label id="invoice-option-carrier" onclick="selectInvoiceOption('carrier')"><input type="radio" name="invoice-option" value="carrier">📱 載具<span class="sub-text">輸入或截圖</span></label>
             </div>
+            
             <div id="paper-invoice-hint" class="paper-invoice-hint show">✅ 本店將直接為您印製紙本發票，無需任何操作</div>
-            <div id="invoice-number-container"><input type="text" id="invoice-number" placeholder="請輸入統一編號（8位數字）" maxlength="8" inputmode="numeric"></div>
-            <div id="carrier-hint">📌 訂單送出後，請在聊天室上傳載具 QR Code 圖片</div>
+            
+            <!-- 統編強制 8 碼 -->
+            <div id="invoice-number-container"><input type="text" id="invoice-number" placeholder="請輸入統一編號（8位數字）" maxlength="8" inputmode="numeric" oninput="this.value = this.value.replace(/\D/g, '')"></div>
+            
+            <!-- 👉 新增：載具號碼輸入框 (自動轉大寫) -->
+            <div id="carrier-input-container">
+                <input type="text" id="carrier-number" placeholder="請包含/完整填入您的載具 (選填)" oninput="this.value = this.value.toUpperCase()">
+            </div>
+            <div id="carrier-hint">📌 若未填寫載具，訂單送出後請在聊天室上傳截圖</div>
         </div>
         <button class="submit-btn" onclick="showConfirmModal()">📋 確認訂單</button>
     </div>
@@ -278,7 +283,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         <div class="modal-header"><h3>📋 確認訂單</h3><button class="close-btn" onclick="document.getElementById('confirm-modal').style.display='none'">✕</button></div>
         <div class="confirm-order-summary" id="confirm-order-list"></div>
         <div class="confirm-order-info" id="confirm-order-info"></div>
-        <div class="confirm-order-total"><span>💰 結帳總額</span><span class="total-amount" id="confirm-total-amount">$0</span></div>
+        <div class="confirm-order-total"><span>💰 結總額</span><span class="total-amount" id="confirm-total-amount">$0</span></div>
         <div class="confirm-btn-group"><button class="btn-back" onclick="closeConfirmModal()">← 繼續點餐</button><button class="btn-confirm" onclick="sendToLine()">✅ 確認送出</button></div>
     </div>
 </div>
@@ -299,7 +304,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
     let menuData = []; let staffMenuData = [];
     let storeHours = { 1:{open:"09:00",close:"21:00",isClosed:false}, 2:{open:"09:00",close:"21:00",isClosed:false}, 3:{open:"09:00",close:"21:00",isClosed:false}, 4:{open:"09:00",close:"21:00",isClosed:false}, 5:{open:"09:00",close:"21:00",isClosed:false}, 6:{open:"09:00",close:"21:00",isClosed:false}, 0:{open:"09:00",close:"21:00",isClosed:false} };
     
-    let isStoreCurrentlyClosed = false; let invoiceOption = 'paper'; let invoiceNumber = ''; let cart = [];
+    let isStoreCurrentlyClosed = false; let invoiceOption = 'paper'; let cart = [];
     let currentSelect = {}; let staffSelect = {}; let confirmData = null;
     let cartTitleClickCount = 0; let cartTitleTimer = null;
     let isEditMode = false; let sortableInstances = []; let currentCategoryIndex = 0;
@@ -443,11 +448,10 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
 
     function openStaffModal(item) {
         let def = item.prices.hasOwnProperty('L') ? 'L' : Object.keys(item.prices)[0];
-        // 👉 新增：初始化備註 (note: "")
         staffSelect = { item, qty: 1, size: def, ice: null, sugar: null, toppings: [], note: "" };
         document.getElementById('staff-modal-title').innerText = item.name; 
         document.getElementById('staff-item-qty').value = 1;
-        document.getElementById('staff-item-note').value = ""; // 清空上一次的備註
+        document.getElementById('staff-item-note').value = ""; 
         document.getElementById('staff-option-modal').style.display = 'flex';
         renderBtns('staff-size-btns', Object.keys(item.prices), (val) => { staffSelect.size = val; staffSelect.toppings = []; renderStaffToppings(item, val); updateStaffPrice(); }, def);
         renderStaffToppings(item, def); document.querySelectorAll('.staff-ice-btn, .staff-sugar-btn').forEach(b => b.classList.remove('active')); updateStaffPrice();
@@ -455,16 +459,8 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
 
     function setStaffIce(val) { staffSelect.ice = val; document.querySelectorAll('.staff-ice-btn').forEach(b => b.classList.remove('active')); document.querySelector(`.staff-ice-btn[data-val="${val}"]`)?.classList.add('active'); }
     function setStaffSugar(val) { staffSelect.sugar = val; document.querySelectorAll('.staff-sugar-btn').forEach(b => b.classList.remove('active')); document.querySelector(`.staff-sugar-btn[data-val="${val}"]`)?.classList.add('active'); }
-    
     function staffChangeQty(diff) { staffSelect.qty = Math.max(1, staffSelect.qty + diff); document.getElementById('staff-item-qty').value = staffSelect.qty; updateStaffPrice(); }
-    
-    // 👉 新增：員工手動輸入數量的功能
-    function staffManualChangeQty(val) { 
-        let num = parseInt(val); 
-        staffSelect.qty = (isNaN(num)||num<1) ? 1 : num; 
-        document.getElementById('staff-item-qty').value = staffSelect.qty; 
-        updateStaffPrice(); 
-    }
+    function staffManualChangeQty(val) { let num = parseInt(val); staffSelect.qty = (isNaN(num)||num<1) ? 1 : num; document.getElementById('staff-item-qty').value = staffSelect.qty; updateStaffPrice(); }
 
     function updateStaffPrice() {
         if (!staffSelect.item || !staffSelect.size) return; let base = staffSelect.item.prices[staffSelect.size] || 0; let topMap = toppingPrices[staffSelect.size] || {};
@@ -482,14 +478,9 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         let base = staffSelect.item.prices[staffSelect.size]; let topMap = toppingPrices[staffSelect.size] || {};
         if(staffSelect.item.customToppings && staffSelect.item.customToppings[staffSelect.size]) topMap = staffSelect.item.customToppings[staffSelect.size];
         let topCost = staffSelect.toppings.reduce((sum, t) => sum + (topMap[t]||0), 0); let finalIce = staffSelect.ice || "預設冰"; let finalSugar = staffSelect.sugar || "預設甜";
-        let itemNote = document.getElementById('staff-item-note').value.trim(); // 👉 抓取備註文字
-        
-        // 👉 將備註(note)寫入這杯飲料的資料裡
+        let itemNote = document.getElementById('staff-item-note').value.trim(); 
         cart.push({ item: staffSelect.item, size: staffSelect.size, qty: staffSelect.qty, ice: finalIce, sugar: finalSugar, toppings: staffSelect.toppings, teaSwap: "", note: itemNote, price: (base + topCost) * staffSelect.qty });
-        
-        updateCounter(); 
-        document.getElementById('staff-option-modal').style.display = 'none'; 
-        updateCartUI(); 
+        updateCounter(); document.getElementById('staff-option-modal').style.display = 'none'; updateCartUI(); 
     }
 
     // ================= 🍹 一般客戶邏輯 =================
@@ -563,12 +554,33 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         document.getElementById('cart-total-preview').innerText = `$${cart.reduce((s,i)=>s+i.price,0)}`; 
         try { localStorage.setItem('pos_cart_data', JSON.stringify(cart)); } catch(e){}
     }
+    
+    // 👉 更新：發票選項切換邏輯 (控制顯示欄位)
     function selectInvoiceOption(opt) {
-        invoiceOption = opt; document.querySelectorAll('.invoice-option-btns label').forEach(el=>el.classList.remove('active'));
-        if(opt==='paper'){ document.getElementById('invoice-option-paper').classList.add('active'); document.getElementById('paper-invoice-hint').classList.add('show'); document.getElementById('carrier-hint').classList.remove('show'); }
-        else { document.getElementById('paper-invoice-hint').classList.remove('show'); if(opt==='uniform'){ document.getElementById('invoice-option-uniform').classList.add('active'); document.getElementById('carrier-hint').classList.remove('show'); } else{ document.getElementById('invoice-option-carrier').classList.add('active'); document.getElementById('carrier-hint').classList.add('show'); } }
-        document.getElementById('invoice-number-container').style.display = opt==='uniform'?'block':'none'; if(opt!=='uniform') document.getElementById('invoice-number').value='';
+        invoiceOption = opt; 
+        document.querySelectorAll('.invoice-option-btns label').forEach(el=>el.classList.remove('active'));
+        
+        document.getElementById('paper-invoice-hint').classList.remove('show');
+        document.getElementById('carrier-hint').classList.remove('show');
+        document.getElementById('invoice-number-container').style.display = 'none';
+        document.getElementById('carrier-input-container').style.display = 'none';
+
+        if(opt==='paper'){ 
+            document.getElementById('invoice-option-paper').classList.add('active'); 
+            document.getElementById('paper-invoice-hint').classList.add('show'); 
+        } else if (opt==='uniform') { 
+            document.getElementById('invoice-option-uniform').classList.add('active'); 
+            document.getElementById('invoice-number-container').style.display = 'block'; 
+        } else { 
+            document.getElementById('invoice-option-carrier').classList.add('active'); 
+            document.getElementById('carrier-hint').classList.add('show'); 
+            document.getElementById('carrier-input-container').style.display = 'block'; 
+        }
+        
+        if(opt!=='uniform') document.getElementById('invoice-number').value='';
+        if(opt!=='carrier') document.getElementById('carrier-number').value='';
     }
+    
     function showCart() {
         document.getElementById('cart-modal').style.display = 'flex'; 
         let sm = document.querySelector('input[name="delivery-method"]:checked'); if(sm) toggleDeliveryAddress(sm.value==='外送'); else { document.getElementById('payment-title').style.display='none'; document.getElementById('payment-options').style.display='none'; }
@@ -581,7 +593,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
                 origTotal += item.price; for(let i=0; i<item.qty; i++) allCups.push(item.price/item.qty); 
                 let tStr = item.teaSwap ? ` / ${item.teaSwap}`:''; 
                 let tpStr = item.toppings.length ? ` / 加:${item.toppings.join(',')}`:'';
-                if(item.note) tpStr += ` / 備註:${item.note}`; // 👉 在購物車明細加入單杯備註顯示
+                if(item.note) tpStr += ` / 備註:${item.note}`; 
                 list.innerHTML += `<div class="cart-item"><div class="cart-item-info"><div class="cart-item-title">${item.item.name} (${item.size}) x ${item.qty}</div><div class="cart-item-desc">${item.ice} / ${item.sugar}${tStr}${tpStr}</div><div style="font-weight:bold; color:var(--brand-color); margin-top:4px;">$${item.price}</div></div><button class="cart-del-btn" onclick="removeFromCart(${idx})">移除</button></div>`;
             });
         } else { list.innerHTML = '<div style="text-align:center; padding:30px; color:#999;">購物車空空的耶，來點杯飲料吧！</div>'; }
@@ -595,23 +607,43 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         document.getElementById('address-container').style.display = show?'block':'none'; document.getElementById('payment-title').style.display = show?'block':'none'; document.getElementById('payment-options').style.display = show?'flex':'none';
         if(!show) { let c = document.querySelector('input[name="payment-method"][value="現金"]'); if(c) c.checked=true; } updateCartUI(); 
     }
+    
     function showConfirmModal() {
         if(cart.length===0) return alert("購物車是空的！"); 
         
-        // 👉 新增：防呆驗證，強迫輸入10碼數字
         let phone = document.getElementById('customer-phone').value.trim(); 
         if(phone.length !== 10) return alert("請輸入正確的 10 碼電話號碼 (例如: 0912345678)！");
         
-        if(invoiceOption==='uniform') { invoiceNumber = document.getElementById('invoice-number').value.trim(); if(!invoiceNumber||invoiceNumber.length!==8) return alert("請輸入8位統編！"); }
+        // 👉 更新：發票與載具防呆處理
+        let invoiceNumber = ''; let carrierNumber = '';
+        if (invoiceOption === 'uniform') { 
+            invoiceNumber = document.getElementById('invoice-number').value.trim(); 
+            if(!invoiceNumber || invoiceNumber.length !== 8) return alert("❌ 統編為必填，且必須為 8 位數字！"); 
+        }
+        if (invoiceOption === 'carrier') {
+            carrierNumber = document.getElementById('carrier-number').value.trim();
+        }
+        
         let m = document.querySelector('input[name="delivery-method"]:checked'); if(!m) return alert("請選擇取餐方式"); let method = m.value; let address = method==="外送" ? document.getElementById('customer-address').value.trim() : "";
         let p = document.querySelector('input[name="payment-method"]:checked'); let payMethod = p?p.value:"現金"; let note = document.getElementById('order-note').value.trim();
         let allCups = []; let origTotal = 0; cart.forEach(i => { origTotal += i.price; for(let k=0; k<i.qty; k++) allCups.push(i.price/i.qty); });
         let disc = 0; if(method==="自取" && allCups.length>=6){ allCups.sort((a,b)=>b-a); for(let i=5; i<allCups.length; i+=6) disc+=allCups[i]; }
-        let finalTotal = origTotal - disc; let invText = invoiceOption==='paper'?'🧾 紙本發票':(invoiceOption==='uniform'?`🏢 統編：${invoiceNumber}`:'📱 載具');
+        let finalTotal = origTotal - disc; 
         
+        // 👉 LINE 顯示的文字格式
+        let invText = '';
+        if (invoiceOption === 'paper') invText = '🧾 紙本發票';
+        else if (invoiceOption === 'uniform') invText = `🏢 統編：${invoiceNumber}`;
+        else invText = carrierNumber ? `📱 載具：${carrierNumber}` : '📱 載具 (未填寫，請於聊天室提供截圖)';
+        
+        // 👉 將發票選項、統編、載具分開儲存傳給 GAS
         confirmData = { 
             orderId: Date.now().toString(),
-            phone, method, address, payMethod, note, finalTotal, originalTotal: origTotal, discount: disc, invoiceText: invText, cartItems: JSON.parse(JSON.stringify(cart)) 
+            phone, method, address, payMethod, note, finalTotal, originalTotal: origTotal, discount: disc, invoiceText: invText,
+            invoiceOption: invoiceOption,
+            invoiceNumber: invoiceNumber,
+            carrierNumber: carrierNumber,
+            cartItems: JSON.parse(JSON.stringify(cart)) 
         };
         
         let lc = document.getElementById('confirm-order-list'); lc.innerHTML = '';
@@ -619,7 +651,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
             let dt = `${i.ice} / ${i.sugar}`; 
             if(i.teaSwap) dt+=` / ${i.teaSwap}`; 
             if(i.toppings.length) dt+=` / 加:${i.toppings.join(',')}`; 
-            if(i.note) dt+=` / 備註:${i.note}`; // 👉 確認畫面上顯示單杯備註
+            if(i.note) dt+=` / 備註:${i.note}`; 
             lc.innerHTML += `<div class="confirm-order-item"><div class="item-left"><div class="item-name">${i.item.name} (${i.size}) x ${i.qty}</div><div class="item-detail">${dt}</div></div><div class="item-price">$${i.price}</div></div>`; 
         });
         let ih = `<strong>📞 聯絡電話：</strong>${phone}<br><strong>🛵 取餐方式：</strong>${method}`; if(method==="外送" && address) ih+=`<br><strong>📍 外送地址：</strong>${address}`; if(note) ih+=`<br><strong>📝 訂單備註：</strong><span style="color:#d32f2f;">${note}</span>`;
@@ -639,7 +671,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
             let dt = `👉 ${i.ice} / ${i.sugar}`; 
             if(i.teaSwap) dt+=` / ${i.teaSwap}`; 
             if(i.toppings.length) dt+=` / 加:${i.toppings.join(',')}`; 
-            if(i.note) dt+=` / 備註:${i.note}`; // 👉 送進 LINE 群組與出單機的明細加入單杯備註
+            if(i.note) dt+=` / 備註:${i.note}`; 
             return { type:"box", layout:"vertical", margin:"sm", contents:[ {type:"box", layout:"baseline", contents:[{type:"text", text:`${i.item.name}(${i.size}) x${i.qty}`, size:"sm", weight:"bold", flex:3},{type:"text", text:`$${i.price}`, size:"sm", align:"end", flex:1, weight:"bold", color:"#06C755"}]}, {type:"box", layout:"baseline", margin:"xs", contents:[{type:"text", text:dt, size:"xs", color:"#64748b", flex:1, wrap:true}]} ]}; 
         });
         let fb = [ {type:"separator", margin:"md"} ]; fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📞 ${d.phone}`, size:"sm", weight:"bold"}]}); fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`💳 ${d.payMethod==='全支付'?'🟡 全支付 (待付款)':'🟢 現金付款'}`, size:"sm", weight:"bold", color:d.payMethod==='全支付'?'#d97706':'#06C755'}]}); fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`📄 ${d.invoiceText}`, size:"sm", weight:"bold", color:"#2563eb"}]}); fb.push({type:"box", layout:"vertical", margin:"md", contents:[{type:"text", text:`🛵 ${d.method}`, size:"sm", weight:"bold"}]});
