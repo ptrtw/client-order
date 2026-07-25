@@ -664,7 +664,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         
         let d = confirmData; 
         
-        // 👉 根據發票選項產生條碼圖片網址
+        // 👉 加上 &padding=15 確保左右兩側有完美白邊，掃描槍秒嗶
         let barcodeValue = "";
         if (d.invoiceOption === 'uniform' && d.invoiceNumber) {
             barcodeValue = d.invoiceNumber;
@@ -672,7 +672,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
             barcodeValue = d.carrierNumber;
         }
         let barcodeImgUrl = barcodeValue ? 
-            (`https://bwipjs-api.metafloor.com/?bcid=code128&text=${encodeURIComponent(barcodeValue)}&scale=3&height=12&includetext=true`) : "";
+            (`https://bwipjs-api.metafloor.com/?bcid=code128&text=${encodeURIComponent(barcodeValue)}&scale=3&height=12&includetext=true&padding=15`) : "";
 
         let boxes = d.cartItems.map(i => { 
             let dt = `👉 ${i.ice} / ${i.sugar}`; 
@@ -698,7 +698,6 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         
         fb.push({type:"box", layout:"baseline", margin:"md", contents:[{type:"text", text:"💰 結帳金額", weight:"bold", size:"md"}, {type:"text", text:`$${d.finalTotal}`, weight:"bold", size:"xl", align:"end", color:"#06C755"}]});
 
-        // 🌟 如果有填寫載具或統編，直接在下方追加一顆顯眼的條碼按鈕！
         if (barcodeImgUrl) {
             fb.push({
                 type: "box",
