@@ -247,6 +247,15 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
             <label style="display: flex; align-items: center; gap: 8px; font-size: 1rem; cursor: pointer;"><input type="radio" name="delivery-method" value="自取" onclick="toggleDeliveryAddress(false)" checked> 自取</label>
             <label style="display: flex; align-items: center; gap: 8px; font-size: 1rem; cursor: pointer;"><input type="radio" name="delivery-method" value="外送" id="delivery-radio-btn" onclick="toggleDeliveryAddress(true)"> 外送</label>
         </div>
+        
+        <!-- ✨ 新增的自取時間選擇器 ✨ -->
+        <div id="pickup-time-container" style="display: block; margin-bottom: 15px;">
+            <div class="opt-title">⏱️ 預計自取時間</div>
+            <select id="pickup-time" style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; background: #f9f9f9; outline: none; margin-top: 5px;">
+                <option value="立即取餐">立即取餐 (儘速製作)</option>
+            </select>
+        </div>
+
         <div id="address-container" style="display: none;"><div class="opt-title">外送地址</div><input type="text" id="customer-address" placeholder="請輸入外送地址"></div>
         <div id="note-container" style="display: none;"><div class="opt-title">📝 訂單備註</div><input type="text" id="order-note" placeholder="例如：少冰、塑膠袋等需求"></div>
         <div class="opt-title" id="payment-title" style="margin-top:10px; display: none;">付款方式</div>
@@ -283,7 +292,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         <div class="modal-header"><h3>📋 確認訂單</h3><button class="close-btn" onclick="document.getElementById('confirm-modal').style.display='none'">✕</button></div>
         <div class="confirm-order-summary" id="confirm-order-list"></div>
         <div class="confirm-order-info" id="confirm-order-info"></div>
-        <div class="confirm-order-total"><span>💰 結總額</span><span class="total-amount" id="confirm-total-amount">$0</span></div>
+        <div class="confirm-order-total"><span>💰 結帳總額</span><span class="total-amount" id="confirm-total-amount">$0</span></div>
         <div class="confirm-btn-group"><button class="btn-back" onclick="closeConfirmModal()">← 繼續點餐</button><button class="btn-confirm" onclick="sendToLine()">✅ 確認送出</button></div>
     </div>
 </div>
@@ -580,10 +589,42 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         if(opt!=='carrier') document.getElementById('carrier-number').value='';
     }
     
+    // ✨ 動態生成預計取餐時間 (間隔 15 分鐘)
+    function generateTimeOptions() {
+        const select = document.getElementById('pickup-time');
+        if(!select) return;
+        let currentVal = select.value;
+        select.innerHTML = '<option value="立即取餐">立即取餐 (儘速製作)</option>';
+        
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + 20); // 預設最快 20 分鐘後可取餐
+        let hasOptions = false;
+        
+        for (let h = now.getHours(); h < 22; h++) {
+            let startM = (h === now.getHours() ? Math.ceil(now.getMinutes() / 15) * 15 : 0);
+            for (let m = startM; m < 60; m += 15) {
+                let timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+                let option = document.createElement('option');
+                option.value = timeStr;
+                option.textContent = timeStr;
+                select.appendChild(option);
+                hasOptions = true;
+            }
+        }
+        
+        if(currentVal && currentVal !== "立即取餐") {
+            let found = Array.from(select.options).find(o => o.value === currentVal);
+            if(found) select.value = currentVal;
+        }
+    }
+
     function showCart() {
         document.getElementById('cart-modal').style.display = 'flex'; 
-        let sm = document.querySelector('input[name="delivery-method"]:checked'); if(sm) toggleDeliveryAddress(sm.value==='外送'); else { document.getElementById('payment-title').style.display='none'; document.getElementById('payment-options').style.display='none'; }
+        let sm = document.querySelector('input[name="delivery-method"]:checked'); 
+        if(sm) toggleDeliveryAddress(sm.value==='外送'); 
+        else { document.getElementById('payment-title').style.display='none'; document.getElementById('payment-options').style.display='none'; }
         selectInvoiceOption('paper'); updateCartUI();
+        if(sm && sm.value==='自取') generateTimeOptions();
     }
     function updateCartUI() {
         const list = document.getElementById('cart-list'); list.innerHTML = ''; let allCups = []; let origTotal = 0;
@@ -602,9 +643,18 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         document.getElementById('cart-original-total-row').style.display = disc>0?'flex':'none'; document.getElementById('cart-original-total').innerText = origTotal; document.getElementById('discount-row').style.display = disc>0?'flex':'none'; document.getElementById('cart-discount').innerText = disc; document.getElementById('cart-total').innerText = origTotal - disc;
     }
     function removeFromCart(idx) { cart.splice(idx, 1); updateCounter(); updateCartUI(); }
+    
     function toggleDeliveryAddress(show) { 
-        document.getElementById('address-container').style.display = show?'block':'none'; document.getElementById('payment-title').style.display = show?'block':'none'; document.getElementById('payment-options').style.display = show?'flex':'none';
-        if(!show) { let c = document.querySelector('input[name="payment-method"][value="現金"]'); if(c) c.checked=true; } updateCartUI(); 
+        document.getElementById('address-container').style.display = show?'block':'none'; 
+        document.getElementById('payment-title').style.display = show?'block':'none'; 
+        document.getElementById('payment-options').style.display = show?'flex':'none';
+        document.getElementById('pickup-time-container').style.display = show?'none':'block'; // ✨ 切換時間選擇器顯示
+        
+        if(!show) { 
+            let c = document.querySelector('input[name="payment-method"][value="現金"]'); if(c) c.checked=true; 
+            generateTimeOptions(); // ✨ 重整自取時間
+        } 
+        updateCartUI(); 
     }
     
     function showConfirmModal() {
@@ -622,8 +672,20 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
             carrierNumber = document.getElementById('carrier-number').value.trim();
         }
         
-        let m = document.querySelector('input[name="delivery-method"]:checked'); if(!m) return alert("請選擇取餐方式"); let method = m.value; let address = method==="外送" ? document.getElementById('customer-address').value.trim() : "";
-        let p = document.querySelector('input[name="payment-method"]:checked'); let payMethod = p?p.value:"現金"; let note = document.getElementById('order-note').value.trim();
+        let m = document.querySelector('input[name="delivery-method"]:checked'); if(!m) return alert("請選擇取餐方式"); 
+        let method = m.value; let address = method==="外送" ? document.getElementById('customer-address').value.trim() : "";
+        let p = document.querySelector('input[name="payment-method"]:checked'); let payMethod = p?p.value:"現金"; 
+        
+        let note = document.getElementById('order-note').value.trim();
+        
+        // ✨ 如果是自取，把選定的取餐時間加到備註裡
+        if (method === "自取") {
+            let pTime = document.getElementById('pickup-time').value;
+            if (pTime && pTime !== "立即取餐") {
+                note = `【取餐時間：${pTime}】` + (note ? " " + note : "");
+            }
+        }
+
         let allCups = []; let origTotal = 0; cart.forEach(i => { origTotal += i.price; for(let k=0; k<i.qty; k++) allCups.push(i.price/i.qty); });
         let disc = 0; if(method==="自取" && allCups.length>=6){ allCups.sort((a,b)=>b-a); for(let i=5; i<allCups.length; i+=6) disc+=allCups[i]; }
         let finalTotal = origTotal - disc; 
@@ -650,6 +712,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
             if(i.note) dt+=` / 備註:${i.note}`; 
             lc.innerHTML += `<div class="confirm-order-item"><div class="item-left"><div class="item-name">${i.item.name} (${i.size}) x ${i.qty}</div><div class="item-detail">${dt}</div></div><div class="item-price">$${i.price}</div></div>`; 
         });
+        
         let ih = `<strong>📞 聯絡電話：</strong>${phone}<br><strong>🛵 取餐方式：</strong>${method}`; if(method==="外送" && address) ih+=`<br><strong>📍 外送地址：</strong>${address}`; if(note) ih+=`<br><strong>📝 訂單備註：</strong><span style="color:#d32f2f;">${note}</span>`;
         ih+=`<br><strong>📄 發票：</strong>${invText}<br><strong>💳 付款方式：</strong><span style="color:${payMethod==='全支付'?'#d97706':'#06C755'};">${payMethod}</span>`; if(disc>0) ih+=`<br><strong>🎉 買五送一折扣：</strong> -$${disc}`;
         document.getElementById('confirm-order-info').innerHTML = ih; document.getElementById('confirm-total-amount').innerText = `$${finalTotal}`; document.getElementById('cart-modal').style.display = 'none'; document.getElementById('confirm-modal').style.display = 'flex';
@@ -664,7 +727,6 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         
         let d = confirmData; 
         
-        // 👉 加上 &padding=15 確保左右兩側有完美白邊，掃描槍秒嗶
         let barcodeValue = "";
         if (d.invoiceOption === 'uniform' && d.invoiceNumber) {
             barcodeValue = d.invoiceNumber;
