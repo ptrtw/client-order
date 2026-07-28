@@ -185,22 +185,29 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
             </div>
             <div class="option-price-display">$<span id="staff-option-price-value">0</span><span class="price-unit">/ 杯</span></div>
         </div>
+
+        <!-- 🔥 依照需求改造：大小按鈕縮小，並與「更換茶湯」、「備註按鈕」放在同一排 -->
         <div class="opt-group">
-            <div class="opt-title">大小</div>
-            <div id="staff-size-btns" class="opt-btns"></div>
+            <div class="opt-title">大小 / 選項</div>
+            <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                <div id="staff-size-btns" style="display: flex; gap: 4px;"></div>
+                <select id="staff-tea-swap-select" class="tea-swap-select" style="display:none; padding:8px 10px; font-size:0.85rem; border-radius:10px;"><option value="">更換茶湯 (無)</option><option value="換綠茶">換綠茶</option><option value="換菁茶">換菁茶</option><option value="換高山">換高山</option><option value="換烏龍">換烏龍</option><option value="換紅茶">換紅茶</option><option value="換普洱">換普洱</option></select>
+                <button type="button" onclick="toggleStaffNoteInput()" id="staff-note-toggle-btn" style="background:#f5f6f8; border:1px solid #ddd; padding:8px 12px; border-radius:10px; font-size:0.85rem; font-weight:bold; cursor:pointer; color:#555;">📝 備註</button>
+            </div>
         </div>
-        <div class="pos-options-container">
+
+        <!-- 摺疊的備註輸入框 -->
+        <div class="opt-group" id="staff-note-container" style="display: none; margin-top: 5px;">
+            <input type="text" id="staff-item-note" placeholder="例如：少冰、不要吸管..." style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 8px; font-size: 0.9rem; background: #f9f9f9; outline: none; box-sizing: border-box;">
+        </div>
+
+        <div class="pos-options-container" style="margin-top: 10px;">
             <div class="pos-col"><div class="pos-col-title">冰塊</div><button class="pos-btn staff-ice-btn" data-val="去冰" onclick="setStaffIce('去冰')">去冰</button><button class="pos-btn staff-ice-btn" data-val="微冰" onclick="setStaffIce('微冰')">微冰</button><button class="pos-btn staff-ice-btn" data-val="少冰" onclick="setStaffIce('少冰')">少冰</button><button class="pos-btn staff-ice-btn" data-val="正常冰" onclick="setStaffIce('正常冰')">正常冰</button><button class="pos-btn staff-ice-btn" data-val="多冰" onclick="setStaffIce('多冰')">多冰</button></div>
             <div class="pos-col"><div class="pos-col-title">甜度</div><button class="pos-btn staff-sugar-btn" data-val="無糖" onclick="setStaffSugar('無糖')">無糖</button><button class="pos-btn staff-sugar-btn" data-val="微糖" onclick="setStaffSugar('微糖')">微糖</button><button class="pos-btn staff-sugar-btn" data-val="半糖" onclick="setStaffSugar('半糖')">半糖</button><button class="pos-btn staff-sugar-btn" data-val="八分糖" onclick="setStaffSugar('八分糖')">八分糖</button><button class="pos-btn staff-sugar-btn" data-val="多糖" onclick="setStaffSugar('多糖')">多糖</button></div>
             <div class="pos-col"><div class="pos-col-title">其他甜</div><button class="pos-btn staff-sugar-btn" data-val="1分糖" onclick="setStaffSugar('1分糖')">1分糖</button><button class="pos-btn staff-sugar-btn" data-val="3分糖" onclick="setStaffSugar('3分糖')">3分糖</button><button class="pos-btn staff-sugar-btn" data-val="4分糖" onclick="setStaffSugar('4分糖')">4分糖</button><button class="pos-btn staff-sugar-btn" data-val="6分糖" onclick="setStaffSugar('6分糖')">6分糖</button><button class="pos-btn staff-sugar-btn" data-val="7分糖" onclick="setStaffSugar('7分糖')">7分糖</button></div>
             <div class="pos-col"><div class="pos-col-title">溫度</div><button class="pos-btn staff-ice-btn" data-val="全部" onclick="setStaffIce('全部')">全部</button><button class="pos-btn staff-ice-btn" data-val="小碎冰" onclick="setStaffIce('小碎冰')">小碎冰</button><button class="pos-btn staff-ice-btn" data-val="常溫" onclick="setStaffIce('常溫')">常溫</button><button class="pos-btn staff-ice-btn" data-val="溫飲" onclick="setStaffIce('溫飲')">溫飲</button><button class="pos-btn staff-ice-btn" data-val="熱飲" onclick="setStaffIce('熱飲')">熱飲</button></div>
         </div>
         <div class="opt-group"><div class="opt-title">加料</div><div id="staff-topping-btns" class="opt-btns"></div></div>
-        
-        <div class="opt-group" style="margin-top: 10px;">
-            <div class="opt-title">📝 單杯備註 (選填)</div>
-            <input type="text" id="staff-item-note" placeholder="例如：少冰、不要吸管..." style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 8px; font-size: 0.9rem; background: #f9f9f9; outline: none; box-sizing: border-box;">
-        </div>
 
         <button class="submit-btn" onclick="staffConfirmAddToCart()">加入購物車</button>
     </div>
@@ -248,7 +255,6 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
             <label style="display: flex; align-items: center; gap: 8px; font-size: 1rem; cursor: pointer;"><input type="radio" name="delivery-method" value="外送" id="delivery-radio-btn" onclick="toggleDeliveryAddress(true)"> 外送</label>
         </div>
         
-        <!-- ✨ 新增的自取時間選擇器 ✨ -->
         <div id="pickup-time-container" style="display: block; margin-bottom: 15px;">
             <div class="opt-title">⏱️ 預計自取時間</div>
             <select id="pickup-time" style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; background: #f9f9f9; outline: none; margin-top: 5px;">
@@ -273,10 +279,8 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
             
             <div id="paper-invoice-hint" class="paper-invoice-hint show">✅ 本店將直接為您印製紙本發票，無需任何操作</div>
             
-            <!-- 統編強制 8 碼 -->
             <div id="invoice-number-container"><input type="text" id="invoice-number" placeholder="請輸入統一編號（8位數字）" maxlength="8" inputmode="numeric" oninput="this.value = this.value.replace(/\D/g, '')"></div>
             
-            <!-- 載具號碼輸入框 -->
             <div id="carrier-input-container">
                 <input type="text" id="carrier-number" placeholder="請包含/完整填入您的載具 (選填)" oninput="this.value = this.value.toUpperCase()">
             </div>
@@ -457,13 +461,53 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
 
     function openStaffModal(item) {
         let def = item.prices.hasOwnProperty('L') ? 'L' : Object.keys(item.prices)[0];
-        staffSelect = { item, qty: 1, size: def, ice: null, sugar: null, toppings: [], note: "" };
+        staffSelect = { item, qty: 1, size: def, ice: null, sugar: null, toppings: [], teaSwap: "", note: "" };
         document.getElementById('staff-modal-title').innerText = item.name; 
         document.getElementById('staff-item-qty').value = 1;
         document.getElementById('staff-item-note').value = ""; 
+        document.getElementById('staff-note-container').style.display = 'none'; // 預設摺疊備註
         document.getElementById('staff-option-modal').style.display = 'flex';
-        renderBtns('staff-size-btns', Object.keys(item.prices), (val) => { staffSelect.size = val; staffSelect.toppings = []; renderStaffToppings(item, val); updateStaffPrice(); }, def);
+
+        // 檢查是否開放更換茶湯
+        const sts = document.getElementById('staff-tea-swap-select');
+        if(item.enableTeaSwap) { sts.style.display='inline-block'; sts.value=""; sts.onchange=e=>staffSelect.teaSwap=e.target.value; } else sts.style.display='none';
+
+        // 渲染精簡版的大小按鈕
+        renderStaffSizeBtns('staff-size-btns', Object.keys(item.prices), (val) => { staffSelect.size = val; staffSelect.toppings = []; renderStaffToppings(item, val); updateStaffPrice(); }, def);
         renderStaffToppings(item, def); document.querySelectorAll('.staff-ice-btn, .staff-sugar-btn').forEach(b => b.classList.remove('active')); updateStaffPrice();
+    }
+
+    function toggleStaffNoteInput() {
+        const nc = document.getElementById('staff-note-container');
+        const btn = document.getElementById('staff-note-toggle-btn');
+        if (nc.style.display === 'none') {
+            nc.style.display = 'block';
+            btn.style.background = 'var(--brand-light)';
+            btn.style.color = 'var(--brand-color)';
+            btn.style.borderColor = 'var(--brand-color)';
+            document.getElementById('staff-item-note').focus();
+        } else {
+            nc.style.display = 'none';
+            btn.style.background = '#f5f6f8';
+            btn.style.color = '#555';
+            btn.style.borderColor = '#ddd';
+        }
+    }
+
+    function renderStaffSizeBtns(id, opts, cb, def) {
+        const c = document.getElementById(id); c.innerHTML = '';
+        opts.forEach(o => {
+            let b = document.createElement('button'); 
+            b.className = 'opt-btn' + (o === def ? ' active' : ''); 
+            b.style.cssText = "padding: 8px 14px; font-size: 0.9rem; flex: unset; min-width: 40px;";
+            b.innerText = o; 
+            b.onclick = () => { 
+                c.querySelectorAll('.opt-btn').forEach(x => x.classList.remove('active')); 
+                b.classList.add('active'); 
+                cb(o); 
+            }; 
+            c.appendChild(b);
+        });
     }
 
     function setStaffIce(val) { staffSelect.ice = val; document.querySelectorAll('.staff-ice-btn').forEach(b => b.classList.remove('active')); document.querySelector(`.staff-ice-btn[data-val="${val}"]`)?.classList.add('active'); }
@@ -488,7 +532,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         if(staffSelect.item.customToppings && staffSelect.item.customToppings[staffSelect.size]) topMap = staffSelect.item.customToppings[staffSelect.size];
         let topCost = staffSelect.toppings.reduce((sum, t) => sum + (topMap[t]||0), 0); let finalIce = staffSelect.ice || "預設冰"; let finalSugar = staffSelect.sugar || "預設甜";
         let itemNote = document.getElementById('staff-item-note').value.trim(); 
-        cart.push({ item: staffSelect.item, size: staffSelect.size, qty: staffSelect.qty, ice: finalIce, sugar: finalSugar, toppings: staffSelect.toppings, teaSwap: "", note: itemNote, price: (base + topCost) * staffSelect.qty });
+        cart.push({ item: staffSelect.item, size: staffSelect.size, qty: staffSelect.qty, ice: finalIce, sugar: finalSugar, toppings: staffSelect.toppings, teaSwap: staffSelect.teaSwap, note: itemNote, price: (base + topCost) * staffSelect.qty });
         updateCounter(); document.getElementById('staff-option-modal').style.display = 'none'; updateCartUI(); 
     }
 
@@ -589,7 +633,6 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         if(opt!=='carrier') document.getElementById('carrier-number').value='';
     }
     
-    // ✨ 動態生成預計取餐時間 (間隔 15 分鐘)
     function generateTimeOptions() {
         const select = document.getElementById('pickup-time');
         if(!select) return;
@@ -597,7 +640,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         select.innerHTML = '<option value="立即取餐">立即取餐 (儘速製作)</option>';
         
         const now = new Date();
-        now.setMinutes(now.getMinutes() + 20); // 預設最快 20 分鐘後可取餐
+        now.setMinutes(now.getMinutes() + 20); 
         let hasOptions = false;
         
         for (let h = now.getHours(); h < 22; h++) {
@@ -648,11 +691,11 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         document.getElementById('address-container').style.display = show?'block':'none'; 
         document.getElementById('payment-title').style.display = show?'block':'none'; 
         document.getElementById('payment-options').style.display = show?'flex':'none';
-        document.getElementById('pickup-time-container').style.display = show?'none':'block'; // ✨ 切換時間選擇器顯示
+        document.getElementById('pickup-time-container').style.display = show?'none':'block'; 
         
         if(!show) { 
             let c = document.querySelector('input[name="payment-method"][value="現金"]'); if(c) c.checked=true; 
-            generateTimeOptions(); // ✨ 重整自取時間
+            generateTimeOptions(); 
         } 
         updateCartUI(); 
     }
@@ -678,7 +721,6 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
         
         let note = document.getElementById('order-note').value.trim();
         
-        // ✨ 如果是自取，把選定的取餐時間加到備註裡
         if (method === "自取") {
             let pTime = document.getElementById('pickup-time').value;
             if (pTime && pTime !== "立即取餐") {
@@ -779,6 +821,25 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
                 ]
             });
         }
+
+        // 加上低調的 POS 授權解鎖按鈕
+        fb.push({
+            type: "box",
+            layout: "vertical",
+            margin: "lg",
+            contents: [
+                {
+                    type: "button",
+                    action: {
+                        type: "uri",
+                        label: "📋 訂單處理進度 (內部用)",
+                        uri: "https://ptrtw.github.io/client-order/psaa.html?orderId=" + d.orderId
+                    },
+                    style: "secondary",
+                    color: "#f1f5f9"
+                }
+            ]
+        });
 
         const per = 10; let bubbles = []; 
         for(let i=0; i<boxes.length; i+=per) { 
