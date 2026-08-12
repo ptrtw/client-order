@@ -389,17 +389,7 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
     }
 
     loadSavedConfig();
-    liff.init({ liffId: LIFF_ID }).then(() => { if (!liff.isLoggedIn()) liff.login(); else { loadCloudConfig(); showDebugUserId(); } }).catch(() => loadCloudConfig());
-
-    function showDebugUserId() {
-        try {
-            var idToken = liff.getDecodedIDToken();
-            if (idToken && idToken.sub) {
-                var userId = idToken.sub;
-                document.body.insertAdjacentHTML('afterbegin', '<div style="background:#c62828;color:white;padding:8px;text-align:center;font-size:14px;font-weight:bold;z-index:99999;position:sticky;top:0;">🔑 User ID: ' + userId + '</div>');
-            }
-        } catch(e) {}
-    }
+    liff.init({ liffId: LIFF_ID }).then(() => { if (!liff.isLoggedIn()) liff.login(); else loadCloudConfig(); }).catch(() => loadCloudConfig());
 
     function checkStoreStatus() {
         const d = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Taipei", hour12: false})); const t = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; const r = storeHours[d.getDay()];
