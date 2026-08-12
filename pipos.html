@@ -7,33 +7,47 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root { --brand: #06C755; --brand-dark: #048c3d; --red: #c62828; --orange: #f57c00; }
-body { font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif; background:#c8c8c8; height:100vh; display:flex; flex-direction:column; overflow:hidden; user-select:none; -webkit-user-select:none; font-size:12px; }
+body { font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif; background:#c8c8c8; height:100dvh; height:100svh; display:flex; flex-direction:column; overflow:hidden; user-select:none; -webkit-user-select:none; font-size:12px; }
 
+/* 頂列模仿總店: 綠色連線條 + 灰字 */
 .top-info { background:#4caf50; color:white; padding:3px 8px; display:flex; justify-content:space-between; align-items:center; font-size:11px; flex-shrink:0; font-weight:bold; }
 .top-info .store { letter-spacing:0.5px; }
 .top-info .right-info { display:flex; gap:10px; font-weight:normal; }
-.main-body { display:flex; flex:1; overflow:hidden; gap:2px; padding:2px; background:#999; }
 
-.left-panel { flex:0 0 46%; display:flex; flex-direction:column; background:#d6d6d6; border:1px solid #888; overflow:hidden; }
+.main-body { display:flex; flex:1; min-height:0; overflow:hidden; gap:2px; padding:2px; background:#999; }
+
+/* ===== 左側 ===== */
+.left-panel { flex:0 0 46%; min-width:0; min-height:0; display:flex; flex-direction:column; background:#d6d6d6; border:1px solid #888; overflow:hidden; }
+
+/* 表頭藍條 */
 .table-header-bar { background:#90caf9; border:1px solid #888; border-bottom:none; display:flex; font-size:11px; font-weight:bold; text-align:center; flex-shrink:0; }
 .table-header-bar span { flex:1; padding:4px 2px; border-right:1px solid #888; }
 .table-header-bar span:last-child { border-right:none; }
+
+/* 購物車白區 (紅圈區) */
 .cart-section { background:white; overflow:auto; border:1px solid #888; border-top:none; flex:1; min-height:80px; }
 .cart-table { width:100%; border-collapse:collapse; font-size:11px; }
 .cart-table th { background:#e3f2fd; border:1px solid #aaa; padding:3px 2px; font-size:10px; text-align:center; }
 .cart-table td { border:1px solid #ccc; padding:4px 2px; text-align:center; height:24px; }
 .cart-table tbody tr:hover { background:#edf4ff; }
+
+/* 發票號條 */
 .invoice-bar { display:flex; align-items:center; gap:2px; padding:3px 4px; background:#e0e0e0; border:1px solid #888; border-top:none; font-size:11px; flex-shrink:0; }
 .invoice-bar .inv-box { background:white; border:1px solid #999; padding:2px 6px; font-weight:bold; }
 .invoice-bar .tag { padding:2px 6px; font-weight:bold; font-size:11px; border:1px solid #888; border-radius:2px; color:white; }
 .tag-red { background:#e53935; } .tag-blue { background:#1e88e5; } .tag-orange { background:#fb8c00; }
+
+/* 統計 */
 .stats-row { display:flex; align-items:center; gap:4px; padding:3px 6px; background:white; border:1px solid #888; border-top:none; font-size:11px; flex-shrink:0; }
 .stats-row .num { font-weight:bold; color:var(--red); font-size:13px; min-width:18px; text-align:center; }
 .stats-row .label { color:#555; }
+
+/* 檢視 註 標 列 */
 .filter-row { display:flex; align-items:center; gap:2px; padding:3px 4px; background:#e0e0e0; border:1px solid #888; border-top:none; font-size:11px; flex-shrink:0; }
 .filter-row button { padding:3px 8px; font-size:11px; border:1px solid #888; border-radius:2px; background:white; cursor:pointer; font-weight:bold; }
 .filter-row select { flex:1; padding:2px; font-size:11px; border:1px solid #888; }
 
+/* 當前編輯四行 (項目/數量/加料/口味) */
 .editor-panel { background:white; border:1px solid #888; border-top:none; flex-shrink:0; }
 .editor-row { display:flex; border-bottom:1px solid #bbb; min-height:28px; }
 .editor-row:last-child { border-bottom:none; }
@@ -43,6 +57,7 @@ body { font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif; background:#
 .editor-value.size-btn { cursor:pointer; background:#fff3e0; border:1px solid #ff9800; border-radius:3px; margin:2px; padding:4px 12px; }
 .editor-value.size-btn:active { transform:scale(0.96); }
 
+/* 下方組合：口味格 + 鍵盤 */
 .bottom-combo { display:flex; gap:2px; flex-shrink:0; background:#d6d6d6; padding:2px; border:1px solid #888; border-top:none; }
 .taste-panel { flex:1; background:white; border:1px solid #888; padding:2px; }
 .taste-title { background:var(--orange); color:white; font-size:11px; font-weight:bold; padding:2px 6px; margin-bottom:2px; }
@@ -65,17 +80,19 @@ body { font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif; background:#
 .btn-vip { background:#ffcc80 !important; }
 .btn-customer { background:#ce93d8 !important; color:white !important; }
 
-.right-panel { flex:1; display:flex; flex-direction:column; background:#b0b0b0; border:1px solid #888; overflow:hidden; }
+/* ===== 右側 ===== */
+.right-panel { flex:1; min-height:0; display:flex; flex-direction:column; background:#b0b0b0; border:1px solid #888; overflow:hidden; }
 .cat-tabs { display:flex; gap:1px; padding:2px; flex-shrink:0; flex-wrap:wrap; background:#d6d6d6; }
 .cat-tabs button { padding:6px 4px; font-size:11px; font-weight:bold; border:1px solid #888; border-radius:3px; cursor:pointer; flex:1; min-width:56px; white-space:nowrap; line-height:1.2; }
 .cat-tabs button.active { border:2px solid #333; outline:1px solid white; outline-offset:-3px; }
 .right-content { flex:1; overflow-y:auto; background:#b0b0b0; padding:2px; }
-.drink-grid { display:grid; grid-template-columns:repeat(6,1fr); grid-auto-rows:1fr; gap:2px; height:100%; }
+.drink-grid { display:grid; grid-template-columns:repeat(6,1fr); grid-auto-rows:minmax(38px,1fr); gap:2px; }
 .drink-btn { border:1px solid #999; border-radius:3px; padding:4px 2px; font-size:11px; font-weight:bold; cursor:pointer; text-align:center; line-height:1.2; display:flex; align-items:center; justify-content:center; word-break:break-all; white-space:pre-line; }
 .drink-btn:active { transform:scale(0.94); filter:brightness(0.95); }
 .topping-opt-btn { border:1px solid #f57c00; border-radius:3px; padding:4px 2px; font-size:11px; font-weight:bold; cursor:pointer; text-align:center; line-height:1.2; display:flex; align-items:center; justify-content:center; word-break:break-all; white-space:pre-line; background:#fff3e0; }
 .topping-opt-btn.selected { background:#ffcc80; border:2px solid #e65100; }
 
+/* 浮窗 */
 .modal-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center; }
 .modal-box { background:white; border-radius:12px; padding:20px; width:380px; max-width:90%; }
 .modal-box h3 { margin-bottom:12px; font-size:14px; }
@@ -86,6 +103,26 @@ body { font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif; background:#
 .modal-btns button { flex:1; padding:10px; border-radius:8px; font-weight:bold; border:none; cursor:pointer; }
 .btn-save { background:var(--brand); color:white; }
 .btn-cancel2 { background:#eee; }
+
+/* 自適應：平板 Chrome 地址欄 + 小高度螢幕 */
+@media (max-height: 720px) {
+  .cart-section { min-height:56px; }
+  .editor-row { min-height:24px; }
+  .taste-grid button { padding:4px 1px; font-size:10px; }
+  .numpad button { padding:6px; font-size:14px; }
+  .keypad-top button { padding:3px 1px; font-size:9px; }
+  .drink-btn,.topping-opt-btn { font-size:10px; }
+}
+@media (max-height: 600px) {
+  .top-info { padding:2px 6px; font-size:10px; }
+  .invoice-bar,.stats-row,.filter-row { padding:2px 4px; }
+  .editor-label { width:36px; font-size:10px; }
+  .editor-value { font-size:11px; }
+  .taste-title { display:none; }
+  .taste-grid button { padding:3px 1px; }
+  .numpad button { padding:4px; font-size:13px; }
+}
+
 </style>
 </head>
 <body>
@@ -113,7 +150,7 @@ body { font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif; background:#
       </div>
       <div class="keypad-panel">
         <div class="keypad-top">
-          <button>待結帳</button><button id="gift-btn" onclick="toggleGift()">贈送<br>扣帳</buDOCTYPEYPE><button>贈送<br>還原</button>
+          <button>待結帳</button><button id="gift-btn" onclick="toggleGift()">贈送<br>扣帳</button><button>贈送<br>還原</button>
           <button>錢櫃</button><button>覆蓋</button><button>加料</button>
         </div>
         <div class="numpad">
@@ -131,6 +168,7 @@ body { font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif; background:#
 </div>
 
 <div class="modal-overlay" id="customer-modal" onclick="if(event.target===this)this.style.display='none'"><div class="modal-box"><h3>📋 顧客資訊</h3><label>📞 聯絡電話 <span style="color:red;">*</span></label><input type="tel" id="cust-phone" placeholder="10 碼電話" maxlength="10" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')"><label>📍 外送地址</label><input type="text" id="cust-address" placeholder="若需外送請填地址"><label>📝 整單備註</label><textarea id="cust-note" placeholder="例：少冰、不要吸管"></textarea><div class="modal-btns"><button class="btn-cancel2" onclick="document.getElementById('customer-modal').style.display='none'">取消</button><button class="btn-save" onclick="saveCustomerInfo()">儲存</button></div></div></div>
+
 <script>
 let cart=[], currentItem=null, menuData=[], toppingPrices={}, staffMenuData=[], curCat=0, applyGift=false;
 let customerInfo={phone:'',address:'',note:''};
@@ -268,13 +306,4 @@ function saveCustomerInfo(){customerInfo.phone=document.getElementById('cust-pho
 function submitOrder(){
   if(cart.length===0)return alert('尚未點餐！');
   if(!customerInfo.phone||customerInfo.phone.replace(/\D/g,'').length!==10){openCustomerModal();return alert('請先填寫聯絡電話！');}
-  var total=cart.reduce(function(s,c){return s+c.price;},0);
-  if(applyGift){var ac=[];cart.forEach(function(c){for(var i=0;i<c.qty;i++)ac.push(c.price/c.qty);});ac.sort(function(a,b){return a-b;});var d=0;for(var i=5;i<ac.length;i+=6)d+=ac[i];total=Math.max(0,total-d);}
-  var orderData={orderId:Date.now().toString(),phone:customerInfo.phone,method:customerInfo.address?'外送':'自取',address:customerInfo.address,note:customerInfo.note,payMethod:'現金',finalTotal:total,cartItems:JSON.parse(JSON.stringify(cart)),source:'pi'};
-  fetch(GAS_API_URL,{method:'POST',body:JSON.stringify(orderData)}).then(function(r){return r.json();}).then(function(res){if(res.status==='success'){alert('✅ 訂單已送出！合計 $'+total);cart=[];currentItem=null;applyGift=false;document.getElementById('gift-btn').classList.remove('active-gift');renderAll();}else alert('❌ 送單失敗');}).catch(function(){alert('❌ 網路錯誤');});
-}
-loadMenuData();
-setTimeout(function(){if(staffMenuData.length===0)loadDemoData();},1500);
-</script>
-</body>
-</html>
+  var total=cart.reduce(function(s,c){return s+c.price
