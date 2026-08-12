@@ -8,46 +8,24 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root { --brand: #06C755; --brand-dark: #048c3d; --red: #c62828; --orange: #f57c00; }
 body { font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif; background:#c8c8c8; height:100dvh; height:100svh; display:flex; flex-direction:column; overflow:hidden; user-select:none; -webkit-user-select:none; font-size:12px; }
-
-/* 頂列模仿總店: 綠色連線條 + 灰字 */
 .top-info { background:#4caf50; color:white; padding:3px 8px; display:flex; justify-content:space-between; align-items:center; font-size:11px; flex-shrink:0; font-weight:bold; }
-.top-info .store { letter-spacing:0.5px; }
-.top-info .right-info { display:flex; gap:10px; font-weight:normal; }
-
 .main-body { display:flex; flex:1; min-height:0; overflow:hidden; gap:2px; padding:2px; background:#999; }
-
-/* ===== 左側 ===== */
 .left-panel { flex:0 0 46%; min-width:0; min-height:0; display:flex; flex-direction:column; background:#d6d6d6; border:1px solid #888; overflow:hidden; }
-
-/* 表頭藍條 */
-.table-header-bar { background:#90caf9; border:1px solid #888; border-bottom:none; display:flex; font-size:11px; font-weight:bold; text-align:center; flex-shrink:0; }
-.table-header-bar span { flex:1; padding:4px 2px; border-right:1px solid #888; }
-.table-header-bar span:last-child { border-right:none; }
-
-/* 購物車白區 (紅圈區) */
 .cart-section { background:white; overflow:auto; border:1px solid #888; border-top:none; flex:1; min-height:80px; }
 .cart-table { width:100%; border-collapse:collapse; font-size:11px; }
 .cart-table th { background:#e3f2fd; border:1px solid #aaa; padding:3px 2px; font-size:10px; text-align:center; }
 .cart-table td { border:1px solid #ccc; padding:4px 2px; text-align:center; height:24px; }
 .cart-table tbody tr:hover { background:#edf4ff; }
-
-/* 發票號條 */
 .invoice-bar { display:flex; align-items:center; gap:2px; padding:3px 4px; background:#e0e0e0; border:1px solid #888; border-top:none; font-size:11px; flex-shrink:0; }
 .invoice-bar .inv-box { background:white; border:1px solid #999; padding:2px 6px; font-weight:bold; }
 .invoice-bar .tag { padding:2px 6px; font-weight:bold; font-size:11px; border:1px solid #888; border-radius:2px; color:white; }
 .tag-red { background:#e53935; } .tag-blue { background:#1e88e5; } .tag-orange { background:#fb8c00; }
-
-/* 統計 */
 .stats-row { display:flex; align-items:center; gap:4px; padding:3px 6px; background:white; border:1px solid #888; border-top:none; font-size:11px; flex-shrink:0; }
 .stats-row .num { font-weight:bold; color:var(--red); font-size:13px; min-width:18px; text-align:center; }
 .stats-row .label { color:#555; }
-
-/* 檢視 註 標 列 */
 .filter-row { display:flex; align-items:center; gap:2px; padding:3px 4px; background:#e0e0e0; border:1px solid #888; border-top:none; font-size:11px; flex-shrink:0; }
 .filter-row button { padding:3px 8px; font-size:11px; border:1px solid #888; border-radius:2px; background:white; cursor:pointer; font-weight:bold; }
 .filter-row select { flex:1; padding:2px; font-size:11px; border:1px solid #888; }
-
-/* 當前編輯四行 (項目/數量/加料/口味) */
 .editor-panel { background:white; border:1px solid #888; border-top:none; flex-shrink:0; }
 .editor-row { display:flex; border-bottom:1px solid #bbb; min-height:28px; }
 .editor-row:last-child { border-bottom:none; }
@@ -56,17 +34,13 @@ body { font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif; background:#
 .editor-value.price { color:var(--red); font-size:14px; }
 .editor-value.size-btn { cursor:pointer; background:#fff3e0; border:1px solid #ff9800; border-radius:3px; margin:2px; padding:4px 12px; }
 .editor-value.size-btn:active { transform:scale(0.96); }
-
-/* 下方組合：口味格 + 鍵盤 */
 .bottom-combo { display:flex; gap:2px; flex-shrink:0; background:#d6d6d6; padding:2px; border:1px solid #888; border-top:none; }
 .taste-panel { flex:1; background:white; border:1px solid #888; padding:2px; }
 .taste-title { background:var(--orange); color:white; font-size:11px; font-weight:bold; padding:2px 6px; margin-bottom:2px; }
 .taste-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; }
 .taste-grid button { padding:6px 2px; font-size:11px; border:1px solid #bbb; background:#fafafa; cursor:pointer; font-weight:bold; }
 .taste-grid button.active { background:#ffcdd2; border-color:var(--red); color:var(--red); }
-.taste-grid button.selected-ice { background:#c8e6c9; border-color:#4caf50; }
 .taste-grid button:active { transform:scale(0.96); }
-
 .keypad-panel { flex:0 0 42%; display:flex; flex-direction:column; gap:1px; }
 .keypad-top { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; }
 .keypad-top button { padding:5px 2px; font-size:10px; font-weight:bold; border:1px solid #888; border-radius:2px; background:#fff3e0; cursor:pointer; }
@@ -79,8 +53,6 @@ body { font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif; background:#
 .btn-checkout { background:var(--red) !important; color:white !important; }
 .btn-vip { background:#ffcc80 !important; }
 .btn-customer { background:#ce93d8 !important; color:white !important; }
-
-/* ===== 右側 ===== */
 .right-panel { flex:1; min-height:0; display:flex; flex-direction:column; background:#b0b0b0; border:1px solid #888; overflow:hidden; }
 .cat-tabs { display:flex; gap:1px; padding:2px; flex-shrink:0; flex-wrap:wrap; background:#d6d6d6; }
 .cat-tabs button { padding:6px 4px; font-size:11px; font-weight:bold; border:1px solid #888; border-radius:3px; cursor:pointer; flex:1; min-width:56px; white-space:nowrap; line-height:1.2; }
@@ -91,8 +63,6 @@ body { font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif; background:#
 .drink-btn:active { transform:scale(0.94); filter:brightness(0.95); }
 .topping-opt-btn { border:1px solid #f57c00; border-radius:3px; padding:4px 2px; font-size:11px; font-weight:bold; cursor:pointer; text-align:center; line-height:1.2; display:flex; align-items:center; justify-content:center; word-break:break-all; white-space:pre-line; background:#fff3e0; }
 .topping-opt-btn.selected { background:#ffcc80; border:2px solid #e65100; }
-
-/* 浮窗 */
 .modal-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center; }
 .modal-box { background:white; border-radius:12px; padding:20px; width:380px; max-width:90%; }
 .modal-box h3 { margin-bottom:12px; font-size:14px; }
@@ -103,26 +73,8 @@ body { font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif; background:#
 .modal-btns button { flex:1; padding:10px; border-radius:8px; font-weight:bold; border:none; cursor:pointer; }
 .btn-save { background:var(--brand); color:white; }
 .btn-cancel2 { background:#eee; }
-
-/* 自適應：平板 Chrome 地址欄 + 小高度螢幕 */
-@media (max-height: 720px) {
-  .cart-section { min-height:56px; }
-  .editor-row { min-height:24px; }
-  .taste-grid button { padding:4px 1px; font-size:10px; }
-  .numpad button { padding:6px; font-size:14px; }
-  .keypad-top button { padding:3px 1px; font-size:9px; }
-  .drink-btn,.topping-opt-btn { font-size:10px; }
-}
-@media (max-height: 600px) {
-  .top-info { padding:2px 6px; font-size:10px; }
-  .invoice-bar,.stats-row,.filter-row { padding:2px 4px; }
-  .editor-label { width:36px; font-size:10px; }
-  .editor-value { font-size:11px; }
-  .taste-title { display:none; }
-  .taste-grid button { padding:3px 1px; }
-  .numpad button { padding:4px; font-size:13px; }
-}
-
+@media (max-height:720px){.cart-section{min-height:56px}.editor-row{min-height:24px}.taste-grid button{padding:4px 1px;font-size:10px}.numpad button{padding:6px;font-size:14px}.keypad-top button{padding:3px 1px;font-size:9px}.drink-btn,.topping-opt-btn{font-size:10px}}
+@media (max-height:600px){.top-info{padding:2px 6px;font-size:10px}.invoice-bar,.stats-row,.filter-row{padding:2px 4px}.editor-label{width:36px;font-size:10px}.editor-value{font-size:11px}.taste-title{display:none}.taste-grid button{padding:3px 1px}.numpad button{padding:4px;font-size:13px}}
 </style>
 </head>
 <body>
@@ -135,14 +87,12 @@ body { font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif; background:#
     <div class="invoice-bar"><span class="inv-box" id="inv-no">CJ37186884</span><span class="inv-box">55</span><span class="tag tag-red">新單</span><span class="tag tag-blue">平台</span><span class="tag tag-orange">外帶1-2</span></div>
     <div class="stats-row"><span class="label">杯數</span><span class="num" id="cup-count">0</span><span class="label">贈飲</span><span class="num">0</span><span class="label">熱量</span><span class="num" id="heat-count">0</span><span class="label">合計</span><span class="num" id="total-amt">0</span></div>
     <div class="filter-row"><button>檢視</button><button>註</button><select><option></option></select><button>標</button></div>
-
     <div class="editor-panel" id="editor-panel">
       <div class="editor-row"><div class="editor-label">項目</div><div class="editor-value" id="ed-item">—</div></div>
       <div class="editor-row"><div class="editor-label">數量</div><div class="editor-value price" id="ed-price">—</div><div class="editor-value size-btn" id="ed-size" onclick="toggleSize()">—</div></div>
       <div class="editor-row"><div class="editor-label">加料</div><div class="editor-value" id="ed-topping">—</div></div>
       <div class="editor-row"><div class="editor-label">口味</div><div class="editor-value" id="ed-taste">—</div></div>
     </div>
-
     <div class="bottom-combo">
       <div class="taste-panel">
         <div class="taste-title">口味</div>
@@ -163,147 +113,48 @@ body { font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif; background:#
       </div>
     </div>
   </div>
-
   <div class="right-panel"><div class="cat-tabs" id="cat-tabs"></div><div class="right-content"><div class="drink-grid" id="drink-grid"></div></div></div>
 </div>
-
 <div class="modal-overlay" id="customer-modal" onclick="if(event.target===this)this.style.display='none'"><div class="modal-box"><h3>📋 顧客資訊</h3><label>📞 聯絡電話 <span style="color:red;">*</span></label><input type="tel" id="cust-phone" placeholder="10 碼電話" maxlength="10" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')"><label>📍 外送地址</label><input type="text" id="cust-address" placeholder="若需外送請填地址"><label>📝 整單備註</label><textarea id="cust-note" placeholder="例：少冰、不要吸管"></textarea><div class="modal-btns"><button class="btn-cancel2" onclick="document.getElementById('customer-modal').style.display='none'">取消</button><button class="btn-save" onclick="saveCustomerInfo()">儲存</button></div></div></div>
-
 <script>
-let cart=[], currentItem=null, menuData=[], toppingPrices={}, staffMenuData=[], curCat=0, applyGift=false;
-let customerInfo={phone:'',address:'',note:''};
-const GAS_API_URL='https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec';
-
-function loadMenuData(){
-  try{var s=localStorage.getItem('pos_menu_client');if(s)menuData=JSON.parse(s);var t=localStorage.getItem('pos_toppings_client');if(t)toppingPrices=JSON.parse(t);var l=JSON.parse(localStorage.getItem('employee_layout_v60_compact')||'null');if(menuData.length>0){staffMenuData=buildStaffMenuData(menuData,l);renderAll();}}catch(e){}
-  fetch(GAS_API_URL).then(function(r){return r.json();}).then(function(d){if(d&&d.menu){menuData=d.menu;if(d.toppings)toppingPrices=d.toppings;var l=d.layout||JSON.parse(localStorage.getItem('employee_layout_v60_compact')||'null');if(d.layout)localStorage.setItem('employee_layout_v60_compact',JSON.stringify(d.layout));staffMenuData=buildStaffMenuData(menuData,l);localStorage.setItem('pos_menu_client',JSON.stringify(menuData));localStorage.setItem('pos_toppings_client',JSON.stringify(toppingPrices));renderAll();}}).catch(function(){if(staffMenuData.length===0)loadDemoData();});
+let cart=[],currentItem=null,menuData=[],toppingPrices={},staffMenuData=[],curCat=0,applyGift=false,customerInfo={phone:'',address:'',note:''};
+const G='https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec';
+function L(){
+  try{var s=localStorage.getItem('pos_menu_client');if(s)menuData=JSON.parse(s);var t=localStorage.getItem('pos_toppings_client');if(t)toppingPrices=JSON.parse(t);var l=JSON.parse(localStorage.getItem('employee_layout_v60_compact')||'null');if(menuData.length>0){staffMenuData=B(menuData,l);R()}}catch(e){}
+  fetch(G).then(function(r){return r.json()}).then(function(d){if(d&&d.menu){menuData=d.menu;if(d.toppings)toppingPrices=d.toppings;var l=d.layout||JSON.parse(localStorage.getItem('employee_layout_v60_compact')||'null');if(d.layout)localStorage.setItem('employee_layout_v60_compact',JSON.stringify(d.layout));staffMenuData=B(menuData,l);localStorage.setItem('pos_menu_client',JSON.stringify(menuData));localStorage.setItem('pos_toppings_client',JSON.stringify(toppingPrices));R()}}).catch(function(){if(staffMenuData.length===0)D()})
 }
-function buildStaffMenuData(src,layout){
-  var all=[];src.forEach(function(c){if(c.items)all=all.concat(c.items);});
+function B(s,ly){
+  var a=[];s.forEach(function(c){if(c.items)a=a.concat(c.items)});
   var r=[{cat:"常用類",items:new Array(60).fill(null)},{cat:"特調·果醋",items:new Array(60).fill(null)},{cat:"鮮奶·加料",items:new Array(60).fill(null)}];
-  if(layout&&layout.length===3){layout.forEach(function(nm,idx){for(var s=0;s<60;s++){if(nm[s]){var fi=all.findIndex(function(i){return i.name===nm[s];});if(fi!==-1){r[idx].items[s]=all[fi];all.splice(fi,1);}}}});r.forEach(function(c){for(var s=0;s<60&&all.length>0;s++){if(!c.items[s])c.items[s]=all.shift();}});}else{var ci=0,ti=0;while(all.length>0&&ti<3){r[ti].items[ci]=all.shift();ci++;if(ci>=60){ci=0;ti++;}}}
-  return r;
+  if(ly&&ly.length===3){ly.forEach(function(nm,i){for(var j=0;j<60;j++){if(nm[j]){var f=a.findIndex(function(x){return x.name===nm[j]});if(f!==-1){r[i].items[j]=a[f];a.splice(f,1)}}}});r.forEach(function(c){for(var j=0;j<60&&a.length>0;j++){if(!c.items[j])c.items[j]=a.shift()}})}else{var ci=0,ti=0;while(a.length>0&&ti<3){r[ti].items[ci]=a.shift();ci++;if(ci>=60){ci=0;ti++}}}
+  return r
 }
-function loadDemoData(){
-  var mk=function(nm,p){return nm.map(function(n){return{name:n,prices:p||{M:35,L:45},enableTeaSwap:/茶|奶/.test(n)}});};
+function D(){
+  var mk=function(nm,p){return nm.map(function(n){return{name:n,prices:p||{M:35,L:45},enableTeaSwap:/茶|奶/.test(n)}})};
   menuData=[{category:"茶類",items:mk(["特級綠茶","特級奶綠","珍珠奶茶","布丁奶茶","蜜茶","隱藏版","極品菁茶","極品奶菁","椰果奶茶","瑰珀黑糖奶茶","蜜香烏龍","珍珠鮮奶茶","嚴選高山","嚴選奶高","仙草凍奶茶","紅豆鮮奶","梅子綠茶","粉圓鮮奶茶","原藏四季","四季奶茶","咖啡凍奶茶","醇蜜普洱奶","情人茶","幸運茶凍拿鐵","烏龍綠茶","烏龍奶茶","蜜香奶茶","咖啡奶茶","檸檬汁","雙凍拿鐵","錫蘭紅茶","錫蘭奶紅","芝麻奶茶","檸檬綠茶","珍珠琥珀黑糖鮮奶","特選普洱","普洱奶茶","冬瓜茶","荔枝紅茶","蜜香檸檬","烏龍菁茶","冬瓜青茶","頂級可可","金桔檸檬","蜜桃凍紅茶","優多綠茶","冬瓜檸檬","濃情巧克力","柳橙綠"])},{category:"特調",items:mk(["蘋果醋","葡萄醋","蔓越莓醋","藍莓醋","百香果醋","檸檬氣泡飲","葡萄柚氣泡飲","百香氣泡飲","莓果氣泡飲","芒果氣泡飲","養樂多冰沙","芒果冰沙","草莓冰沙","巧克力冰沙","抹茶冰沙","咖啡冰沙","檸檬愛玉凍飲","荔枝凍飲","水蜜桃凍飲","奇異果凍飲","蔓越莓汁","柳橙汁","蘋果汁","葡萄汁","藍莓汁","番茄汁","水果茶","金桔茶","柚子茶","檸檬茶","蜜桃茶","荔枝茶","鳳梨茶","可樂","雪碧","漂浮可樂","奶蓋綠茶","奶蓋紅茶","芝士烏龍","楊枝甘露","芒果椰奶","草莓椰奶","仙草凍","愛玉凍","咖啡凍","布丁","奶酪","豆花"])},{category:"鮮奶·加料",items:mk(["鮮奶茶","鐵觀音鮮奶茶","烏龍鮮奶茶","紅茶鮮奶","綠茶鮮奶","珍珠鮮奶茶","波霸鮮奶茶","椰果鮮奶茶","仙草凍鮮奶茶","布丁鮮奶茶","咖啡凍鮮奶茶","QQ鮮奶茶","粉條鮮奶茶","黑糖鮮奶","黑糖珍珠鮮奶","芋頭鮮奶","紅豆鮮奶","綠豆鮮奶","地瓜鮮奶","南瓜鮮奶","紫米鮮奶","燕麥鮮奶","抹茶鮮奶","可可鮮奶","草莓鮮奶","芒果鮮奶","香蕉鮮奶","木瓜鮮奶","杏仁鮮奶","芝麻鮮奶","花生鮮奶","核桃鮮奶","薑汁鮮奶","桂圓鮮奶","蜂蜜鮮奶","焦糖鮮奶","香草鮮奶","玫瑰鮮奶","伯爵鮮奶茶","鐵觀音鮮奶茶","抹茶拿鐵","可可拿鐵","珍珠","波霸","椰果","仙草凍","布丁","咖啡凍","QQ"])}];
   toppingPrices={M:{"珍珠":5,"椰果":5,"布丁":15,"仙草凍":5,"QQ":5,"咖啡凍":15,"蘆薈":20,"茉綠茶凍":10},L:{"珍珠":10,"椰果":10,"布丁":15,"仙草凍":10,"QQ":10,"咖啡凍":15,"蘆薈":20,"茉綠茶凍":10}};
-  staffMenuData=buildStaffMenuData(menuData,null);renderAll();
+  staffMenuData=B(menuData,null);R()
 }
-
-function renderAll(){renderCatTabs();renderRightContent();renderCart();renderEditor();renderTasteGrid();}
-
-function renderCatTabs(){
-  var el=document.getElementById('cat-tabs');el.innerHTML='';
-  var colors=['background:#66bb6a;color:white;','background:#ffcc00;color:#333;','background:#42a5f5;color:white;'];
-  staffMenuData.forEach(function(c,i){
-    var b=document.createElement('button');b.className=i===curCat?'active':'';b.style.cssText=colors[i];b.textContent=c.cat;
-    b.onclick=function(){curCat=i;renderCatTabs();renderRightContent();};el.appendChild(b);
-  });
-}
-
-function renderRightContent(){
-  var g=document.getElementById('drink-grid');if(!g)return;
-  var cat=staffMenuData[curCat]||{items:[]};
-  g.innerHTML='';
-  if(currentItem){
-    var sz=currentItem.size;var topMap=toppingPrices[sz]||{};if(currentItem.item.customToppings&&currentItem.item.customToppings[sz])topMap=currentItem.item.customToppings[sz];
-    var names=Object.keys(topMap);
-    var tb=document.createElement('div');tb.style.cssText='grid-column:1/-1;text-align:center;padding:6px;font-size:11px;font-weight:bold;color:#555;background:#eee;border-radius:3px;';tb.textContent='加料選項 — '+currentItem.item.name;g.appendChild(tb);
-    names.forEach(function(t){
-      var btn=document.createElement('button');btn.className='topping-opt-btn'+(currentItem.toppings.indexOf(t)>=0?' selected':'');
-      btn.innerHTML=t+'<br>+$'+topMap[t];
-      btn.onclick=function(){var idx=currentItem.toppings.indexOf(t);if(idx>=0)currentItem.toppings.splice(idx,1);else currentItem.toppings.push(t);renderRightContent();renderEditor();recalc();renderEditor();};
-      g.appendChild(btn);
-    });
-    var backBtn=document.createElement('button');backBtn.className='drink-btn';backBtn.style.cssText='grid-column:1/-1;min-height:34px;font-size:13px;background:#f5f5f5;margin-top:4px;';backBtn.textContent='← 返回飲料列表';backBtn.onclick=function(){currentItem=null;renderAll();};g.appendChild(backBtn);
-  }else{
-    var colors=['#fff','#fce4ec','#e8f5e9','#e3f2fd','#fff8e1','#f3e5f5','#e0f7fa','#fbe9e7'];
-    cat.items.forEach(function(item){
-      var btn=document.createElement('button');btn.className='drink-btn';
-      if(item){btn.textContent=item.name;btn.style.background=colors[Math.floor(Math.random()*colors.length)];btn.onclick=function(){selectItem(item);};}else{btn.style.visibility='hidden';}
-      g.appendChild(btn);
-    });
-    for(var i=cat.items.length;i<60;i++){var b=document.createElement('button');b.className='drink-btn';b.style.visibility='hidden';g.appendChild(b);}
-  }
-}
-
-function selectItem(item){
-  var def=item.prices.hasOwnProperty('L')?'L':Object.keys(item.prices)[0];
-  var defIce=(item.customIce&&item.customIce.length)?item.customIce[0]:'去冰';
-  var defSugar;if(item.customSugar&&item.customSugar.length){defSugar=(item.customSugar[0]==='固定甜度')?'固定甜度':item.customSugar[0];}else{defSugar=item.name.includes('黑糖')?'固定甜度':'少糖';}
-  var bp=item.prices[def]||0;
-  if(!item.customIce||!item.customIce.length) defIce='正常冰';
-  currentItem={item:item,size:def,ice:defIce,sugar:defSugar,toppings:[],teaSwap:'',note:'',qty:1,price:bp};
-  renderAll();
-}
-
-function renderEditor(){
-  if(!currentItem){
-    document.getElementById('ed-item').textContent='—';
-    document.getElementById('ed-price').textContent='—';
-    document.getElementById('ed-size').textContent='—';
-    document.getElementById('ed-topping').textContent='—';
-    document.getElementById('ed-taste').textContent='—';
-    return;
-  }
-  var c=currentItem;
-  document.getElementById('ed-item').textContent=c.item.name+(c.teaSwap?' '+c.teaSwap:'');
-  document.getElementById('ed-price').textContent=c.price;
-  document.getElementById('ed-size').textContent=c.size;
-  document.getElementById('ed-topping').textContent=c.toppings.length?c.toppings.join('、'):'—';
-  document.getElementById('ed-taste').textContent=(c.ice||'—')+' / '+(c.sugar||'—')+' ×'+c.qty;
-}
-
-function renderTasteGrid(){
-  var g=document.getElementById('taste-grid');if(!g)return;
-  g.innerHTML='';
-  if(!currentItem) return;
-  var c=currentItem;
-  var grid=[
-    ["去冰","無糖","1分糖","全部"],
-    ["微冰","微糖","3分糖","小碎冰"],
-    ["少冰","半糖","4分糖","常溫"],
-    ["正常冰","少糖","6分糖","溫飲"],
-    ["多冰","多糖","7分糖","熱飲"]
-  ];
-  grid.forEach(function(row){
-    row.forEach(function(cell){
-      var btn=document.createElement('button');btn.textContent=cell;
-      var isActive=(cell===c.ice||cell===c.sugar);
-      if(isActive) btn.className='active';
-      btn.onclick=function(){
-        var ices=["去冰","微冰","少冰","正常冰","多冰","全部","小碎冰","常溫","溫飲","熱飲"];
-        var sugars=["無糖","微糖","半糖","少糖","全糖","多糖","1分糖","3分糖","4分糖","6分糖","7分糖","8分糖"];
-        if(ices.indexOf(cell)>=0) c.ice=cell;
-        else if(sugars.indexOf(cell)>=0) c.sugar=cell;
-        renderTasteGrid();renderEditor();
-      };
-      g.appendChild(btn);
-    });
-  });
-}
-
-function toggleSize(){if(!currentItem)return;var sizes=Object.keys(currentItem.item.prices);var idx=sizes.indexOf(currentItem.size);currentItem.size=sizes[(idx+1)%sizes.length];currentItem.toppings=[];recalc();renderAll();}
-function recalc(){if(!currentItem)return;var base=currentItem.item.prices[currentItem.size]||0;var tm=toppingPrices[currentItem.size]||{};if(currentItem.item.customToppings&&currentItem.item.customToppings[currentItem.size])tm=currentItem.item.customToppings[currentItem.size];var tc=currentItem.toppings.reduce(function(s,t){return s+(tm[t]||0);},0);currentItem.price=(base+tc)*currentItem.qty;}
-function numInput(n){if(!currentItem)return;currentItem.qty=Math.min(99,n);recalc();renderEditor();}
-function cancelEdit(){currentItem=null;renderAll();}
-function addToCart(){if(!currentItem)return;cart.push({item:currentItem.item,size:currentItem.size,ice:currentItem.ice,sugar:currentItem.sugar,toppings:currentItem.toppings.slice(),teaSwap:currentItem.teaSwap,note:currentItem.note,qty:currentItem.qty,price:currentItem.price});currentItem=null;renderAll();}
-function removeCart(i){cart.splice(i,1);renderAll();}
-function renderCart(){
-  var tbody=document.getElementById('cart-body');
-  if(cart.length===0){tbody.innerHTML='<tr><td colspan="8" style="color:#999;padding:16px;">尚未點餐 — 點選右側飲料開始</td></tr>';}else{tbody.innerHTML=cart.map(function(c,i){var tp=c.toppings.length?c.toppings.join('、'):'';return'<tr><td style="text-align:left;padding-left:4px;">'+c.item.name+'</td><td>'+c.size+'</td><td></td><td>'+(c.ice||'-')+'/'+(c.sugar||'-')+'</td><td>'+(tp||'')+'</td><td>'+c.qty+'</td><td>'+Math.round(c.price/c.qty)+'</td><td style="font-weight:bold;">'+c.price+'</td></tr>';}).join('');}
-  updateStats();
-}
-function updateStats(){
-  var cups=cart.reduce(function(s,c){return s+c.qty;},0),total=cart.reduce(function(s,c){return s+c.price;},0);
-  if(applyGift){var ac=[];cart.forEach(function(c){for(var i=0;i<c.qty;i++)ac.push(c.price/c.qty);});ac.sort(function(a,b){return a-b;});var d=0;for(var i=5;i<ac.length;i+=6)d+=ac[i];total=Math.max(0,total-d);}
-  document.getElementById('cup-count').textContent=cups;document.getElementById('total-amt').textContent=total;document.getElementById('top-cart').textContent='🛒 '+cups+' 杯 | $'+total;
-}
-function toggleGift(){applyGift=!applyGift;document.getElementById('gift-btn').classList.toggle('active-gift',applyGift);updateStats();}
-function openCustomerModal(){document.getElementById('cust-phone').value=customerInfo.phone;document.getElementById('cust-address').value=customerInfo.address;document.getElementById('cust-note').value=customerInfo.note;document.getElementById('customer-modal').style.display='flex';}
-function saveCustomerInfo(){customerInfo.phone=document.getElementById('cust-phone').value.trim();customerInfo.address=document.getElementById('cust-address').value.trim();customerInfo.note=document.getElementById('cust-note').value.trim();document.getElementById('customer-modal').style.display='none';}
-function submitOrder(){
-  if(cart.length===0)return alert('尚未點餐！');
-  if(!customerInfo.phone||customerInfo.phone.replace(/\D/g,'').length!==10){openCustomerModal();return alert('請先填寫聯絡電話！');}
-  var total=cart.reduce(function(s,c){return s+c.price
+function R(){RT();RC();RO();RE();RG()}
+function RT(){var e=document.getElementById('cat-tabs');e.innerHTML='';var cs=['background:#66bb6a;color:white;','background:#ffcc00;color:#333;','background:#42a5f5;color:white;'];staffMenuData.forEach(function(c,i){var b=document.createElement('button');b.className=i===curCat?'active':'';b.style.cssText=cs[i];b.textContent=c.cat;b.onclick=function(){curCat=i;RT();RC()};e.appendChild(b)})}
+function RC(){var g=document.getElementById('drink-grid');if(!g)return;var cat=staffMenuData[curCat]||{items:[]};g.innerHTML='';if(currentItem){var sz=currentItem.size;var tm=toppingPrices[sz]||{};if(currentItem.item.customToppings&&currentItem.item.customToppings[sz])tm=currentItem.item.customToppings[sz];var ns=Object.keys(tm);var h=document.createElement('div');h.style.cssText='grid-column:1/-1;text-align:center;padding:6px;font-size:11px;font-weight:bold;color:#555;background:#eee;border-radius:3px;';h.textContent='加料選項 — '+currentItem.item.name;g.appendChild(h);ns.forEach(function(t){var b=document.createElement('button');b.className='topping-opt-btn'+(currentItem.toppings.indexOf(t)>=0?' selected':'');b.innerHTML=t+'<br>+$'+tm[t];b.onclick=function(){var idx=currentItem.toppings.indexOf(t);if(idx>=0)currentItem.toppings.splice(idx,1);else currentItem.toppings.push(t);RC();RE();recalc();RE()};g.appendChild(b)});var bk=document.createElement('button');bk.className='drink-btn';bk.style.cssText='grid-column:1/-1;min-height:34px;font-size:13px;background:#f5f5f5;margin-top:4px;';bk.textContent='← 返回飲料列表';bk.onclick=function(){currentItem=null;R()};g.appendChild(bk)}else{var ec=['#fff','#fce4ec','#e8f5e9','#e3f2fd','#fff8e1','#f3e5f5','#e0f7fa','#fbe9e7'];cat.items.forEach(function(item){var b=document.createElement('button');b.className='drink-btn';if(item){b.textContent=item.name;b.style.background=ec[Math.floor(Math.random()*ec.length)];b.onclick=function(){SI(item)}}else{b.style.visibility='hidden'}g.appendChild(b)});for(var i=cat.items.length;i<60;i++){var b=document.createElement('button');b.className='drink-btn';b.style.visibility='hidden';g.appendChild(b)}}}
+function SI(item){var def=item.prices.hasOwnProperty('L')?'L':Object.keys(item.prices)[0];var defIce=(item.customIce&&item.customIce.length)?item.customIce[0]:'去冰';var defSugar;if(item.customSugar&&item.customSugar.length){defSugar=(item.customSugar[0]==='固定甜度')?'固定甜度':item.customSugar[0]}else{defSugar=item.name.includes('黑糖')?'固定甜度':'少糖'}var bp=item.prices[def]||0;if(!item.customIce||!item.customIce.length)defIce='正常冰';currentItem={item:item,size:def,ice:defIce,sugar:defSugar,toppings:[],teaSwap:'',note:'',qty:1,price:bp};R()}
+function RE(){if(!currentItem){document.getElementById('ed-item').textContent='—';document.getElementById('ed-price').textContent='—';document.getElementById('ed-size').textContent='—';document.getElementById('ed-topping').textContent='—';document.getElementById('ed-taste').textContent='—';return}var c=currentItem;document.getElementById('ed-item').textContent=c.item.name+(c.teaSwap?' '+c.teaSwap:'');document.getElementById('ed-price').textContent=c.price;document.getElementById('ed-size').textContent=c.size;document.getElementById('ed-topping').textContent=c.toppings.length?c.toppings.join('、'):'—';document.getElementById('ed-taste').textContent=(c.ice||'—')+' / '+(c.sugar||'—')+' ×'+c.qty}
+function RG(){var g=document.getElementById('taste-grid');if(!g)return;g.innerHTML='';if(!currentItem)return;var c=currentItem;var grid=[["去冰","無糖","1分糖","全部"],["微冰","微糖","3分糖","小碎冰"],["少冰","半糖","4分糖","常溫"],["正常冰","少糖","6分糖","溫飲"],["多冰","多糖","7分糖","熱飲"]];grid.forEach(function(row){row.forEach(function(cell){var btn=document.createElement('button');btn.textContent=cell;var isActive=(cell===c.ice||cell===c.sugar);if(isActive)btn.className='active';btn.onclick=function(){var ices=["去冰","微冰","少冰","正常冰","多冰","全部","小碎冰","常溫","溫飲","熱飲"];var sugars=["無糖","微糖","半糖","少糖","全糖","多糖","1分糖","3分糖","4分糖","6分糖","7分糖","8分糖"];if(ices.indexOf(cell)>=0)c.ice=cell;else if(sugars.indexOf(cell)>=0)c.sugar=cell;RG();RE()};g.appendChild(btn)})})}
+function toggleSize(){if(!currentItem)return;var sz=Object.keys(currentItem.item.prices);var i=sz.indexOf(currentItem.size);currentItem.size=sz[(i+1)%sz.length];currentItem.toppings=[];recalc();R()}
+function recalc(){if(!currentItem)return;var base=currentItem.item.prices[currentItem.size]||0;var tm=toppingPrices[currentItem.size]||{};if(currentItem.item.customToppings&&currentItem.item.customToppings[currentItem.size])tm=currentItem.item.customToppings[currentItem.size];var tc=currentItem.toppings.reduce(function(s,t){return s+(tm[t]||0)},0);currentItem.price=(base+tc)*currentItem.qty}
+function numInput(n){if(!currentItem)return;currentItem.qty=Math.min(99,n);recalc();RE()}
+function cancelEdit(){currentItem=null;R()}
+function addToCart(){if(!currentItem)return;cart.push({item:currentItem.item,size:currentItem.size,ice:currentItem.ice,sugar:currentItem.sugar,toppings:currentItem.toppings.slice(),teaSwap:currentItem.teaSwap,note:currentItem.note,qty:currentItem.qty,price:currentItem.price});currentItem=null;R()}
+function removeCart(i){cart.splice(i,1);R()}
+function RO(){var t=document.getElementById('cart-body');if(cart.length===0){t.innerHTML='<tr><td colspan="8" style="color:#999;padding:16px;">尚未點餐 — 點選右側飲料開始</td></tr>'}else{t.innerHTML=cart.map(function(c,i){var tp=c.toppings.length?c.toppings.join('、'):'';return'<tr><td style="text-align:left;padding-left:4px;">'+c.item.name+'</td><td>'+c.size+'</td><td></td><td>'+(c.ice||'-')+'/'+(c.sugar||'-')+'</td><td>'+(tp||'')+'</td><td>'+c.qty+'</td><td>'+Math.round(c.price/c.qty)+'</td><td style="font-weight:bold;">'+c.price+'</td></tr>'}).join('')}US()}
+function US(){var cups=cart.reduce(function(s,c){return s+c.qty},0),total=cart.reduce(function(s,c){return s+c.price},0);if(applyGift){var ac=[];cart.forEach(function(c){for(var i=0;i<c.qty;i++)ac.push(c.price/c.qty)});ac.sort(function(a,b){return a-b});var d=0;for(var i=5;i<ac.length;i+=6)d+=ac[i];total=Math.max(0,total-d)}document.getElementById('cup-count').textContent=cups;document.getElementById('total-amt').textContent=total;document.getElementById('top-cart').textContent='🛒 '+cups+' 杯 | $'+total}
+function toggleGift(){applyGift=!applyGift;document.getElementById('gift-btn').classList.toggle('active-gift',applyGift);US()}
+function openCustomerModal(){document.getElementById('cust-phone').value=customerInfo.phone;document.getElementById('cust-address').value=customerInfo.address;document.getElementById('cust-note').value=customerInfo.note;document.getElementById('customer-modal').style.display='flex'}
+function saveCustomerInfo(){customerInfo.phone=document.getElementById('cust-phone').value.trim();customerInfo.address=document.getElementById('cust-address').value.trim();customerInfo.note=document.getElementById('cust-note').value.trim();document.getElementById('customer-modal').style.display='none'}
+function submitOrder(){if(cart.length===0)return alert('尚未點餐！');if(!customerInfo.phone||customerInfo.phone.replace(/\D/g,'').length!==10){openCustomerModal();return alert('請先填寫聯絡電話！')}var total=cart.reduce(function(s,c){return s+c.price},0);if(applyGift){var ac=[];cart.forEach(function(c){for(var i=0;i<c.qty;i++)ac.push(c.price/c.qty)});ac.sort(function(a,b){return a-b});var d=0;for(var i=5;i<ac.length;i+=6)d+=ac[i];total=Math.max(0,total-d)}var od={orderId:Date.now().toString(),phone:customerInfo.phone,method:customerInfo.address?'外送':'自取',address:customerInfo.address,note:customerInfo.note,payMethod:'現金',finalTotal:total,cartItems:JSON.parse(JSON.stringify(cart)),source:'pi'};fetch(G,{method:'POST',body:JSON.stringify(od)}).then(function(r){return r.json()}).then(function(res){if(res.status==='success'){alert('✅ 訂單已送出！合計 $'+total);cart=[];currentItem=null;applyGift=false;document.getElementById('gift-btn').classList.remove('active-gift');R()}else alert('❌ 送單失敗')}).catch(function(){alert('❌ 網路錯誤')})}
+L();
+setTimeout(function(){if(staffMenuData.length===0)D()},2000);
+</script>
+</body>
+</html>
