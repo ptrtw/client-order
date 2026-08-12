@@ -15,17 +15,14 @@ body { font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif; background:#
 .cart-table { width:100%; border-collapse:collapse; font-size:11px; }
 .cart-table th { background:#e3f2fd; border:1px solid #aaa; padding:3px 2px; font-size:10px; text-align:center; }
 .cart-table td { border:1px solid #ccc; padding:4px 2px; text-align:center; height:24px; }
-.cart-table tbody tr:hover { background:#edf4ff; }
 .invoice-bar { display:flex; align-items:center; gap:2px; padding:3px 4px; background:#e0e0e0; border:1px solid #888; border-top:none; font-size:11px; flex-shrink:0; }
 .invoice-bar .inv-box { background:white; border:1px solid #999; padding:2px 6px; font-weight:bold; }
 .invoice-bar .tag { padding:2px 6px; font-weight:bold; font-size:11px; border:1px solid #888; border-radius:2px; color:white; }
 .tag-red { background:#e53935; } .tag-blue { background:#1e88e5; } .tag-orange { background:#fb8c00; }
 .stats-row { display:flex; align-items:center; gap:4px; padding:3px 6px; background:white; border:1px solid #888; border-top:none; font-size:11px; flex-shrink:0; }
 .stats-row .num { font-weight:bold; color:var(--red); font-size:13px; min-width:18px; text-align:center; }
-.stats-row .label { color:#555; }
 .filter-row { display:flex; align-items:center; gap:2px; padding:3px 4px; background:#e0e0e0; border:1px solid #888; border-top:none; font-size:11px; flex-shrink:0; }
 .filter-row button { padding:3px 8px; font-size:11px; border:1px solid #888; border-radius:2px; background:white; cursor:pointer; font-weight:bold; }
-.filter-row select { flex:1; padding:2px; font-size:11px; border:1px solid #888; }
 .editor-panel { background:white; border:1px solid #888; border-top:none; flex-shrink:0; }
 .editor-row { display:flex; border-bottom:1px solid #bbb; min-height:28px; }
 .editor-row:last-child { border-bottom:none; }
@@ -57,8 +54,8 @@ body { font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif; background:#
 .cat-tabs button.active { border:2px solid #333; outline:1px solid white; outline-offset:-3px; }
 .right-content { flex:1; overflow-y:auto; background:#b0b0b0; padding:2px; }
 .drink-grid { display:grid; grid-template-columns:repeat(6,1fr); grid-auto-rows:minmax(52px,1fr); gap:2px; }
-.drink-btn { border:1px solid #999; border-radius:3px; padding:4px 2px; font-size:11px; font-weight:bold; cursor:pointer; text-align:center; line-height:1.2; display:flex; align-items:center; justify-content:center; word-break:break-all; white-space:pre-line; }
-.topping-opt-btn { border:1px solid #f57c00; border-radius:3px; padding:4px 2px; font-size:11px; font-weight:bold; cursor:pointer; text-align:center; line-height:1.2; display:flex; align-items:center; justify-content:center; word-break:break-all; white-space:pre-line; background:#fff3e0; }
+.drink-btn { border:1px solid #999; border-radius:3px; padding:4px 2px; font-size:13px; font-weight:bold; cursor:pointer; text-align:center; line-height:1.2; display:flex; align-items:center; justify-content:center; word-break:break-all; white-space:pre-line; }
+.topping-opt-btn { border:1px solid #f57c00; border-radius:3px; padding:4px 2px; font-size:13px; font-weight:bold; cursor:pointer; text-align:center; line-height:1.2; display:flex; align-items:center; justify-content:center; word-break:break-all; white-space:pre-line; background:#fff3e0; }
 .topping-opt-btn.selected { background:#ffcc80; border:2px solid #e65100; }
 .modal-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center; }
 .modal-box { background:white; border-radius:12px; padding:20px; width:380px; max-width:90%; }
@@ -69,27 +66,28 @@ body { font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif; background:#
 .modal-btns button { flex:1; padding:10px; border-radius:8px; font-weight:bold; border:none; cursor:pointer; }
 .btn-save { background:var(--brand); color:white; }
 .btn-cancel2 { background:#eee; }
-@media (max-height:720px){.cart-section{min-height:56px}.editor-row{min-height:24px}.taste-grid button{padding:4px 1px;font-size:10px}.numpad button{padding:6px;font-size:14px}.keypad-top button{padding:3px 1px;font-size:9px}.drink-btn,.topping-opt-btn{font-size:10px}}
+@media (max-height:720px){.cart-section{min-height:56px}.editor-row{min-height:24px}.taste-grid button{padding:4px 1px;font-size:10px}.numpad button{padding:6px;font-size:14px}.keypad-top button{padding:3px 1px;font-size:9px}.drink-btn,.topping-opt-btn{font-size:11px}}
 @media (max-height:600px){.top-info{padding:2px 6px;font-size:10px}.invoice-bar,.stats-row,.filter-row{padding:2px 4px}.editor-label{width:36px;font-size:10px}.editor-value{font-size:11px}.taste-title{display:none}.taste-grid button{padding:3px 1px}.numpad button{padding:4px;font-size:13px}}
 </style>
 </head>
 <body>
 <div class="top-info"><span>● 網路連線中</span><span class="right-info"><span id="top-cart">🛒 0 杯 | $0</span></span></div>
 <div class="main-body">
-  <div class="left-panel">
-    <div class="cart-section"><table class="cart-table"><thead><tr><th>項目名稱</th><th>規格</th><th>贈飲</th><th>口味</th><th>加料</th><th>數量</th><th>單價</th><th>金額</th></tr></thead><tbody id="cart-body"><tr><td colspan="8" style="color:#999;padding:16px;">尚未點餐 — 點選右側飲料開始</td></tr></tbody></table></div>
-    <div class="invoice-bar"><span class="inv-box">CJ37186884</span><span class="inv-box">55</span><span class="tag tag-red">新單</span><span class="tag tag-blue">平台</span><span class="tag tag-orange">外帶1-2</span></div>
-    <div class="stats-row"><span class="label">杯數</span><span class="num" id="cup-count">0</span><span class="label">贈飲</span><span class="num">0</span><span class="label">熱量</span><span class="num" id="heat-count">0</span><span class="label">合計</span><span class="num" id="total-amt">0</span></div>
-    <div class="filter-row"><button>檢視</button><button>註</button><select><option></option></select><button>標</button></div>
-    <div class="editor-panel"><div class="editor-row"><div class="editor-label">項目</div><div class="editor-value" id="ed-item">—</div></div><div class="editor-row"><div class="editor-label">數量</div><div class="editor-value price" id="ed-price">—</div><div class="editor-value size-btn" id="ed-size" onclick="toggleSize()">—</div></div><div class="editor-row"><div class="editor-label">加料</div><div class="editor-value" id="ed-topping">—</div></div><div class="editor-row"><div class="editor-label">口味</div><div class="editor-value" id="ed-taste">—</div></div></div>
-    <div class="bottom-combo"><div class="taste-panel"><div class="taste-title">口味</div><div class="taste-grid" id="taste-grid"></div></div><div class="keypad-panel"><div class="keypad-top"><button>待結帳</button><button id="gift-btn" onclick="toggleGift()">贈送<br>扣帳</button><button>贈送<br>還原</button><button>錢櫃</button><button>覆蓋</button><button>加料</button></div><div class="numpad"><button onclick="numInput(1)">1</button><button onclick="numInput(2)">2</button><button onclick="numInput(3)">3</button><button onclick="numInput(4)">4</button><button onclick="numInput(5)">5</button><button onclick="numInput(6)">6</button><button onclick="numInput(7)">7</button><button onclick="numInput(8)">8</button><button onclick="numInput(9)">9</button><button class="btn-join" onclick="addToCart()">加 入</button><button onclick="numInput(0)">0</button><button class="btn-cancel" onclick="cancelEdit()">取 消</button><button class="btn-checkout" onclick="submitOrder()">結帳</button><button class="btn-vip">VIP</button><button class="btn-customer" onclick="openCustomerModal()">顧客聯</button></div></div></div>
-  </div>
-  <div class="right-panel"><div class="cat-tabs" id="cat-tabs"></div><div class="right-content"><div class="drink-grid" id="drink-grid"></div></div></div>
+<div class="left-panel">
+<div class="cart-section"><table class="cart-table"><thead><tr><th>項目名稱</th><th>規格</th><th>贈飲</th><th>口味</th><th>加料</th><th>數量</th><th>單價</th><th>金額</th></tr></thead><tbody id="cart-body"><tr><td colspan="8" style="color:#999;padding:16px;">尚未點餐 — 點選右側飲料開始</td></tr></tbody></table></div>
+<div class="invoice-bar"><span class="inv-box">CJ37186884</span><span class="inv-box">55</span><span class="tag tag-red">新單</span><span class="tag tag-blue">平台</span><span class="tag tag-orange">外帶1-2</span></div>
+<div class="stats-row"><span class="label">杯數</span><span class="num" id="cup-count">0</span><span class="label">贈飲</span><span class="num">0</span><span class="label">熱量</span><span class="num" id="heat-count">0</span><span class="label">合計</span><span class="num" id="total-amt">0</span></div>
+<div class="filter-row"><button>檢視</button><button>註</button><select><option></option></select><button>標</button></div>
+<div class="editor-panel"><div class="editor-row"><div class="editor-label">項目</div><div class="editor-value" id="ed-item">—</div></div><div class="editor-row"><div class="editor-label">數量</div><div class="editor-value price" id="ed-price">—</div><div class="editor-value size-btn" id="ed-size" onclick="toggleSize()">—</div></div><div class="editor-row"><div class="editor-label">加料</div><div class="editor-value" id="ed-topping">—</div></div><div class="editor-row"><div class="editor-label">口味</div><div class="editor-value" id="ed-taste">—</div></div></div>
+<div class="bottom-combo"><div class="taste-panel"><div class="taste-title">口味</div><div class="taste-grid" id="taste-grid"></div></div><div class="keypad-panel"><div class="keypad-top"><button>待結帳</button><button id="gift-btn" onclick="toggleGift()">贈送<br>扣帳</button><button>贈送<br>還原</button><button>錢櫃</button><button>覆蓋</button><button>加料</button></div><div class="numpad"><button onclick="numInput(1)">1</button><button onclick="numInput(2)">2</button><button onclick="numInput(3)">3</button><button onclick="numInput(4)">4</button><button onclick="numInput(5)">5</button><button onclick="numInput(6)">6</button><button onclick="numInput(7)">7</button><button onclick="numInput(8)">8</button><button onclick="numInput(9)">9</button><button class="btn-join" onclick="addToCart()">加 入</button><button onclick="numInput(0)">0</button><button class="btn-cancel" onclick="cancelEdit()">取 消</button><button class="btn-checkout" onclick="submitOrder()">結帳</button><button class="btn-vip">VIP</button><button class="btn-customer" onclick="openCustomerModal()">顧客聯</button></div></div></div>
+</div>
+<div class="right-panel"><div class="cat-tabs" id="cat-tabs"></div><div class="right-content"><div class="drink-grid" id="drink-grid"></div></div></div>
 </div>
 <div class="modal-overlay" id="customer-modal" onclick="if(event.target===this)this.style.display='none'"><div class="modal-box"><h3>📋 顧客資訊</h3><label>📞 聯絡電話 <span style="color:red;">*</span></label><input type="tel" id="cust-phone" placeholder="10 碼電話" maxlength="10" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')"><label>📍 外送地址</label><input type="text" id="cust-address" placeholder="若需外送請填地址"><label>📝 整單備註</label><textarea id="cust-note" placeholder="例：少冰、不要吸管"></textarea><div class="modal-btns"><button class="btn-cancel2" onclick="document.getElementById('customer-modal').style.display='none'">取消</button><button class="btn-save" onclick="saveCustomerInfo()">儲存</button></div></div></div>
 <script>
 let cart=[],currentItem=null,menuData=[],toppingPrices={},staffMenuData=[],curCat=0,applyGift=false,customerInfo={phone:'',address:'',note:''};
 const G='https://script.google.com/macros/s/AKfycbwxTS2OpGknXd9MjMjrkINktu3nY6PKEv8cfjdwwTyZQPKfVVPVf0N7BIfJtS1bvVNRuQ/exec';
+const PRINTER_URL='http://127.0.0.1:8080/print';
 function L(){try{var s=localStorage.getItem('pos_menu_client');if(s)menuData=JSON.parse(s);var t=localStorage.getItem('pos_toppings_client');if(t)toppingPrices=JSON.parse(t);var l=JSON.parse(localStorage.getItem('employee_layout_v60_compact')||'null');if(menuData.length>0){staffMenuData=B(menuData,l);R()}}catch(e){}fetch(G).then(function(r){return r.json()}).then(function(d){if(d&&d.menu){menuData=d.menu;if(d.toppings)toppingPrices=d.toppings;var l=d.layout||JSON.parse(localStorage.getItem('employee_layout_v60_compact')||'null');if(d.layout)localStorage.setItem('employee_layout_v60_compact',JSON.stringify(d.layout));staffMenuData=B(menuData,l);localStorage.setItem('pos_menu_client',JSON.stringify(menuData));localStorage.setItem('pos_toppings_client',JSON.stringify(toppingPrices));R()}}).catch(function(){if(staffMenuData.length===0)D()})}
 function B(s,ly){var a=[];s.forEach(function(c){if(c.items)a=a.concat(c.items)});var r=[{cat:"常用類",items:new Array(60).fill(null)},{cat:"特調·果醋",items:new Array(60).fill(null)},{cat:"鮮奶·加料",items:new Array(60).fill(null)}];if(ly&&ly.length===3){ly.forEach(function(nm,i){for(var j=0;j<60;j++){if(nm[j]){var f=a.findIndex(function(x){return x.name===nm[j]});if(f!==-1){r[i].items[j]=a[f];a.splice(f,1)}}}});r.forEach(function(c){for(var j=0;j<60&&a.length>0;j++){if(!c.items[j])c.items[j]=a.shift()}})}else{var ci=0,ti=0;while(a.length>0&&ti<3){r[ti].items[ci]=a.shift();ci++;if(ci>=60){ci=0;ti++}}}return r}
 function D(){var mk=function(nm,p){return nm.map(function(n){return{name:n,prices:p||{M:35,L:45},enableTeaSwap:/茶|奶/.test(n)}})};menuData=[{category:"茶類",items:mk(["特級綠茶","特級奶綠","珍珠奶茶","布丁奶茶","蜜茶","隱藏版","極品菁茶","極品奶菁","椰果奶茶","瑰珀黑糖奶茶","蜜香烏龍","珍珠鮮奶茶","嚴選高山","嚴選奶高","仙草凍奶茶","紅豆鮮奶","梅子綠茶","粉圓鮮奶茶","原藏四季","四季奶茶","咖啡凍奶茶","醇蜜普洱奶","情人茶","幸運茶凍拿鐵","烏龍綠茶","烏龍奶茶","蜜香奶茶","咖啡奶茶","檸檬汁","雙凍拿鐵","錫蘭紅茶","錫蘭奶紅","芝麻奶茶","檸檬綠茶","珍珠琥珀黑糖鮮奶","特選普洱","普洱奶茶","冬瓜茶","荔枝紅茶","蜜香檸檬","烏龍菁茶","冬瓜青茶","頂級可可","金桔檸檬","蜜桃凍紅茶","優多綠茶","冬瓜檸檬","濃情巧克力","柳橙綠"])},{category:"特調",items:mk(["蘋果醋","葡萄醋","蔓越莓醋","藍莓醋","百香果醋","檸檬氣泡飲","葡萄柚氣泡飲","百香氣泡飲","莓果氣泡飲","芒果氣泡飲","養樂多冰沙","芒果冰沙","草莓冰沙","巧克力冰沙","抹茶冰沙","咖啡冰沙","檸檬愛玉凍飲","荔枝凍飲","水蜜桃凍飲","奇異果凍飲","蔓越莓汁","柳橙汁","蘋果汁","葡萄汁","藍莓汁","番茄汁","水果茶","金桔茶","柚子茶","檸檬茶","蜜桃茶","荔枝茶","鳳梨茶","可樂","雪碧","漂浮可樂","奶蓋綠茶","奶蓋紅茶","芝士烏龍","楊枝甘露","芒果椰奶","草莓椰奶","仙草凍","愛玉凍","咖啡凍","布丁","奶酪","豆花"])},{category:"鮮奶·加料",items:mk(["鮮奶茶","鐵觀音鮮奶茶","烏龍鮮奶茶","紅茶鮮奶","綠茶鮮奶","珍珠鮮奶茶","波霸鮮奶茶","椰果鮮奶茶","仙草凍鮮奶茶","布丁鮮奶茶","咖啡凍鮮奶茶","QQ鮮奶茶","粉條鮮奶茶","黑糖鮮奶","黑糖珍珠鮮奶","芋頭鮮奶","紅豆鮮奶","綠豆鮮奶","地瓜鮮奶","南瓜鮮奶","紫米鮮奶","燕麥鮮奶","抹茶鮮奶","可可鮮奶","草莓鮮奶","芒果鮮奶","香蕉鮮奶","木瓜鮮奶","杏仁鮮奶","芝麻鮮奶","花生鮮奶","核桃鮮奶","薑汁鮮奶","桂圓鮮奶","蜂蜜鮮奶","焦糖鮮奶","香草鮮奶","玫瑰鮮奶","伯爵鮮奶茶","鐵觀音鮮奶茶","抹茶拿鐵","可可拿鐵","珍珠","波霸","椰果","仙草凍","布丁","咖啡凍","QQ"])}];toppingPrices={M:{"珍珠":5,"椰果":5,"布丁":15,"仙草凍":5,"QQ":5,"咖啡凍":15,"蘆薈":20,"茉綠茶凍":10},L:{"珍珠":10,"椰果":10,"布丁":15,"仙草凍":10,"QQ":10,"咖啡凍":15,"蘆薈":20,"茉綠茶凍":10}};staffMenuData=B(menuData,null);R()}
@@ -109,7 +107,38 @@ function US(){var cups=cart.reduce(function(s,c){return s+c.qty},0),total=cart.r
 function toggleGift(){applyGift=!applyGift;document.getElementById('gift-btn').classList.toggle('active-gift',applyGift);US()}
 function openCustomerModal(){document.getElementById('cust-phone').value=customerInfo.phone;document.getElementById('cust-address').value=customerInfo.address;document.getElementById('cust-note').value=customerInfo.note;document.getElementById('customer-modal').style.display='flex'}
 function saveCustomerInfo(){customerInfo.phone=document.getElementById('cust-phone').value.trim();customerInfo.address=document.getElementById('cust-address').value.trim();customerInfo.note=document.getElementById('cust-note').value.trim();document.getElementById('customer-modal').style.display='none'}
-function submitOrder(){if(cart.length===0)return alert('尚未點餐！');if(!customerInfo.phone||customerInfo.phone.replace(/\D/g,'').length!==10){openCustomerModal();return alert('請先填寫聯絡電話！')}var total=cart.reduce(function(s,c){return s+c.price},0);if(applyGift){var ac=[];cart.forEach(function(c){for(var i=0;i<c.qty;i++)ac.push(c.price/c.qty)});ac.sort(function(a,b){return a-b});var d=0;for(var i=5;i<ac.length;i+=6)d+=ac[i];total=Math.max(0,total-d)}var od={orderId:Date.now().toString(),phone:customerInfo.phone,method:customerInfo.address?'外送':'自取',address:customerInfo.address,note:customerInfo.note,payMethod:'現金',finalTotal:total,cartItems:JSON.parse(JSON.stringify(cart)),source:'pi'};fetch(G,{method:'POST',body:JSON.stringify(od)}).then(function(r){return r.json()}).then(function(res){if(res.status==='success'){alert('✅ 訂單已送出！合計 $'+total);cart=[];currentItem=null;applyGift=false;customerInfo={phone:'',address:'',note:''};document.getElementById('gift-btn').classList.remove('active-gift');R()}else alert('❌ 送單失敗')}).catch(function(){alert('❌ 網路錯誤')})}
+function buildPrintText(od){
+  var t="\n==============================\n      ★ 清心福全左營榮總店 ★      \n         【 網路自動接單 】         \n==============================\n";
+  t+="電話: "+(od.phone||"無")+" | 方式: "+(od.method||"未指定")+"\n";
+  if(od.address)t+="地址: "+od.address+"\n";
+  if(od.note)t+="備註: "+od.note+"\n";
+  t+="------------------------------\n";
+  od.cartItems.forEach(function(i,idx){
+    var nm=(i.item&&i.item.name)?i.item.name:"未知";var det=i.ice+"/"+i.sugar;
+    if(i.teaSwap)det+="/"+i.teaSwap;if(i.toppings&&i.toppings.length)det+="/加:"+i.toppings.join(',');
+    if(i.note)det+="/備註:"+i.note;
+    t+=(idx+1)+". "+nm+"("+i.size+")x"+i.qty+" ["+det+"] $"+i.price+"\n";
+  });
+  t+="------------------------------\n";
+  var inv="紙本發票";if(od.invoiceOption==='uniform')inv="統編:"+(od.invoiceNumber||"");else if(od.invoiceOption==='carrier')inv=od.carrierNumber?"載具:"+od.carrierNumber:"載具(未填)";
+  t+="發票: "+inv+"\n";
+  t+="------------------------------\n總計: $"+od.finalTotal+"\n==============================\n         --- 謝謝光臨 ---         \n\n\n\n.\n";
+  return t;
+}
+function submitOrder(){
+  if(cart.length===0)return alert('尚未點餐！');
+  if(!customerInfo.phone||customerInfo.phone.replace(/\D/g,'').length!==10){openCustomerModal();return alert('請先填寫聯絡電話！')}
+  var total=cart.reduce(function(s,c){return s+c.price},0);
+  if(applyGift){var ac=[];cart.forEach(function(c){for(var i=0;i<c.qty;i++)ac.push(c.price/c.qty)});ac.sort(function(a,b){return a-b});var d=0;for(var i=5;i<ac.length;i+=6)d+=ac[i];total=Math.max(0,total-d)}
+  var od={orderId:Date.now().toString(),phone:customerInfo.phone,method:customerInfo.address?'外送':'自取',address:customerInfo.address,note:customerInfo.note,payMethod:'現金',finalTotal:total,cartItems:JSON.parse(JSON.stringify(cart)),source:'pi'};
+  fetch(G,{method:'POST',body:JSON.stringify(od)}).then(function(r){return r.json()}).then(function(res){
+    if(res.status==='success'){
+      try{fetch(PRINTER_URL,{method:'POST',body:buildPrintText(od),mode:'no-cors'}).catch(function(){})}catch(e){}
+      alert('✅ 訂單已送出！合計 $'+total);
+      cart=[];currentItem=null;applyGift=false;customerInfo={phone:'',address:'',note:''};document.getElementById('gift-btn').classList.remove('active-gift');R();
+    }else alert('❌ 送單失敗');
+  }).catch(function(){alert('❌ 網路錯誤')});
+}
 L();
 setTimeout(function(){if(staffMenuData.length===0)D()},2000);
 </script>
