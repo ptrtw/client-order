@@ -781,11 +781,28 @@ select.opt-btn { outline: none; appearance: none; -webkit-appearance: none; padd
             (`https://bwipjs-api.metafloor.com/?bcid=code128&text=${encodeURIComponent(barcodeValue)}&scale=3&height=12&includetext=true&padding=15`) : "";
 
         let boxes = d.cartItems.map(i => { 
-            let dt = `👉 ${i.ice} / ${i.sugar}`; 
-            if(i.teaSwap) dt+=` / ${i.teaSwap}`; 
-            if(i.toppings.length) dt+=` / 加:${i.toppings.join(',')}`; 
-            if(i.note) dt+=` / 備註:${i.note}`; 
-            return { type:"box", layout:"vertical", margin:"sm", contents:[ {type:"box", layout:"baseline", contents:[{type:"text", text:`${i.item.name}(${i.size}) x${i.qty}`, size:"sm", weight:"bold", flex:3},{type:"text", text:`$${i.price}`, size:"sm", align:"end", flex:1, weight:"bold", color:"#06C755"}]}, {type:"box", layout:"baseline", margin:"xs", contents:[{type:"text", text:dt, size:"xs", color:"#64748b", flex:1, wrap:true}]} ]}; 
+            // ---- 描述行：拆元件以支援多色渲染 ----
+            let dtCells = [{ type:"text", text:`👉 ${i.ice} / ${i.sugar}`, size:"xs", color:"#64748b", flex:0, wrap:true, margin:"none" }];
+            if(i.teaSwap) dtCells.push({ type:"text", text:` / ${i.teaSwap}`, size:"xs", color:"#dc2626", flex:0, wrap:true, margin:"none" });   // 換茶湯 → 紅
+            if(i.toppings.length) dtCells.push({ type:"text", text:` / 加:${i.toppings.join(',')}`, size:"xs", color:"#dc2626", flex:0, wrap:true, margin:"none" }); // 加料 → 紅
+            if(i.note) dtCells.push({ type:"text", text:` / 備註:${i.note}`, size:"xs", color:"#64748b", flex:0, wrap:true, margin:"none" });
+
+            // ---- 品名行：杯數>1 → N 紅、「(M)」的 M 紅 ----
+            let nCells = [];
+            if(i.size==='M') {
+                // (M) 拆：「品名」「(」「M(紅)」「)」
+                nCells.push({ type:"text", text:i.item.name, size:"sm", weight:"bold", flex:0, margin:"none" });
+                nCells.push({ type:"text", text:"(", size:"sm", weight:"bold", flex:0, margin:"none" });
+                nCells.push({ type:"text", text:"M", size:"sm", weight:"bold", color:"#dc2626", flex:0, margin:"none" });
+                nCells.push({ type:"text", text:")", size:"sm", weight:"bold", flex:0, margin:"none" });
+            } else {
+                nCells.push({ type:"text", text:`${i.item.name}(${i.size})`, size:"sm", weight:"bold", flex:0, margin:"none" });
+            }
+            // xN：N>1 時「x」灰、「N」紅；N=1 維持原樣
+            nCells.push({ type:"text", text:"x", size:"sm", weight:"bold", flex:0, margin:"none" });
+            nCells.push({ type:"text", text:String(i.qty), size:"sm", weight:"bold", flex:0, margin:"none", color:(i.qty>1?"#dc2626":"#111111") });
+
+            return { type:"box", layout:"vertical", margin:"sm", contents:[ {type:"box", layout:"baseline", contents:[...nCells,{type:"text", text:`$${i.price}`, size:"sm", align:"end", flex:1, weight:"bold", color:"#06C755"}]}, {type:"box", layout:"baseline", margin:"xs", contents:dtCells} ]}; 
         });
         
         let fb = [ {type:"separator", margin:"md"} ]; 
